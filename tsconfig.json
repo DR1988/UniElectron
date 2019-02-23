@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "jsx": "react",
+    "module": "commonjs"
+  },
+  "exclude": [
+    "node_modules",
+    "app/build",
+    "dist",
+  ],
+  "include": [
+    "./app/src/*",
+    "./app/start.ts"
+  ],
+}
