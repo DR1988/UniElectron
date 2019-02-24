@@ -37,7 +37,7 @@ export default {
         exclude: /node_modules/,
       },
       {
-        test: /common\.(scss|sass)$/,
+        test: /common\.(s?css|sass)$/,
         use: [
           {
             loader: 'style-loader',
@@ -51,13 +51,19 @@ export default {
         ],
       },
       {
-        test: /^((?!common).)*\.(scss|sass)$/,
+        test: /^((?!common).)*\.(s?css|sass)$/,
         use: [
           {
             loader: 'style-loader',
           },
           {
             loader: 'css-loader',
+            options: {
+              modules: true,
+              importLoaders: 1,
+              localIdentName: '[name]__[local]__[hash:base64:5]',
+              sourceMap: true,
+            },
           },
           {
             loader: 'sass-loader',

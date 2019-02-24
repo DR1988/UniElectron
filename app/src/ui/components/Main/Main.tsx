@@ -1,7 +1,11 @@
 import * as React from 'react'
 import { Component } from 'react'
 import io from 'socket.io-client'
-import './style.scss'
+import 'normalize.css'
+
+import '../../../common.scss'
+
+import s from './style.scss'
 
 const socket = io(`${location.origin}`)
 
@@ -43,7 +47,7 @@ export default class Main extends Component<Props, State> {
   render() {
     const { count } = this.state
     return (
-      <div>
+      <div className={s.root}>
         main is here 1212
         <button
           type="button"

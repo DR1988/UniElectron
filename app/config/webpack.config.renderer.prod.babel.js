@@ -32,7 +32,7 @@ export default {
         },
       },
       {
-        test: /common\.(scss|sass)$/,
+        test: /common\.(s?css|sass)$/,
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
@@ -46,7 +46,7 @@ export default {
         ],
       },
       {
-        test: /^((?!common).)*\.(scss|sass)$/,
+        test: /^((?!common).)*\.(s?css|sass)$/,
         use: [
           {
             loader: MiniCssExtractPlugin.loader,

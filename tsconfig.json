@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
     "target": "es6",
     "jsx": "react",
     "module": "commonjs"
@@ -11,6 +12,7 @@
   ],
   "include": [
     "./app/src/*",
-    "./app/start.ts"
+    "./app/start.ts",
+    "./app/declaration.d.ts"
   ],
 }

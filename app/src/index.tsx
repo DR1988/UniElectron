@@ -1,8 +1,8 @@
 import React from 'react'
 import { render } from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
+
 import Main from './ui/components/Main/Main'
-import './common.scss'
 
 render(
   <AppContainer>
