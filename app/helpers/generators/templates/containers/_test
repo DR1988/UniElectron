@@ -1,0 +1,13 @@
+import React from 'react'
+import {name} from './'
+
+describe('{name} container', () => {
+  const props = {
+
+  }
+
+
+  it('should be properly tested', () => {
+    expect(false).toBe(true)
+  })
+})

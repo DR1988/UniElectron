@@ -3,7 +3,7 @@ import { Component } from 'react'
 import io from 'socket.io-client'
 import 'normalize.css'
 
-import '../../../common.scss'
+import '../../common.scss'
 
 import s from './style.scss'
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { render } from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
 
-import Main from './ui/components/Main/Main'
+import Main from './components/Main/Main'
 
 render(
   <AppContainer>
@@ -12,9 +12,9 @@ render(
 )
 
 if (module.hot) {
-  module.hot.accept('./ui/components/Main/Main', () => {
+  module.hot.accept('./components/Main/Main', () => {
     // eslint-disable-next-line global-require
-    const NextMain = require('./ui/components/Main/Main').default
+    const NextMain = require('./components/Main/Main').default
     render(
       <AppContainer>
         <NextMain />

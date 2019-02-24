@@ -6,7 +6,6 @@ import path from 'path'
 import webpack from 'webpack'
 import TerserPlugin from 'terser-webpack-plugin'
 
-console.log(process.env.PORT)
 export default {
   devtool: 'source-map',
 

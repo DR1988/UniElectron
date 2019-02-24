@@ -8,23 +8,22 @@ const { app, BrowserWindow } = require('electron')
 // we need this html for later use when
 // adding scripts and styles to a production build
 
-// const HTML = `<!DOCTYPE html>
-// <html>
-// <head>
-//   <meta charset="UTF-8">
-//   <title>Hello World!</title>
-//   <style type="text/css"></style>
-// </head>
-// <body>
-//   <h1>Hello World!</h1>
-//   We are using Node.js
-//   Chromium
-//   and Electron
-//   <div id="root"></div>
-//   <script></script>
-// </body>
-// </html>`
-const HTML = ''
+const HTML = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+  <style type="text/css"></style>
+</head>
+<body>
+  <h1>Hello World!</h1>
+  We are using Node.js
+  Chromium
+  and Electron
+  <div id="root"></div>
+  <script></script>
+</body>
+</html>`
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
