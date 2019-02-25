@@ -4,6 +4,22 @@ import s from './MainForm.scss'
 import { ChosenElement, ValveLineType } from './MainFormInterfaces'
 import MainFormComponent from './MainFormComponent/MainFormComponent'
 
+import Modal from '../Modal'
+import ValveLineModal from '../Modal/ValveLineModal'
+import NewValveLineModal from '../Modal/NewValveLineModal'
+import RMPModal from '../Modal/RMPModal'
+import NewRMPModal from '../Modal/NewRMPModal'
+import NewTempModal from '../Modal/NewTempModal'
+import TempModal from '../Modal/TempModal'
+
+import { withCondition } from '../HOC'
+
+interface renderProps {
+  render: React.ComponentType;
+}
+
+const ModalWithCondition = withCondition(props => <Modal {...props} />)
+
 interface Props {
   socket: SocketIOClient.Socket
 }
@@ -249,7 +265,7 @@ class MainForm extends Component<Props, State> {
       ...this.initialState,
     })
   }
-  
+
   start = () => { }
   pause = () => { }
   stop = () => { }
@@ -258,8 +274,19 @@ class MainForm extends Component<Props, State> {
   }
   addNewValveTime = () => { }
   setChosenValveTime = () => { }
-
+  removeValveTime = () => { }
+  closeModal = () => { }
+  changeEndTime = () => { }
+  changeStartTime = () => { }
+  resetToPreviousChanges = () => { }
+  changeNewStartTime = () => { }
+  changeNewEndTime = () => { }
+  changeRPMValue = () => { }
+  changeNewRPMValue = () => { }
+  changeTempValue = () => { }
+  changeNewTempValue = () => { }
   render() {
+    const { showEditModal, chosenElement } = this.state
     return (
       <div
         id="form-Manupalation"
@@ -275,10 +302,76 @@ class MainForm extends Component<Props, State> {
           setChosenValveTime={this.setChosenValveTime}
           {...this.state}
         />
+        <ModalWithCondition
+          condition={showEditModal}
+          // coordinate={this.modalCoordinates}
+          render={() => {
+            switch (chosenElement.chosenLine.name) {
+              case 'ValveLine':
+                return (<ValveLineModal
+                  removeValveTime={this.removeValveTime}
+                  chosenElement={chosenElement}
+                  closeModal={this.closeModal}
+                  resetToPreviousChanges={this.resetToPreviousChanges}
+                  changeEndTime={this.changeEndTime}
+                  changeStartTime={this.changeStartTime}
+                />)
+              case 'NewValveLine':
+                return (<NewValveLineModal
+                  removeValveTime={this.removeValveTime}
+                  chosenElement={chosenElement}
+                  closeModal={this.closeModal}
+                  resetToPreviousChanges={this.resetToPreviousChanges}
+                  changeNewStartTime={this.changeNewStartTime}
+                  changeNewEndTime={this.changeNewEndTime}
+                />)
+              case 'RPMSetter':
+                return (<RMPModal
+                  removeValveTime={this.removeValveTime}
+                  chosenElement={chosenElement}
+                  closeModal={this.closeModal}
+                  resetToPreviousChanges={this.resetToPreviousChanges}
+                  changeRPMValue={this.changeRPMValue}
+                  changeStartTime={this.changeStartTime}
+                  changeEndTime={this.changeEndTime}
+                />)
+              case 'NewRPMSetter':
+                return (<NewRMPModal
+                  removeValveTime={this.removeValveTime}
+                  chosenElement={chosenElement}
+                  closeModal={this.closeModal}
+                  resetToPreviousChanges={this.resetToPreviousChanges}
+                  changeRPMValue={this.changeNewRPMValue}
+                  changeStartTime={this.changeNewStartTime}
+                  changeEndTime={this.changeNewEndTime}
+                />)
+              case 'TempSetter':
+                return (<TempModal
+                  removeValveTime={this.removeValveTime}
+                  chosenElement={chosenElement}
+                  closeModal={this.closeModal}
+                  resetToPreviousChanges={this.resetToPreviousChanges}
+                  changeTempValue={this.changeTempValue}
+                  changeStartTime={this.changeStartTime}
+                  changeEndTime={this.changeEndTime}
+                />)
+              case 'NewTempSetter':
+                return (<NewTempModal
+                  removeValveTime={this.removeValveTime}
+                  chosenElement={chosenElement}
+                  closeModal={this.closeModal}
+                  resetToPreviousChanges={this.resetToPreviousChanges}
+                  changeTempValue={this.changeNewTempValue}
+                  changeStartTime={this.changeNewStartTime}
+                  changeEndTime={this.changeNewEndTime}
+                />)
+              default: return <div>asd</div>
+            }
+          }}
+        />
       </div>
     )
   }
 }
-
 
 export default MainForm

@@ -2,11 +2,22 @@ import React from 'react'
 
 import s from './Modal.scss'
 
-const Modal = () => (
-  <div className={s.root}>
+// interface Props {
+//   render: () => React.ComponentType
+// }
 
-  </div>
-)
-
+const Modal = (props) => {
+    return (
+      <div className={s.cover}>
+        <div
+          className={s.container}
+        >
+          <div className={s.content}>
+            {props.render()}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
 export default Modal

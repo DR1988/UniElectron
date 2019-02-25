@@ -1,8 +1,15 @@
 import React from 'react'
 
 import s from './TempModal.scss'
+import CommonMoadlInterface from '../modalInterfaces'
 
-const TempModal = () => (
+interface Props extends CommonMoadlInterface{
+  changeTempValue: () => void
+  changeStartTime: () => void
+  changeEndTime: () => void
+}
+
+const TempModal = (props:Props) => (
   <div className={s.root}>
 
   </div>

@@ -1,8 +1,15 @@
 import React from 'react'
 
 import s from './RMPModal.scss'
+import CommonMoadlInterface from '../modalInterfaces'
 
-const RMPModal = () => (
+interface Props extends CommonMoadlInterface{
+  changeRPMValue: () => void
+  changeStartTime: () => void
+  changeEndTime: () => void
+}
+
+const RMPModal = (props: Props) => (
   <div className={s.root}>
 
   </div>
