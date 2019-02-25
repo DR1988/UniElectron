@@ -7,6 +7,12 @@ const developmentPlugins = [
   require('@babel/plugin-proposal-object-rest-spread')
 ];
 
+
+const productionPlugins = [
+  require('@babel/plugin-proposal-class-properties'),
+  require('@babel/plugin-proposal-object-rest-spread')
+]
+
 module.exports = (api) => {
 
   const development = api.env(developmentEnvironments);
@@ -24,7 +30,7 @@ module.exports = (api) => {
       [require('@babel/preset-react'), { development }]
     ],
     plugins: [
-      ...(development ? developmentPlugins : []),
+      ...(development ? developmentPlugins : productionPlugins),
     ],
   }
 }

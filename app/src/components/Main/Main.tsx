@@ -4,57 +4,40 @@ import io from 'socket.io-client'
 import 'normalize.css'
 
 import '../../common.scss'
-
 import s from './style.scss'
+
+import FormChoserComponent from '../FormChoserComponent/FormChoserComponent'
+import AppForms from '../AppForms/AppForms'
 
 const socket = io(`${location.origin}`)
 
 export interface Props {}
 
 interface State {
-  count: number;
+  currentForm: string,
 }
 
 export default class Main extends Component<Props, State> {
-  constructor(props) {
+  constructor(props: Props) {
     super(props)
     this.state = {
-      count: 0,
+      currentForm: 'MainForm',
     }
-    this.increaseCounter = this.increaseCounter.bind(this)
   }
 
-  componentDidMount() {
-    socket.on('INC', () => {
-      let { count } = this.state
-      const nc = ++count
-      this.setState({
-        count: nc,
-      })
-    })
-  }
-
-
-  increaseCounter() {
-    let { count } = this.state
-    const nc = ++count
-    socket.emit('INC', nc)
+  choseForm = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const currentForm = e.currentTarget.name
     this.setState({
-      count: nc,
+      currentForm
     })
   }
 
   render() {
-    const { count } = this.state
+    const { currentForm } = this.state
     return (
       <div className={s.root}>
-        main is here 1212
-        <button
-          type="button"
-          onClick={this.increaseCounter}
-        >+
-        </button>
-        <h1>{count}</h1>
+        <FormChoserComponent updateForm={this.choseForm} />
+        <AppForms currentForm={currentForm} />
       </div>
     )
   }

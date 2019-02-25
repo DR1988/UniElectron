@@ -1,0 +1,22 @@
+.show{
+  display: initial;
+}
+
+.hide{
+  display: none;
+}
+.container {
+  border: 1px solid red;
+  display: flex;
+}
+.showSide{
+  // transition: width 0.5s ease-in-out;
+  width: 100%;
+  overflow: hidden;
+}
+
+.hideSide{
+  // transition: width 0.5s ease-in-out;
+  width: 0%;
+  overflow: hidden;
+}

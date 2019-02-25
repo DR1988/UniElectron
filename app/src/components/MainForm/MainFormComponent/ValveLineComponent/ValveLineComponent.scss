@@ -1,0 +1,15 @@
+@import "../../../../static/constants.scss";
+
+.time-box_keeper{
+  position: relative;
+  width: 100%;
+  background-color: rgba(209, 216, 209, 0.5);
+  display: flex;
+  height: $ValveLineHeight;
+  margin-top: $ValveLineMargin;
+  align-items: center;
+  & .time-box {
+    height: 90%;
+    transition: all 0.5s linear;
+  }
+}

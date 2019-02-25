@@ -11,7 +11,7 @@
     "dist",
   ],
   "include": [
-    "./app/src/*",
+    "./app/src/**/*",
     "./app/start.ts",
     "./app/declaration.d.ts"
   ],

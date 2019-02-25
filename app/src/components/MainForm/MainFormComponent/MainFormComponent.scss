@@ -1,0 +1,26 @@
+.mainForm{
+  display: flex;
+}
+
+.sidebar{
+  min-width: 400px;
+  margin-right: 20px;
+}
+
+.lines-keeper{
+  // flex-grow: 4;
+  // min-width: 600px;
+  // padding-left: 10px;
+  width: 100%;
+}
+
+.form-container {
+  display: flex;
+  overflow: hidden;
+  min-width: 550px;
+  width: 100%;
+}
+
+.buttons {
+  margin-top: 2rem;
+}

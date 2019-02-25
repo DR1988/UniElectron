@@ -1,0 +1,6 @@
+{
+  "name": "AppForms",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./AppForms.jsx"
+}

@@ -1,6 +1,6 @@
 {
-  "name": "{name}",
+  "name": "Graphs",
   "version": "0.0.0",
   "private": true,
-  "main": "./{name}.tsx"
+  "main": "./Graphs.jsx"
 }

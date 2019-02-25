@@ -3,7 +3,7 @@ import fs from 'fs'
 
 import capitalize from './utils/capitalize'
 import createFromTemplate from './utils/createFileTemplate'
-
+/* eslint-disable */
 // const arg = process.argv[2]
 const rewrite = process.argv[3]
 const classComponent = process.argv[4]

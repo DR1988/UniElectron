@@ -1,0 +1,6 @@
+{
+  "name": "TimeLineComponent",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./TimeLineComponent.tsx"
+}
