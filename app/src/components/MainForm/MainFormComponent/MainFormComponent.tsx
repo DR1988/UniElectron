@@ -3,6 +3,8 @@ import React from 'react'
 import s from './MainFormComponent.scss'
 import { ValveLineType } from './../MainFormInterfaces'
 import ValveLineComponent from './ValveLineComponent'
+import TimeLine from './TimeLineComponent'
+
 interface Props {
   resetState: () => void,
   start: () => void,
@@ -51,11 +53,11 @@ const MainFormComponent = ({
             setChosenValveTime={setChosenValveTime}
           />,
           )}
-          {/* <TimeLine
+          <TimeLine
             distance={distance}
             time={time}
             allTime={allTime}
-          /> */}
+          />
           <div className={s.buttons} >
             <button onClick={resetState}>Reset</button>
             <button onClick={start}>Start</button>

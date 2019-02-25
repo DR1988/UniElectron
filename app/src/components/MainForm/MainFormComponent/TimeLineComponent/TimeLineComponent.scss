@@ -1,0 +1,61 @@
+@import "../../../../static/constants.scss";
+
+$timePresenterHeight: 475px;
+$arrowBorderLeft: 13px;
+$arrowWidth: 16px;
+.time-line_wraper{
+  position: relative;
+  height: $ValveLineHeight;
+  display: flex;
+  align-items: flex-end;
+  & .time-line{
+    height: $ValveLineHeight * 0.8;
+    border: thin solid #648591;
+    border-top: none;
+    & .time-show{
+      display: flex;
+      height: 100%;
+      justify-content: space-between;
+      & .time-former{
+        position: relative;
+        background-color: #648591;
+        width: 2px;
+        & .divider{
+          width: 2px;
+          height: 100%;
+          background-color: #648591;
+        }
+        .time-count{
+          position: absolute;
+        }
+      }
+      & .time-former:last-child{
+        & .time-count{
+          right: 100%;
+        }
+      }
+    }
+  }
+  & .time-presenter {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    bottom: 0px;
+    width: 3px;
+    & .line {
+        position: relative;
+        width: 3px;
+        height: ($LineQuantity + 1) * $ValveLineHeight + ($LineQuantity - 1 ) * $ValveLineMargin - $arrowWidth;
+        background-color: #648591;
+      }
+    & .arrow-up {
+        border-bottom: $arrowWidth solid #648591;
+        border-left: $arrowBorderLeft solid transparent;
+        border-right: $arrowBorderLeft solid transparent;
+        width: 3px;
+      }
+  }
+}
+
+
