@@ -1,0 +1,6 @@
+{
+  "name": "RMPModal",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./RMPModal.tsx"
+}

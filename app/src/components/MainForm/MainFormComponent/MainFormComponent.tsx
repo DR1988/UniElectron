@@ -4,6 +4,7 @@ import s from './MainFormComponent.scss'
 import { ValveLineType } from './../MainFormInterfaces'
 import ValveLineComponent from './ValveLineComponent'
 import TimeLine from './TimeLineComponent'
+import ValveTimeComponentAdder from './ValveTimeComponentAdder'
 
 interface Props {
   resetState: () => void,
@@ -65,11 +66,11 @@ const MainFormComponent = ({
             <button onClick={stop}>Stop</button>
           </div>
         </section>
-        {/* <ValveTimeComponentAdder
+        <ValveTimeComponentAdder
           lines={lineFormer}
           showModal={showModal}
           addNewValveTime={addNewValveTime}
-        /> */}
+        />
       </section>
     </div>
   )

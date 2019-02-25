@@ -253,7 +253,9 @@ class MainForm extends Component<Props, State> {
   start = () => { }
   pause = () => { }
   stop = () => { }
-  showModal = () => { }
+  showModal = () => {
+    console.log('show modal')
+  }
   addNewValveTime = () => { }
   setChosenValveTime = () => { }
 
