@@ -12,7 +12,7 @@ interface Props {
   pause: () => void,
   stop: () => void,
   showModal: () => void,
-  addNewValveTime: () => void,
+  addNewValveTime: (chosenLine: ValveLineType) => void,
   setChosenValveTime: () => void,
   distance: number,
   time: number,

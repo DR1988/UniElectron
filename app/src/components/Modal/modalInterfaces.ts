@@ -5,6 +5,8 @@ interface CommonMoadlInterface {
   chosenElement: ChosenElement
   closeModal: () => void
   resetToPreviousChanges: () => void
+  changeStartTime: () => void
+  changeEndTime: () => void
 }
 
 export default CommonMoadlInterface

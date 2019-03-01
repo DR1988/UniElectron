@@ -5,8 +5,6 @@ import CommonMoadlInterface from '../modalInterfaces'
 
 interface Props extends CommonMoadlInterface{
   changeRPMValue: () => void
-  changeStartTime: () => void
-  changeEndTime: () => void
 }
 
 const NewRMPModal = (props: Props) => (

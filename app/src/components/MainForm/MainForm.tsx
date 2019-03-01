@@ -270,12 +270,46 @@ class MainForm extends Component<Props, State> {
   pause = () => { }
   stop = () => { }
   showModal = () => {
-    console.log('show modal')
+    if (!this.state.showEditModal) {
+      this.setState({
+        ...this.state,
+        showEditModal: true,
+      })
+    }
   }
-  addNewValveTime = () => { }
+  addNewValveTime = (chosenLine: ValveLineType): void => {
+    console.log(chosenLine)
+    this.setState({
+      chosenElement: {
+        ...this.state.chosenElement,
+        chosenLine: {
+          ...chosenLine,
+          name: `New${chosenLine.name}`,
+        },
+        newEndTime: 0,
+        newStartTime: 0,
+        newRPMValue: 0,
+        newTempValue: 0,
+        changeId: Math.random(), // shortid.generate(),
+        newElement: true,
+        previousChanges: [...chosenLine.changes],
+      },
+    })
+  }
+  emitChanges = () => {
+    console.log('emit changes')
+  }
   setChosenValveTime = () => { }
   removeValveTime = () => { }
-  closeModal = () => { }
+  closeModal = () => {
+    this.setState({
+      showEditModal: false,
+      chosenElement: {
+        ...this.state.chosenElement,
+        wrongSign: '',
+      },
+    }, () => this.emitChanges())
+  }
   changeEndTime = () => { }
   changeStartTime = () => { }
   resetToPreviousChanges = () => { }
@@ -313,8 +347,8 @@ class MainForm extends Component<Props, State> {
                   chosenElement={chosenElement}
                   closeModal={this.closeModal}
                   resetToPreviousChanges={this.resetToPreviousChanges}
-                  changeEndTime={this.changeEndTime}
                   changeStartTime={this.changeStartTime}
+                  changeEndTime={this.changeEndTime}
                 />)
               case 'NewValveLine':
                 return (<NewValveLineModal
@@ -322,8 +356,8 @@ class MainForm extends Component<Props, State> {
                   chosenElement={chosenElement}
                   closeModal={this.closeModal}
                   resetToPreviousChanges={this.resetToPreviousChanges}
-                  changeNewStartTime={this.changeNewStartTime}
-                  changeNewEndTime={this.changeNewEndTime}
+                  changeStartTime={this.changeNewStartTime}
+                  changeEndTime={this.changeNewEndTime}
                 />)
               case 'RPMSetter':
                 return (<RMPModal
@@ -331,9 +365,9 @@ class MainForm extends Component<Props, State> {
                   chosenElement={chosenElement}
                   closeModal={this.closeModal}
                   resetToPreviousChanges={this.resetToPreviousChanges}
-                  changeRPMValue={this.changeRPMValue}
                   changeStartTime={this.changeStartTime}
                   changeEndTime={this.changeEndTime}
+                  changeRPMValue={this.changeRPMValue}
                 />)
               case 'NewRPMSetter':
                 return (<NewRMPModal
@@ -341,9 +375,9 @@ class MainForm extends Component<Props, State> {
                   chosenElement={chosenElement}
                   closeModal={this.closeModal}
                   resetToPreviousChanges={this.resetToPreviousChanges}
-                  changeRPMValue={this.changeNewRPMValue}
                   changeStartTime={this.changeNewStartTime}
                   changeEndTime={this.changeNewEndTime}
+                  changeRPMValue={this.changeNewRPMValue}
                 />)
               case 'TempSetter':
                 return (<TempModal
@@ -351,9 +385,9 @@ class MainForm extends Component<Props, State> {
                   chosenElement={chosenElement}
                   closeModal={this.closeModal}
                   resetToPreviousChanges={this.resetToPreviousChanges}
-                  changeTempValue={this.changeTempValue}
                   changeStartTime={this.changeStartTime}
                   changeEndTime={this.changeEndTime}
+                  changeTempValue={this.changeTempValue}
                 />)
               case 'NewTempSetter':
                 return (<NewTempModal
@@ -361,9 +395,9 @@ class MainForm extends Component<Props, State> {
                   chosenElement={chosenElement}
                   closeModal={this.closeModal}
                   resetToPreviousChanges={this.resetToPreviousChanges}
-                  changeTempValue={this.changeNewTempValue}
                   changeStartTime={this.changeNewStartTime}
                   changeEndTime={this.changeNewEndTime}
+                  changeTempValue={this.changeNewTempValue}
                 />)
               default: return <div>asd</div>
             }

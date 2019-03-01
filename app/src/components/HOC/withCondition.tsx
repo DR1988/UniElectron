@@ -1,7 +1,8 @@
 import React from 'react'
 
 interface WithConditionProps {
-  condition: boolean;
+  condition: boolean
+  render: () => JSX.Element
 }
 
 const withCondition = <P extends object>(

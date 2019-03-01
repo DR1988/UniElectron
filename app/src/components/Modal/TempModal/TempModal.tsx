@@ -5,8 +5,6 @@ import CommonMoadlInterface from '../modalInterfaces'
 
 interface Props extends CommonMoadlInterface{
   changeTempValue: () => void
-  changeStartTime: () => void
-  changeEndTime: () => void
 }
 
 const TempModal = (props:Props) => (

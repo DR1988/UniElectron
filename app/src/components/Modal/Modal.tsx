@@ -2,9 +2,9 @@ import React from 'react'
 
 import s from './Modal.scss'
 
-// interface Props {
-//   render: () => React.ComponentType
-// }
+interface Props {
+  render: () => React.ComponentType
+}
 
 const Modal = (props) => {
     return (

@@ -1,17 +1,22 @@
-import React from 'react'
+import React, { StatelessComponent } from 'react'
 
 import s from './NewValveLineModal.scss'
 
 import CommonMoadlInterface from '../modalInterfaces'
 
-interface Props extends CommonMoadlInterface{
-  changeNewStartTime: () => void
-  changeNewEndTime: () => void
-}
+interface Props extends CommonMoadlInterface { }
 
-const NewValveLineModal = (props: Props) => (
+const NewValveLineModal: StatelessComponent<Props> = ({
+  resetToPreviousChanges,
+  closeModal
+}) => (
   <div className={s.root}>
-
+    <button
+      onClick={() => {
+        resetToPreviousChanges()
+        closeModal()
+      }}
+    >Cancel</button>
   </div>
 )
 
