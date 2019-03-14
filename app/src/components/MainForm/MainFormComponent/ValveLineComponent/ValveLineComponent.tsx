@@ -9,8 +9,7 @@ interface Props {
   allTime: number,
   showModal: () => void,
   closeModal: () => void,
-  addNewValveTime: () => void,
-  setChosenValveTime: () => void
+  setChosenValveTime: (lineID: number, changeId: number) => void
 }
 
 class ValveLineComponent extends Component<Props>{

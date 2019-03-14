@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
+import cloneDeep from 'lodash/cloneDeep'
 
 import s from './MainForm.scss'
-import { ChosenElement, ValveLineType } from './MainFormInterfaces'
+import { ChosenElement, ValveLineType, Change } from './MainFormInterfaces'
 import MainFormComponent from './MainFormComponent/MainFormComponent'
 
-import Modal from '../Modal'
+import Modal, { Props as modalProps } from '../Modal'
 import ValveLineModal from '../Modal/ValveLineModal'
 import NewValveLineModal from '../Modal/NewValveLineModal'
 import RMPModal from '../Modal/RMPModal'
@@ -14,11 +15,7 @@ import TempModal from '../Modal/TempModal'
 
 import { withCondition } from '../HOC'
 
-interface renderProps {
-  render: React.ComponentType;
-}
-
-const ModalWithCondition = withCondition(props => <Modal {...props} />)
+const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
 interface Props {
   socket: SocketIOClient.Socket
@@ -269,7 +266,10 @@ class MainForm extends Component<Props, State> {
   start = () => { }
   pause = () => { }
   stop = () => { }
+
   showModal = () => {
+    console.log(this.state.chosenElement.chosenLine.name)
+    console.log(this.state.showEditModal)
     if (!this.state.showEditModal) {
       this.setState({
         ...this.state,
@@ -277,14 +277,14 @@ class MainForm extends Component<Props, State> {
       })
     }
   }
+
   addNewValveTime = (chosenLine: ValveLineType): void => {
-    console.log(chosenLine)
     this.setState({
       chosenElement: {
         ...this.state.chosenElement,
         chosenLine: {
           ...chosenLine,
-          name: `New${chosenLine.name}`,
+          name: `New${chosenLine.name}` as ValveLineType['name'],
         },
         newEndTime: 0,
         newStartTime: 0,
@@ -296,11 +296,51 @@ class MainForm extends Component<Props, State> {
       },
     })
   }
+
   emitChanges = () => {
     console.log('emit changes')
   }
-  setChosenValveTime = () => { }
-  removeValveTime = () => { }
+
+  setChosenValveTime = (lineID: number, changeId: number): void => {
+    const chosenLine: ValveLineType = this.state.lineFormer.filter(line => line.id === lineID)[0]
+    // console.log('chosenLine.changes', chosenLine)
+    const chosenElement = {
+      ...this.state.chosenElement,
+      chosenLine,
+      changeId,
+      newElement: false,
+      previousChanges: [...chosenLine.changes],
+    }
+    this.setState({
+      chosenElement,
+    })
+  }
+
+  removeValveTime = () => {
+    const { chosenElement, lineFormer } = this.state
+    const { chosenLine, changeId } = chosenElement
+
+    const changes = chosenLine.changes.filter(change => change.changeId !== changeId)
+    const newChosenElement = {
+      ...chosenElement,
+      chosenLine: {
+        ...chosenLine,
+        changes,
+      },
+    }
+
+    const newlineFormer = cloneDeep(lineFormer)
+    newlineFormer[chosenLine.id].changes = changes
+    const newState = {
+      ...this.state,
+      lineFormer: newlineFormer,
+      showEditModal: false,
+      chosenElement: newChosenElement,
+    }
+    // this.props.socket.emit(socketConfig.makeChange, newState)
+    this.setState({ ...newState })
+  }
+
   closeModal = () => {
     this.setState({
       showEditModal: false,
@@ -310,17 +350,463 @@ class MainForm extends Component<Props, State> {
       },
     }, () => this.emitChanges())
   }
-  changeEndTime = () => { }
-  changeStartTime = () => { }
-  resetToPreviousChanges = () => { }
-  changeNewStartTime = () => { }
-  changeNewEndTime = () => { }
-  changeRPMValue = () => { }
-  changeNewRPMValue = () => { }
-  changeTempValue = () => { }
-  changeNewTempValue = () => { }
+
+  changeEndTime = (value: number): void => {
+    const { chosenElement, lineFormer } = this.state
+    const { changeId, chosenLine, previousChanges } = chosenElement
+
+    const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
+    const startTime = lineFormer[chosenLine.id].changes[index].startTime
+
+    const newlineFormer = cloneDeep(lineFormer)
+    newlineFormer[chosenLine.id].changes[index].endTime = value
+    newlineFormer[chosenLine.id].changes[index].duration = startTime - value
+    const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+    newChosenLine.changes[index].endTime = value
+    newChosenLine.changes[index].duration = startTime - value
+
+    if (newChosenLine.changes[index + 1]) {
+      let wrongSign = ''
+      if (newChosenLine.changes[index + 1].startTime <= value) {
+        newlineFormer[chosenLine.id].changes[index].crossingValueEnd = newChosenLine.changes[index + 1].startTime - value
+        newChosenLine.changes[index].crossingValueEnd = newChosenLine.changes[index + 1].startTime - value
+        wrongSign = 'your changed value crossing next valve open time'
+      } else if (chosenLine.changes[index + 1].startTime > value) {
+        newChosenLine.changes[index].crossingValueEnd = NaN
+        newlineFormer[chosenLine.id].changes[index].crossingValueEnd = NaN
+        wrongSign = ''
+      }
+      const newState = {
+        ...this.state,
+        lineFormer: newlineFormer,
+        chosenElement: {
+          ...this.state.chosenElement,
+          wrongSign,
+          chosenLine: newChosenLine,
+        },
+      }
+      this.setState(newState)
+      return
+    }
+
+    const maxTime = Math.max(...newlineFormer.map(lines => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+    const allTime = value > maxTime ? value : maxTime
+
+    this.setState({
+      ...this.state,
+      lineFormer: newlineFormer,
+      allTime,
+      chosenElement: {
+        ...this.state.chosenElement,
+        chosenLine: newChosenLine,
+      },
+    })
+  }
+
+  changeStartTime = (value: number): void => {
+    const { chosenElement, lineFormer } = this.state
+    const { changeId, chosenLine } = chosenElement
+
+    const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
+    const endTime = lineFormer[chosenLine.id].changes[index].endTime
+
+    const newlineFormer = cloneDeep(lineFormer)
+    newlineFormer[chosenLine.id].changes[index].startTime = value
+    newlineFormer[chosenLine.id].changes[index].duration = endTime - value
+    const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+    newChosenLine.changes[index].startTime = value
+    newChosenLine.changes[index].duration = endTime - value
+
+    if (newChosenLine.changes[index - 1]) {
+      let wrongSign = ''
+      if (newChosenLine.changes[index - 1].endTime >= value) {
+        newlineFormer[chosenLine.id].changes[index].crossingValueStart = newChosenLine.changes[index - 1].endTime - value
+        newChosenLine.changes[index].crossingValueStart = newChosenLine.changes[index - 1].endTime - value
+        wrongSign = 'your changed value crossing previous valve open time'
+      } else if (chosenLine.changes[index - 1].endTime < value) {
+        newChosenLine.changes[index].crossingValueStart = NaN
+        newlineFormer[chosenLine.id].changes[index].crossingValueStart = NaN
+        wrongSign = ''
+      }
+      this.setState({
+        ...this.state,
+        lineFormer: newlineFormer,
+        chosenElement: {
+          ...this.state.chosenElement,
+          wrongSign,
+          chosenLine: newChosenLine,
+        },
+      })
+      return
+    }
+    this.setState({
+      ...this.state,
+      lineFormer: newlineFormer,
+      chosenElement: {
+        ...this.state.chosenElement,
+        chosenLine: newChosenLine,
+      },
+    })
+  }
+
+  resetToPreviousChanges = () => {
+    const { chosenElement, lineFormer } = this.state
+    const { chosenLine } = chosenElement
+
+    const newlineFormer: Array<ValveLineType> = cloneDeep(lineFormer)
+    newlineFormer[chosenLine.id].changes = [...chosenElement.previousChanges]
+    const maxTime = Math.max(...newlineFormer.map((lines) => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+    this.setState({
+      ...this.state,
+      lineFormer: newlineFormer,
+      allTime: maxTime,
+    })
+  }
+
+  insertItem = (array: Array<Change>, index: number, change: Change): Array<Change> => {
+    const newArray = array.slice()
+    newArray.splice(index, 0, {
+      startTime: change.startTime,
+      endTime: change.endTime,
+      changeId: change.changeId,
+      duration: change.duration,
+      crossingValueEnd: NaN,
+      crossingValueStart: NaN,
+    })
+    return newArray
+  }
+
+  changeNewStartTime = (newStartTime: number): void => {
+    const { chosenElement, lineFormer } = this.state
+    const { chosenLine, previousChanges, newEndTime, changeId } = chosenElement
+    const { changes } = chosenLine
+    if (!previousChanges.length) {
+      const currentItemIndex = 0
+      const filteredChange = changes.filter(change => change.changeId !== changeId)
+      const newChanges =
+        this.insertItem(filteredChange, currentItemIndex,
+          {
+            startTime: newStartTime,
+            endTime: newEndTime,
+            changeId,
+            duration: newEndTime - newStartTime,
+          })
+      const newlineFormer = cloneDeep(lineFormer)
+      newlineFormer[chosenLine.id].changes = newChanges
+      newlineFormer[chosenLine.id].changes[currentItemIndex].duration = newEndTime - newStartTime
+      const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+      newChosenLine.changes = newChanges
+      newChosenLine.changes[currentItemIndex].duration = newEndTime - newStartTime
+      this.setState({
+        ...this.state,
+        lineFormer: newlineFormer,
+        chosenElement: {
+          ...chosenElement,
+          chosenLine: newChosenLine,
+          newStartTime,
+        },
+      })
+      return
+    }
+    let currentItemIndex = previousChanges.length
+    if (newEndTime <= changes[previousChanges.length - 1].endTime) {
+      console.log(1231)
+      for (let i = 0; i < previousChanges.length; i += 1) {
+        if (newEndTime <= previousChanges[i].endTime) {
+          currentItemIndex = i
+          const filteredChange = changes.filter(change => change.changeId !== changeId)
+          const newChanges =
+            this.insertItem(filteredChange, currentItemIndex,
+              {
+                startTime: newStartTime,
+                endTime: newEndTime,
+                changeId,
+                duration: newEndTime - newStartTime,
+              })
+
+          const newlineFormer = cloneDeep(lineFormer)
+          newlineFormer[chosenLine.id].changes = newChanges
+          newlineFormer[chosenLine.id].changes[currentItemIndex].duration = newEndTime - newStartTime
+          const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+          newChosenLine.changes = newChanges
+          newChosenLine.changes[currentItemIndex].duration = newEndTime - newStartTime
+
+          let wrongSign = ''
+          if (newChosenLine.changes[currentItemIndex + 1].startTime <= newEndTime) {
+            newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueEnd = newChosenLine.changes[currentItemIndex + 1].startTime - newEndTime
+            newChosenLine.changes[currentItemIndex].crossingValueEnd = newChosenLine.changes[currentItemIndex + 1].startTime - newEndTime
+            wrongSign = 'your changed value crossing next valve open time'
+          } else if (newChosenLine.changes[currentItemIndex + 1].startTime > newEndTime) {
+            newChosenLine.changes[currentItemIndex].crossingValueEnd = NaN
+            newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueEnd = NaN
+          }
+
+          const maxTime = Math.max(...newlineFormer.map((lines) => {
+            if (lines.changes.length) {
+              return lines.changes[lines.changes.length - 1].endTime
+            }
+            return 0
+          }))
+          const allTime = newEndTime > maxTime ? newEndTime : maxTime
+          this.setState({
+            ...this.state,
+            lineFormer: newlineFormer,
+            allTime,
+            chosenElement: {
+              ...chosenElement,
+              chosenLine: newChosenLine,
+              wrongSign,
+              newStartTime,
+            },
+          })
+          return
+        }
+      }
+    }
+  }
+
+  changeNewEndTime = (newEndTime: number): void => {
+    const { chosenElement, lineFormer } = this.state
+    const { chosenLine, previousChanges, newStartTime, changeId } = chosenElement
+    const { changes } = chosenLine
+    if (!previousChanges.length) {
+      const currentItemIndex = 0
+      const filteredChange = changes.filter(change => change.changeId !== changeId)
+      const newChanges =
+        this.insertItem(filteredChange, currentItemIndex,
+          {
+            startTime: newStartTime,
+            endTime: newEndTime,
+            changeId,
+            duration: newEndTime - newStartTime,
+          })
+      const newlineFormer = cloneDeep(lineFormer)
+      newlineFormer[chosenLine.id].changes = newChanges
+      newlineFormer[chosenLine.id].changes[currentItemIndex].duration = newEndTime - newStartTime
+      const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+      newChosenLine.changes = newChanges
+      newChosenLine.changes[currentItemIndex].duration = newEndTime - newStartTime
+      const maxTime = Math.max(...newlineFormer.map((lines) => {
+        if (lines.changes.length) {
+          return lines.changes[lines.changes.length - 1].endTime
+        }
+        return 0
+      }))
+      const allTime = newEndTime > maxTime ? newEndTime : maxTime
+
+      this.setState({
+        ...this.state,
+        lineFormer: newlineFormer,
+        allTime,
+        chosenElement: {
+          ...chosenElement,
+          chosenLine: newChosenLine,
+          newEndTime,
+        },
+      })
+      return
+    }
+
+    let currentItemIndex = previousChanges.length
+    if (newStartTime <= changes[previousChanges.length - 1].startTime) {
+      for (let i = 0; i < previousChanges.length; i += 1) {
+        if (newStartTime <= previousChanges[i].startTime) {
+          currentItemIndex = i
+          const filteredChange = changes.filter(change => change.changeId !== changeId)
+          const newChanges =
+            this.insertItem(filteredChange, currentItemIndex,
+              {
+                startTime: newStartTime,
+                endTime: newEndTime,
+                changeId,
+                duration: newEndTime - newStartTime,
+              })
+
+          const newlineFormer = cloneDeep(lineFormer)
+          newlineFormer[chosenLine.id].changes = newChanges
+          newlineFormer[chosenLine.id].changes[currentItemIndex].duration = newEndTime - newStartTime
+          const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+          newChosenLine.changes = newChanges
+          newChosenLine.changes[currentItemIndex].duration = newEndTime - newStartTime
+
+          let wrongSign = ''
+          if (newChosenLine.changes[currentItemIndex + 1].startTime <= newEndTime) {
+            newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueEnd = newChosenLine.changes[currentItemIndex + 1].startTime - newEndTime
+            newChosenLine.changes[currentItemIndex].crossingValueEnd = newChosenLine.changes[currentItemIndex + 1].startTime - newEndTime
+            wrongSign = 'your changed value crossing next valve open time'
+          } else if (newChosenLine.changes[currentItemIndex + 1].startTime > newEndTime) {
+            newChosenLine.changes[currentItemIndex].crossingValueEnd = NaN
+            newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueEnd = NaN
+          }
+
+          const maxTime = Math.max(...newlineFormer.map((lines) => {
+            if (lines.changes.length) {
+              return lines.changes[lines.changes.length - 1].endTime
+            }
+            return 0
+          }))
+          const allTime = newEndTime > maxTime ? newEndTime : maxTime
+          this.setState({
+            ...this.state,
+            lineFormer: newlineFormer,
+            allTime,
+            chosenElement: {
+              ...chosenElement,
+              chosenLine: newChosenLine,
+              wrongSign,
+              newEndTime,
+            },
+          })
+          return
+        }
+      }
+    }
+    const filteredChange = changes.filter(change => change.changeId !== changeId)
+    const newChanges =
+      this.insertItem(filteredChange, currentItemIndex,
+        {
+          startTime: newStartTime,
+          endTime: newEndTime,
+          changeId,
+          duration: newEndTime - newStartTime,
+        })
+
+    const newlineFormer = cloneDeep(lineFormer)
+    newlineFormer[chosenLine.id].changes = newChanges
+    newlineFormer[chosenLine.id].changes[currentItemIndex].duration = newEndTime - newStartTime
+    const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+    newChosenLine.changes = newChanges
+    newChosenLine.changes[currentItemIndex].duration = newStartTime - newEndTime
+    let wrongSign = ''
+    if (newChosenLine.changes[currentItemIndex - 1].endTime >= newStartTime) {
+      newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueStart =
+        newChosenLine.changes[currentItemIndex - 1].endTime - newStartTime
+      newChosenLine.changes[currentItemIndex].crossingValueStart =
+        newChosenLine.changes[currentItemIndex - 1].endTime - newStartTime
+      wrongSign = 'your changed value crossing next valve open time'
+    } else if (newChosenLine.changes[currentItemIndex - 1].endTime < newStartTime) {
+      newChosenLine.changes[currentItemIndex].crossingValueStart = NaN
+      newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueStart = NaN
+    }
+    const maxTime = Math.max(...newlineFormer.map((lines) => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+    const allTime = newEndTime > maxTime ? newEndTime : maxTime
+
+    this.setState({
+      ...this.state,
+      lineFormer: newlineFormer,
+      allTime,
+      chosenElement: {
+        ...chosenElement,
+        wrongSign,
+        chosenLine: newChosenLine,
+        newEndTime,
+      },
+    })
+  }
+
+  changeRPMValue = (RPMValue: number) => {
+    const { chosenElement, lineFormer } = this.state
+    const { changeId, chosenLine } = chosenElement
+    const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
+
+    if (RPMValue >= 0) {
+      const newlineFormer = cloneDeep(lineFormer)
+      newlineFormer[chosenLine.id].changes[index].value = RPMValue
+      const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+      newChosenLine.changes[index].value = RPMValue
+      this.setState({
+        ...this.state,
+        lineFormer: newlineFormer,
+        chosenElement: {
+          ...this.state.chosenElement,
+          chosenLine: newChosenLine,
+        },
+      })
+    }
+  }
+
+  changeTempValue = (TempValue: number) => {
+    const { chosenElement, lineFormer } = this.state
+    const { changeId, chosenLine } = chosenElement
+    const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
+
+    if (TempValue >= 0) {
+      const newlineFormer = cloneDeep(lineFormer)
+      newlineFormer[chosenLine.id].changes[index].value = TempValue
+      const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+      newChosenLine.changes[index].value = TempValue
+      this.setState({
+        ...this.state,
+        lineFormer: newlineFormer,
+        chosenElement: {
+          ...this.state.chosenElement,
+          chosenLine: newChosenLine,
+        },
+      })
+    }
+  }
+
+  changeNewRPMValue = (RPMValue: number) => {
+    const { chosenElement, lineFormer } = this.state
+    const { changeId, chosenLine } = chosenElement
+    const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
+    if (RPMValue >= 0) {
+      const newlineFormer = cloneDeep(lineFormer)
+      newlineFormer[chosenLine.id].changes[index].value = RPMValue
+      const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+      newChosenLine.changes[index].value = RPMValue
+      this.setState({
+        ...this.state,
+        lineFormer: newlineFormer,
+        chosenElement: {
+          ...this.state.chosenElement,
+          newRPMValue: RPMValue,
+          chosenLine: newChosenLine,
+        },
+      })
+    }
+  }
+
+  changeNewTempValue = (TempValue: number) => {
+    const { chosenElement, lineFormer } = this.state
+    const { changeId, chosenLine } = chosenElement
+    const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
+    if (TempValue >= 0) {
+      const newlineFormer = cloneDeep(lineFormer)
+      newlineFormer[chosenLine.id].changes[index].value = TempValue
+      const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+      newChosenLine.changes[index].value = TempValue
+      this.setState({
+        ...this.state,
+        lineFormer: newlineFormer,
+        chosenElement: {
+          ...this.state.chosenElement,
+          newTempValue: TempValue,
+          chosenLine: newChosenLine,
+        },
+      })
+    }
+  }
+
   render() {
     const { showEditModal, chosenElement } = this.state
+    console.log(chosenElement.chosenLine.name, showEditModal)
+    // console.log(chosenElement.chosenLine.name === 'NewValveLine')
     return (
       <div
         id="form-Manupalation"

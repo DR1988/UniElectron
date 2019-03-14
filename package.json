@@ -9,7 +9,7 @@
     "generate-main-prod": "cross-env NODE_ENV=production node -r @babel/register buildMainProd.js",
     "build-main-pack": "npm run build-main && npm run pack",
     "build": "npm run build-render && npm run generate-main-prod && npm run build-main-pack",
-    "start": "cross-env PORT=3000 NODE_ENV=development ts-node -r @babel/register ./app/start.ts",
+    "start": "cross-env PORT=8000 NODE_ENV=development ts-node -r @babel/register ./app/start.ts",
     "main-dev": "cross-env NODE_ENV=development electron -r babel-register-ts ./app/main.ts",
     "fix": "eslint . --ext .js,.jsx --fix",
     "pack": "electron-builder --dir",

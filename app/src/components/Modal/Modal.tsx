@@ -2,11 +2,11 @@ import React from 'react'
 
 import s from './Modal.scss'
 
-interface Props {
-  render: () => React.ComponentType
+export interface Props {
+  render: () => JSX.Element
 }
 
-const Modal = (props) => {
+const Modal = (props: Props) => {
     return (
       <div className={s.cover}>
         <div

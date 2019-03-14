@@ -13,7 +13,7 @@ interface Props {
   stop: () => void,
   showModal: () => void,
   addNewValveTime: (chosenLine: ValveLineType) => void,
-  setChosenValveTime: () => void,
+  setChosenValveTime: (lineID: number, changeId: number) => void,
   distance: number,
   time: number,
   lineFormer: Array<ValveLineType>,
@@ -50,7 +50,6 @@ const MainFormComponent = ({
             allTime={allTime}
             showModal={showModal}
             closeModal={closeModal}
-            addNewValveTime={addNewValveTime}
             setChosenValveTime={setChosenValveTime}
           />,
           )}

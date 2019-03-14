@@ -5,12 +5,13 @@ export interface Change {
   duration: number,
   waitForValue?: boolean,
   value?: number,
-  crossingValueStart: number,
-  crossingValueEnd: number,
+  crossingValueStart?: number,
+  crossingValueEnd?: number,
 }
 
 export interface ValveLineType {
-  name: 'ValveLine' | 'RPMSetter' | 'TempSetter' | 'NewValveLine' | 'NewRPMSetter' | 'NewTempSetter',
+  name: 'ValveLine' | 'RPMSetter' | 'TempSetter' | `NewValveLine` | 'NewRPMSetter' | 'NewTempSetter',
+  // name: string,
   id: number,
   shortName: string,
   changes: Array<Change>,
