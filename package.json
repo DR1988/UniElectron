@@ -64,6 +64,7 @@
     "@types/socket.io": "^2.1.2",
     "@types/socket.io-client": "^1.4.32",
     "@types/webpack-env": "^1.13.7",
+    "@types/serialport": "^7.0.2",
     "awesome-typescript-loader": "^5.2.1",
     "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.5",
@@ -102,6 +103,7 @@
     "react": "^16.8.3",
     "react-dom": "^16.8.2",
     "recharts": "^1.5.0",
+    "serialport": "^7.1.4",
     "socket.io": "^2.2.0",
     "socket.io-client": "^2.2.0"
   }

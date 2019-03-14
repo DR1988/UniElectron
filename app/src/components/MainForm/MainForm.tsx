@@ -13,6 +13,7 @@ import NewRMPModal from '../Modal/NewRMPModal'
 import NewTempModal from '../Modal/NewTempModal'
 import TempModal from '../Modal/TempModal'
 
+import socketConfig, { startSignal } from '../../../config/socket.config'
 import { withCondition } from '../HOC'
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
@@ -29,6 +30,7 @@ interface State {
   showEditModal: boolean,
   lineFormer: Array<ValveLineType>,
 }
+
 
 class MainForm extends Component<Props, State> {
   constructor(props: Props) {
@@ -255,6 +257,49 @@ class MainForm extends Component<Props, State> {
     }
   }
 
+  componentDidMount() {
+    this.props.socket.on(socketConfig.makeChange, (data) => {
+      // console.log('data', data)
+      if (this.state.showEditModal) {
+        this.setState({
+          ...data,
+          showEditModal: true,
+        })
+      } else {
+        this.setState({
+          ...data,
+        })
+      }
+    })
+    this.props.socket.on(socketConfig.start, (data, s) => {
+      console.log(data)
+      console.log(s)
+      const { distance, time } = data
+      this.setState({
+        distance,
+        time,
+      })
+    })
+    this.props.socket.on(socketConfig.pause, (data) => {
+      console.log('data', data)
+      const { time } = this.state
+      this.setState({
+        distance: 100 * data.currentTime / time
+      })
+    })
+    this.props.socket.on(socketConfig.stop, (data) => {
+      const { distance, time } = data
+      this.setState({
+        distance,
+        time,
+      })
+    })
+  }
+
+  componentWillUnmount() {
+    this.props.socket.removeAllListeners()
+  }
+
   initialState: State
 
   resetState = () => {
@@ -263,9 +308,22 @@ class MainForm extends Component<Props, State> {
     })
   }
 
-  start = () => { }
-  pause = () => { }
-  stop = () => { }
+  start = () => {
+    const { lineFormer, allTime } = this.state
+    const StartSignal: startSignal = {
+      lineFormer,
+      allTime,
+    }
+    this.props.socket.emit(socketConfig.start, StartSignal)
+  }
+
+  pause = () => this.props.socket.emit(socketConfig.pause)
+
+  stop = () => {
+    console.log('stop')
+    this.props.socket.emit(socketConfig.stop)
+    // this.props.socket.emit('INC')
+  }
 
   showModal = () => {
     console.log(this.state.chosenElement.chosenLine.name)

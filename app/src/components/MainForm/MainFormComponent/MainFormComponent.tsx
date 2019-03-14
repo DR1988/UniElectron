@@ -17,22 +17,19 @@ interface Props {
   distance: number,
   time: number,
   lineFormer: Array<ValveLineType>,
+  allTime: number,
 }
 
 const MainFormComponent = ({
-  mainForm,
-  handle,
   distance,
   time,
   lineFormer,
   allTime,
   showModal,
-  closeModal,
   resetState,
   addNewValveTime,
   setChosenValveTime,
   start,
-  chosenElement,
   pause,
   stop,
 }: Props) => (
@@ -49,7 +46,6 @@ const MainFormComponent = ({
             line={elem}
             allTime={allTime}
             showModal={showModal}
-            closeModal={closeModal}
             setChosenValveTime={setChosenValveTime}
           />,
           )}

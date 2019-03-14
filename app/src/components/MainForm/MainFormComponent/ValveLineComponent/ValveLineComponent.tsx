@@ -8,7 +8,6 @@ interface Props {
   line: ValveLineType,
   allTime: number,
   showModal: () => void,
-  closeModal: () => void,
   setChosenValveTime: (lineID: number, changeId: number) => void
 }
 
