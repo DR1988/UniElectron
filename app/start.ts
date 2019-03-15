@@ -3,14 +3,17 @@ import { spawn } from 'child_process'
 import * as express from 'express'
 import { Server } from 'http'
 import socketServer from './server'
-
+import * as SerialPort from 'serialport'
 /* eslint-disable global-require */
+import serial from './server/serial'
+
 const dev = process.env.NODE_ENV === 'development'
 if (dev) {
+  // SerialPort.list().then(ports => ports.forEach(port => console.log(port)))
   const port : string | number = process.env.PORT || 3000
   const exp = express()
   const http = new Server(exp)
-  socketServer(http)
+  socketServer(http, serial)
   const webpackMidlleware = require('./server/middlewares/webpack').default
   exp.use(webpackMidlleware)
   exp.get(/.*/, (req, res) => res.sendFile(path.resolve('app/index.html')))

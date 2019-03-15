@@ -14,7 +14,8 @@
     "fix": "eslint . --ext .js,.jsx --fix",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "create-component": "ts-node -r @babel/register app/helpers/generators/component"
+    "create-component": "ts-node -r @babel/register app/helpers/generators/component",
+    "install": "electron-rebuild"
   },
   "keywords": [
     "Electron"
@@ -75,6 +76,7 @@
     "electron": "^4.1.0",
     "electron-builder": "^20.38.5",
     "electron-devtools-installer": "^2.2.4",
+    "electron-rebuild": "^1.8.4",
     "electron-reload": "^1.4.0",
     "eslint": "^5.13.0",
     "eslint-config-airbnb": "^17.1.0",
@@ -84,9 +86,7 @@
     "eslint-plugin-react": "^7.12.4",
     "file-loader": "^3.0.1",
     "mini-css-extract-plugin": "^0.5.0",
-    "node-sass": "4.7.2",
     "react-hot-loader": "^4.6.5",
-    "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
     "terser-webpack-plugin": "^1.2.2",
     "ts-node": "^8.0.2",

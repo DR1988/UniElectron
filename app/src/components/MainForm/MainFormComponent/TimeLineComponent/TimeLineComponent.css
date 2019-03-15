@@ -1,61 +1,53 @@
-@import "../../../../static/constants.scss";
-
-$timePresenterHeight: 475px;
-$arrowBorderLeft: 13px;
-$arrowWidth: 16px;
 .time-line_wraper{
   position: relative;
-  height: $ValveLineHeight;
+  height: 50px;
   display: flex;
   align-items: flex-end;
-  & .time-line{
-    height: $ValveLineHeight * 0.8;
+}
+.time-line_wraper .time-line{
+    /* height: 50px * 0.8; */
+    height: 40px;
     border: thin solid #648591;
     border-top: none;
-    & .time-show{
+}
+.time-line_wraper .time-line .time-show{
       display: flex;
       height: 100%;
       justify-content: space-between;
-      & .time-former{
+}
+.time-line_wraper .time-line .time-show .time-former{
         position: relative;
         background-color: #648591;
         width: 2px;
-        & .divider{
+}
+.time-line_wraper .time-line .time-show .time-former.divider{
           width: 2px;
           height: 100%;
           background-color: #648591;
         }
-        .time-count{
+.time-line_wraper .time-line .time-show .time-former .time-count{
           position: absolute;
         }
-      }
-      & .time-former:last-child{
-        & .time-count{
+.time-line_wraper .time-line .time-show .time-former:last-child .time-count{
           right: 100%;
         }
-      }
-    }
-  }
-  & .time-presenter {
+.time-line_wraper .time-presenter {
     position: absolute;
     display: flex;
     flex-direction: column;
     align-items: center;
     bottom: 0px;
     width: 3px;
-    & .line {
+}
+.time-line_wraper .time-presenter .line {
         position: relative;
         width: 3px;
-        height: ($LineQuantity + 1) * $ValveLineHeight + ($LineQuantity - 1 ) * $ValveLineMargin - $arrowWidth;
+        height: 579px;
         background-color: #648591;
       }
-    & .arrow-up {
-        border-bottom: $arrowWidth solid #648591;
-        border-left: $arrowBorderLeft solid transparent;
-        border-right: $arrowBorderLeft solid transparent;
+      .time-line_wraper .time-presenter .arrow-up {
+        border-bottom: 16px solid #648591;
+        border-left: 13px solid transparent;
+        border-right: 13px solid transparent;
         width: 3px;
       }
-  }
-}
-
-

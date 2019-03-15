@@ -45,9 +45,6 @@ export default {
           {
             loader: 'css-loader',
           },
-          {
-            loader: 'sass-loader',
-          },
         ],
       },
       {
@@ -64,9 +61,6 @@ export default {
               localIdentName: '[name]__[local]__[hash:base64:5]',
               sourceMap: true,
             },
-          },
-          {
-            loader: 'sass-loader',
           },
         ],
       },

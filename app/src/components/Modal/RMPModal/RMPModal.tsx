@@ -1,7 +1,7 @@
 import React, { StatelessComponent, Component } from 'react'
 import cn from 'classnames'
 
-import s from './RMPModal.scss'
+import s from './RMPModal.css'
 import CommonMoadlInterface from '../modalInterfaces'
 
 interface ButtonProps {

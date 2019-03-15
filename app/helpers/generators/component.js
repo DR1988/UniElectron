@@ -29,7 +29,7 @@ if (!fs.existsSync(dest) || isRewrite) {
   createFromTemplate('containers/_tsx', { name }, dest, `${name}.tsx`) :
   createFromTemplate('components/_tsx', { name }, dest, `${name}.tsx`)
   createFromTemplate('components/_package', { name }, dest, 'package.json')
-  createFromTemplate('components/_scss', { name }, dest, `${name}.scss`)
+  createFromTemplate('components/_scss', { name }, dest, `${name}.css`)
 } else {
   console.log('Directory exists! use "y" key as a second argument to rewrite component')
 }

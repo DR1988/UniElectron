@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import s from './ValveLineComponent.scss'
+import s from './ValveLineComponent.css'
 import ValveTimeComponent from './ValveTimeComponent'
 import { ValveLineType } from '../../MainFormInterfaces'
 

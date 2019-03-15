@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import cloneDeep from 'lodash/cloneDeep'
 
-import s from './MainForm.scss'
+import s from './MainForm.css'
 import { ChosenElement, ValveLineType, Change } from './MainFormInterfaces'
 import MainFormComponent from './MainFormComponent/MainFormComponent'
 

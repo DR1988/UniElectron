@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import s from './ValveTimeComponent.scss'
+import s from './ValveTimeComponent.css'
 
 interface Props {
   changeId: number | string,

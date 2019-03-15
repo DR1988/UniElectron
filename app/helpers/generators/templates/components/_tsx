@@ -1,6 +1,6 @@
 import React from 'react'
 
-import s from './{name}.scss'
+import s from './{name}.css'
 
 const {name} = () => (
   <div className={s.root}>

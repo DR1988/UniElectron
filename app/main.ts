@@ -4,7 +4,6 @@ import socketServer from './server/index'
 
 const { app, BrowserWindow } = require('electron')
 
-
 // we need this html for later use when
 // adding scripts and styles to a production build
 

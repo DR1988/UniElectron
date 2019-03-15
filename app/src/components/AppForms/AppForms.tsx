@@ -2,7 +2,7 @@ import React from 'react'
 import cn from 'classnames'
 import io from 'socket.io-client'
 
-import s from './AppForms.scss'
+import s from './AppForms.css'
 import Graphs from '../Graphs/Graphs'
 import MainForm from '../MainForm/MainForm'
 

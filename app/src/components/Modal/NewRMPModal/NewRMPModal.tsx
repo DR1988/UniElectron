@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import cn from 'classnames'
 
-import s from './NewRMPModal.scss'
+import s from './NewRMPModal.css'
 import CommonMoadlInterface from '../modalInterfaces'
 
 interface Props extends CommonMoadlInterface{

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import s from './FormChoserComponent.scss'
+import s from './FormChoserComponent.css'
 
 export interface Props {
   updateForm: (e: React.MouseEvent<HTMLButtonElement>) => void,

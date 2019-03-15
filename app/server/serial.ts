@@ -1,4 +1,4 @@
-import SerialPort from 'serialport'
+import * as SerialPort from 'serialport'
 import Readline from '@serialport/parser-readline'
 import socketConfig from '../config/socket.config'
 
@@ -9,6 +9,7 @@ console.log('socketConfig', socketConfig)
 export default (socket) => {
   SerialPort.list().then((ports) => {
     ports.forEach((port) => {
+      console.log(port);
       if (port.manufacturer.includes('Arduino')) { // have to change it because we can use not only Arduino
         serialPort = new SerialPort(port.comName, {
           // baudRate: 9600,

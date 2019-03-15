@@ -3,8 +3,8 @@ import { Component } from 'react'
 import io from 'socket.io-client'
 import 'normalize.css'
 
-import '../../common.scss'
-import s from './style.scss'
+import '../../common.css'
+import s from './style.css'
 
 import FormChoserComponent from '../FormChoserComponent/FormChoserComponent'
 import AppForms from '../AppForms/AppForms'

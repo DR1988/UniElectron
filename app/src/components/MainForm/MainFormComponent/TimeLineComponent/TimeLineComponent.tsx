@@ -1,7 +1,7 @@
 import React, { StatelessComponent } from 'react'
 import PropTypes from 'prop-types'
 
-import s from './TimeLineComponent.scss'
+import s from './TimeLineComponent.css'
 
 interface Props {
   allTime: number,

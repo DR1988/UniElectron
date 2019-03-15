@@ -1,6 +1,6 @@
 import React from 'react'
 
-import s from './Modal.scss'
+import s from './Modal.css'
 
 export interface Props {
   render: () => JSX.Element

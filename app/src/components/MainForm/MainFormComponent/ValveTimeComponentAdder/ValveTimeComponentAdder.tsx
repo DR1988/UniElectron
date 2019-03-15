@@ -1,6 +1,6 @@
 import React, { StatelessComponent } from 'react'
 
-import s from './ValveTimeComponentAdder.scss'
+import s from './ValveTimeComponentAdder.css'
 import { ValveLineType } from '../../MainFormInterfaces'
 
 interface Base {

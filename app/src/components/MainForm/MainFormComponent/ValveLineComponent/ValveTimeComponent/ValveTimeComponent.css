@@ -1,19 +1,19 @@
 .timeFormer{
   position: absolute;
   height: 100%;
-  // background: radial-gradient(
-  //   closest-side,
-  //   rgba(171, 193, 197, 0.8) 80%,
-  //   rgba(171, 193, 197, 1)
-  // );
+  /* background: radial-gradient( */
+    /* closest-side, */
+    /* rgba(171, 193, 197, 0.8) 80%, */
+    /* rgba(171, 193, 197, 1) */
+  /* ); */
   background: linear-gradient(90deg, rgba(0, 0, 0, 0) 2%, rgba(171, 193, 197, 1) 0%, rgba(171, 193, 197, 1) 65%, rgba(0, 0, 0, 0) 0),
   rgba(171, 193, 197, 1) repeating-linear-gradient(-45deg, transparent, transparent 7.5px,
   rgba(226, 5, 5, 1) 7.5px, rgba(226, 5, 5, 1) 15px);
   display: inline-block;
-  // display: flex;
-  // justify-content: center;
-  // align-items: center;
-  // overflow: hidden;
+   /* display: flex; */
+   /* justify-content: center; */
+   /* align-items: center; */
+   /* overflow: hidden; */
   cursor: pointer;
   transition: all 0.5s linear, left 0.5s linear;
 }
@@ -33,10 +33,10 @@
 }
 
 .crossed {
-  // background: radial-gradient(
-  //   closest-side,
-  //   rgba(171, 193, 197, 0.8) 80%,
-  //   rgba(171, 193, 197, 1)
-  // );
-  // background-color: red;
+   /* background: radial-gradient( */
+     /* closest-side, */
+     /* rgba(171, 193, 197, 0.8) 80%, */
+     /* rgba(171, 193, 197, 1) */
+   /* ); */
+   /* background-color: red; */
 }
