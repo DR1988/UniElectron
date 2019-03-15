@@ -4,6 +4,7 @@
   "description": "Electron application with express",
   "main": "./app/main.prod.js",
   "scripts": {
+    "postinstall": "electron-builder install-app-deps",
     "build-main": "cross-env PORT=8000 NODE_ENV=production webpack --config ./app/config/webpack.config.main.prod.babel.js --colors",
     "build-render": "cross-env NODE_ENV=production webpack --config ./app/config/webpack.config.renderer.prod.babel.js --colors",
     "generate-main-prod": "cross-env NODE_ENV=production node -r @babel/register buildMainProd.js",

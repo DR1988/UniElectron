@@ -1,6 +1,11 @@
 // Modules to control application life and create native browser window
 import express from 'express'
+import { Server } from 'http'
+import * as path from 'path'
+import serialport from 'serialport'
+
 import socketServer from './server/index'
+// import serial from './server/serial'
 
 const { app, BrowserWindow } = require('electron')
 
@@ -53,17 +58,40 @@ async function createWindow() {
     },
   })
 
+  // let serialport2 = require('serialport')
+  // serialport2.list().then(ports => ports.forEach(port => console.log(port)))
+  serialport.list().then(ports => ports.forEach(port => console.log(port)))
+
   if (process.env.NODE_ENV === 'production') {
+    // const serialport = require('serialport')
+    // serialport.list().then(ports => ports.forEach(port => console.log(port)))
     const exp = express()
-    const http = require('http').Server(exp)
+    const http = new Server(exp)
     socketServer(http)
     exp.get(/.*/, (req, res) => res.send(HTML))
     httpInstance = http.listen(port, () => {
       const address = http.address()
       console.log('Listening on: %j', address)
-      console.log(' -> that probably means: http://localhost:%d', address.port)
+      if(typeof address !== 'string'){
+        console.log(' -> that probably means: http://localhost:%d', address.port)
+      }
     })
   }
+  //  else {
+  //   // const port : string | number = process.env.PORT || 3000
+  //   const exp = express()
+  //   const http = new Server(exp)
+  //   socketServer(http, serial)
+  //   const webpackMidlleware = require('./server/middlewares/webpack').default
+  //   exp.use(webpackMidlleware)
+  //   exp.get(/.*/, (req, res) => res.sendFile(path.resolve('app/index.html')))
+  //   http.listen(port, () => {
+  //     const address = http.address()
+  //     if(typeof address !== 'string'){
+  //       console.log(' -> that probably means: http://localhost:%d', address.port)
+  //     }
+  //   })
+  // }
 
   // and load the index.html of the app.
   if (process.env.NODE_ENV === 'development') {
