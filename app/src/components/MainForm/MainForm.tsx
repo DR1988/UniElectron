@@ -865,7 +865,6 @@ class MainForm extends Component<Props, State> {
 
   render() {
     const { showEditModal, chosenElement } = this.state
-    console.log(chosenElement.chosenLine.name, showEditModal)
     // console.log(chosenElement.chosenLine.name === 'NewValveLine')
     return (
       <div

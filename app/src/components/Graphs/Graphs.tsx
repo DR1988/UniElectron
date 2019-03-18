@@ -1,13 +1,26 @@
-// @flow
-import React, { Component } from 'react'
+import React, { Component, PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import { LineChart, ReferenceArea, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'Recharts'
+import { ComposedChart, Cell, LineChart, Line, ReferenceArea, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 // import { SocketIOClientStatic } from 'socket.io-client'
 
-// import { socketConfig } from '../../../config'
+import socketConfig, { startSignal } from '../../../config/socket.config'
 // import Graph from '../../components/common/graphs/Mygraph'
 // import { CartesianGrids } from '../../components/common/graphs/Elements/index'
 
+const data = [{ name: 'Page A', uv: 590, pv: 800, amt: 1400 },
+{ name: 'Page B', uv: 868, pv: 967, amt: 1506 },
+{ name: 'Page C', uv: 1397, pv: 1098, amt: 989 },
+{ name: 'Page D', uv: 1480, pv: 1200, amt: 1228 },
+{ name: 'Page E', uv: 1520, pv: 1108, amt: 1100 },
+{ name: 'Page F', uv: 1400, pv: 680, amt: 1700 },
+{ name: 'Page G', uv: 0, pv: 680, amt: 1700 },
+{ name: 'Page H', uv: 700, pv: 680, amt: 1700 }
+];
+
+const TopBar = (props) => {
+  const { fill, x, y, width, height } = props
+  return <path d={height ? `M ${x} ${y} h ${width} v 2 h -${width} v -2` : null} stroke="green" fill={'green'} />;
+}
 
 function randomIntFromInterval(min, max) // min and max included
 {
@@ -100,52 +113,71 @@ class Graphs extends Component<Props, State> {
     //   })
     // })
 
-    // this.props.socket.on(socketConfig.start, (data, form) => {
-    //   console.log('form', form);
-    //   const { allTime } = form
-    //   const RPMchanges = form.lineFormer.filter(el => el.shortName === 'RPM')[0].changes
-    //   console.log('RPMchanges', RPMchanges)
-    //   const graphTicks = RPMchanges.reduce((acc, cur) => {
-    //     acc.push(cur.startTime, cur.endTime)
-    //     return acc
-    //   }, [])
-    //   // console.log('graphTicks', graphTicks)
-    //   const rmpSetValues = RPMchanges.reduce((acc, cur) => {
-    //     acc.push({
-    //       timeStamp: cur.startTime,
-    //       "RPM set value": cur.value,
-    //     })
-    //     acc.push({
-    //       timeStamp: cur.endTime,
-    //       "RPM set value": cur.value,
-    //     })
-    //     // acc.push({
-    //     //   timeStamp: cur.endTime,
-    //     // })
-    //     return acc
-    //   }, [])
-    //   console.log('rmpSetValues', rmpSetValues);
-    //   const RPMcurrentValue = rmpSetValues.filter(el => el['RPM set value'])
-    //   const stepValues = []
-    //   RPMcurrentValue.reduce((acc, curr) => {
-    //     if (curr['RPM set value'] === acc['RPM set value']) {
-    //       stepValues.push({
-    //         ts: acc.timeStamp,
-    //         tf: curr.timeStamp,
-    //         setValue: curr['RPM set value'],
-    //       })
-    //     }
-    //     return curr
-    //   })
-    //   console.log('stepValues', stepValues)
-    //   this.setState({
-    //     allTime,
-    //     graphTicks,
-    //     rmpSetValues,
-    //     stepValues,
-    //   })
-    //   this.interval = setInterval(this.increaseCounts, 20)
-    // })
+    this.props.socket.on(socketConfig.start, (data, form: startSignal) => {
+      console.log('form', form);
+      const { allTime } = form
+      const RPMchanges = form.lineFormer.filter(el => el.shortName === 'RPM')[0].changes
+      console.log('RPMchanges', RPMchanges)
+      const graphTicks = RPMchanges.reduce((acc, cur) => {
+        acc.push(cur.startTime, cur.endTime)
+        return acc
+      }, [])
+      const datas = []
+      datas.push(RPMchanges[0])
+      RPMchanges.reduce((acc, curr) => {
+        const duration = curr.startTime - acc.endTime
+        if (duration !== 0) {
+          datas.push({
+            startTime: acc.endTime,
+            endTime: curr.startTime,
+            duration,
+            value: 0,
+            changeId: Math.random().toFixed(3)
+          })
+        }
+        datas.push(curr)
+        return curr
+      })
+      console.log('datas', datas);
+      // console.log('graphTicks', graphTicks)
+      const rmpSetValues = RPMchanges.reduce((acc, cur) => {
+        acc.push({
+          timeStamp: cur.startTime,
+          "RPM set value": cur.value,
+        })
+        acc.push({
+          timeStamp: cur.endTime,
+          "RPM set value": cur.value,
+        })
+        // acc.push({
+        //   timeStamp: cur.endTime,
+        // })
+        return acc
+      }, [])
+      console.log('rmpSetValues', rmpSetValues);
+      const RPMcurrentValue = rmpSetValues.filter(el => el['RPM set value'])
+      const stepValues = []
+      RPMcurrentValue.reduce((acc, curr, ind) => {
+        if (curr['RPM set value'] === acc['RPM set value']) {
+          stepValues.push({
+            ts: acc.timeStamp,
+            tf: curr.timeStamp,
+            setValue: curr['RPM set value'],
+            name: ind,
+          })
+        }
+        return curr
+      })
+      console.log('stepValues', stepValues)
+      this.setState({
+        allTime,
+        graphTicks,
+        rmpSetValues,
+        stepValues,
+        datas,
+      })
+      // this.interval = setInterval(this.increaseCounts, 20)
+    })
   }
 
   componentWillUnmount() {
@@ -202,7 +234,7 @@ class Graphs extends Component<Props, State> {
   }
 
   render() {
-    const { rmpValues, graphTicks, allTime, rmpSetValues, stepValues, commonArray } = this.state
+    const { rmpValues, graphTicks, allTime, datas, rmpSetValues, stepValues, commonArray } = this.state
     // console.log('rmpValues', rmpValues)
     // console.log('stepValues', stepValues)
     // console.log('rmpSetValues', rmpSetValues)
@@ -218,22 +250,69 @@ class Graphs extends Component<Props, State> {
         width="100%"
         height={400}
       >
-        <LineChart
+        <BarChart barCategoryGap={0} barGap={0} width={730} height={250} data={datas}>
+          <CartesianGrid stroke='#f5f5f5' />
+          <XAxis dataKey="changeId" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar
+            dataKey='value'
+            shape={<TopBar />}
+          >
+            {
+              data.map((entry, index) => (
+                <Cell
+                  stroke="black"
+                  key={`cell-${index}`}
+                  strokeWidth={3}
+                  fill='transparent'
+                />
+              ))
+            }
+          </Bar>
+        </BarChart>
+        {/* <ComposedChart barCategoryGap={0} barGap={0} width={600} height={400} data={datas}
+          margin={{ top: 20, right: 0, bottom: 20, left: 0 }}>
+          <CartesianGrid stroke='#f5f5f5' />
+          <XAxis dataKey="changeId" />
+          <YAxis />
+          <Tooltip />
+          <Legend />
+          <Bar
+            dataKey='value'
+            shape={<TopBar/>}
+          >
+           {
+              data.map((entry, index) => (
+                <Cell
+                  stroke="black"
+                  key={`cell-${index}`}
+                  strokeWidth={3}
+                  fill='transparent'
+                />
+              ))
+            }
+          </Bar>
+          <Line type='monotone' dataKey='value' stroke='#ff7300' />
+        </ComposedChart> */}
+
+        {/* <LineChart
           data={commonArray}
         // width={600} height={300} data={rmpValues}
         // margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
-          {/* <XAxis
+          <XAxis
             // scale="ordinal"
             type="number"
             ticks={graphTicks}
             domain={[0, allTime]}
             dataKey="timeStamp"
-          /> */}
-          {/* <YAxis dataKey="RPM set value" hide yAxisId="setValue" /> */}
+          />
+          <YAxis dataKey="RPM set value" hide yAxisId="setValue" />
           <YAxis dataKey="RPM set value" domain={[0, 2000]} yAxisId="currentValue" />
           <CartesianGrid strokeDasharray="3 3" />
-          {/* <Tooltip />
+          <Tooltip />
           <Legend />
           {stepValues && stepValues.map(el =>
             <ReferenceArea
@@ -255,8 +334,8 @@ class Graphs extends Component<Props, State> {
             stroke="red"
             strokeWidth={3}
             yAxisId="currentValue"
-          /> */}
-        </LineChart>
+          />
+        </LineChart> */}
       </ResponsiveContainer >
       {/* <Graph
         // animatable
