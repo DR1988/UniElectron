@@ -10,19 +10,19 @@ import serial from './server/serial'
 // SerialPort.list().then(ports => ports.forEach(port => console.log(port)))
 const dev = process.env.NODE_ENV === 'development'
 if (dev) {
-  const port : string | number = process.env.PORT || 3000
-  const exp = express()
-  const http = new Server(exp)
-  socketServer(http)
-  const webpackMidlleware = require('./server/middlewares/webpack').default
-  exp.use(webpackMidlleware)
-  exp.get(/.*/, (req, res) => res.sendFile(path.resolve('app/index.html')))
-  http.listen(port, () => {
-    const address = http.address()
-    if(typeof address !== 'string'){
-      console.log(' -> that probably means: http://localhost:%d', address.port)
-    }
-  })
+  // const port : string | number = process.env.PORT || 3000
+  // const exp = express()
+  // const http = new Server(exp)
+  // socketServer(http)
+  // const webpackMidlleware = require('./server/middlewares/webpack').default
+  // exp.use(webpackMidlleware)
+  // exp.get(/.*/, (req, res) => res.sendFile(path.resolve('app/index.html')))
+  // http.listen(port, () => {
+  //   const address = http.address()
+  //   if(typeof address !== 'string'){
+  //     console.log(' -> that probably means: http://localhost:%d', address.port)
+  //   }
+  // })
   spawn('npm', ['run', 'main-dev'], {
     shell: true,
     env: process.env,

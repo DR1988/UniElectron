@@ -6,6 +6,7 @@ export default {
   pause: 'PAUSE',
   stop: 'STOP',
   rpmChange: 'rpmChange',
+  connect: 'CONNECT',
 }
 
 export interface startSignal {

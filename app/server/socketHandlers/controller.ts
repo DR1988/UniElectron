@@ -1,4 +1,6 @@
 import socketConfig, { startSignal } from '../../config/socket.config'
+import serial from '../serial'
+import socket from 'socket.io'
 
 interface Counter {
   distance: number,
@@ -7,7 +9,7 @@ interface Counter {
 
 export default class Controller {
   private data: startSignal
-  private socket: SocketIOClient.Socket
+  private socket: socket.Socket
   private io: SocketIOClient.Socket
   private lines: Array<any>
   private linesOfActions: Array<any>
@@ -16,19 +18,23 @@ export default class Controller {
   private counter: Counter
   private currentTime: number
   private sendingCommands: string
-  constructor(socket, io) {
+  private isSerialConnetcted: boolean
+  private serial: any
+  constructor(socket: socket.Socket, io) {
     this.data = null
     this.socket = socket
     this.io = io
 
     this.lines = []
     this.linesOfActions = []
-    this.velocity = 2
+    this.velocity = 1
     this.intervalId = null
     this.counter = { distance: 0, time: 0 }
 
     this.currentTime = 0
     this.sendingCommands = ''
+    this.isSerialConnetcted = false
+    this.serial = serial
     // this.init()
   }
 
@@ -154,6 +160,13 @@ export default class Controller {
     }, 1000 / this.velocity)
     this.counter.time = (data.allTime - this.currentTime) / this.velocity
     this.io.emit(socketConfig.start, this.counter, data)
+  }
+
+  connect = () => {
+    if(!this.isSerialConnetcted) {
+      this.serial(this.socket)
+      this.isSerialConnetcted = true
+    }
   }
   // start()
   // counter.distance = 100

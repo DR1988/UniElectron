@@ -18,6 +18,7 @@ interface Props {
   time: number,
   lineFormer: Array<ValveLineType>,
   allTime: number,
+  connect: () => void,
 }
 
 const MainFormComponent = ({
@@ -32,6 +33,7 @@ const MainFormComponent = ({
   start,
   pause,
   stop,
+  connect,
 }: Props) => (
     <div id="mainForm" className={s.mainForm}>
       <section className={s.sidebar}>
@@ -59,6 +61,7 @@ const MainFormComponent = ({
             <button onClick={start}>Start</button>
             <button onClick={pause}>Pause</button>
             <button onClick={stop}>Stop</button>
+            <button onClick={connect}>Connect</button>
           </div>
         </section>
         <ValveTimeComponentAdder

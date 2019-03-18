@@ -319,6 +319,8 @@ class MainForm extends Component<Props, State> {
 
   pause = () => this.props.socket.emit(socketConfig.pause)
 
+  connect = () => this.props.socket.emit(socketConfig.connect)
+
   stop = () => {
     console.log('stop')
     this.props.socket.emit(socketConfig.stop)
@@ -875,6 +877,7 @@ class MainForm extends Component<Props, State> {
           start={this.start}
           pause={this.pause}
           stop={this.stop}
+          connect={this.connect}
           showModal={this.showModal}
           addNewValveTime={this.addNewValveTime}
           setChosenValveTime={this.setChosenValveTime}

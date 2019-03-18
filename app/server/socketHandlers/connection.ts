@@ -20,4 +20,5 @@ export default (socket, io) => {
   socket.on(socketConfig.start, (data: startSignal) => controller.start(data))
   socket.on(socketConfig.pause, () => controller.pause())
   socket.on(socketConfig.stop, () => controller.stop())
+  socket.on(socketConfig.connect , () => controller.connect())
 }
