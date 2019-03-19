@@ -2,6 +2,18 @@ import socketConfig, { startSignal } from '../../config/socket.config'
 import serial from '../serial'
 import socket from 'socket.io'
 
+const arr = new Array(350);
+const getRandomFromRange = (min, max) => {
+  return Math.floor(min + (max + 1 - min) * Math.random())
+}
+const res = Array.from(arr).map((el, ind, array) => {
+  const RPMvalue = getRandomFromRange(500, 2500)
+   return {
+  timeStamp: ind,
+  RPMvalue,
+}})
+console.log(res);
+
 interface Counter {
   distance: number,
   time: number,
@@ -70,95 +82,104 @@ export default class Controller {
       time: 1,
     }
     this.io.emit(socketConfig.stop, this.counter)
+    clearInterval(this.inter)
   }
 
   start = (data: startSignal) => {
-    this.init(data)
-    this.counter.distance = 100
-    this.intervalId = setInterval(() => {
-      this.lines.forEach((line) => {
-        if (line.startTime === this.currentTime) {
-          // console.log(line.idname)
-          if (line.idname === 'V0') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
-          }
-          if (line.idname === 'V1') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
-          }
-          if (line.idname === 'V2') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
-          }
-          if (line.idname === 'V3') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
-          }
-          if (line.idname === 'V4') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
-          }
-          if (line.idname === 'V5') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
-          }
-          if (line.idname === 'V6') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
-          }
-          if (line.idname === 'V7') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
-          }
-          if (line.idname === 'R8') {
-            // console.log('RPM line sendind', line.idname, line.value)
-            // if (line.waitForValue) {
-            //   const curDistance = currentTime
-            //   io.emit('STOP', {
-            //     curDistance,
-            //   })
-            //   intervalId2 = setTimeout(() => {
-            //     console.log('gavno gopa !!!!!!!!!!!!!!!!!!!')
-            //     start()
-            //     counter.distance = req.body.allTime
-            //     counter.time = (req.body.allTime - curDistance) / velocity
-            //     io.emit('START', {
-            //       ...counter,
-            //     })
-            //   }, 3000)
-            // console.log('intervalId2', intervalId2)
-            // clearInterval(intervalId)
-            // }
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
-          }
-          if (line.idname === 'T9') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
-            // console.log('temperature line sending', line.idname, line.value)
-          }
-        } else if (line.endTime === this.currentTime) {
-          if (line.idname === 'R8') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}0|`)
-            // console.log(line.idname, 0)
-          }
-          if (line.idname === 'T9') {
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}0|`)
-            // console.log(line.idname, 0)
-          }
-          if (/V\d+/.test(line.idname)) {
-            // console.log('asdasdadasadasd')
-            this.sendingCommands = this.sendingCommands.concat(`${line.idname}N|`)
-          }
-        }
-      })
-      if (this.sendingCommands) {
-        console.log('this.sendingCommands = ', this.sendingCommands)
-        // serialPort.write(`${this.sendingCommands}\n`)
-        this.sendingCommands = ''
+    const resi= res[Symbol.iterator]()
+    this.inter = setInterval(() => {
+      const data = resi.next()
+      if(data.done){
+        clearInterval(this.inter)
       }
-      if (this.currentTime >= this.data.allTime) {
-        this.currentTime = 0
-        clearInterval(this.intervalId)
-      }
-      ++this.currentTime
-      // console.log(currentTime)
-      // if (currentTime % 10 === 0) {
-      //   // console.log('currentTime', currentTime)
-      // }
-    }, 1000 / this.velocity)
-    this.counter.time = (data.allTime - this.currentTime) / this.velocity
+      this.io.emit(socketConfig.rpmChange, data)
+    }, 100)
+    // this.init(data)
+    // this.counter.distance = 100
+    // this.intervalId = setInterval(() => {
+    //   this.lines.forEach((line) => {
+    //     if (line.startTime === this.currentTime) {
+    //       // console.log(line.idname)
+    //       if (line.idname === 'V0') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+    //       }
+    //       if (line.idname === 'V1') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+    //       }
+    //       if (line.idname === 'V2') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+    //       }
+    //       if (line.idname === 'V3') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+    //       }
+    //       if (line.idname === 'V4') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+    //       }
+    //       if (line.idname === 'V5') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+    //       }
+    //       if (line.idname === 'V6') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+    //       }
+    //       if (line.idname === 'V7') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+    //       }
+    //       if (line.idname === 'R8') {
+    //         // console.log('RPM line sendind', line.idname, line.value)
+    //         // if (line.waitForValue) {
+    //         //   const curDistance = currentTime
+    //         //   io.emit('STOP', {
+    //         //     curDistance,
+    //         //   })
+    //         //   intervalId2 = setTimeout(() => {
+    //         //     console.log('gavno gopa !!!!!!!!!!!!!!!!!!!')
+    //         //     start()
+    //         //     counter.distance = req.body.allTime
+    //         //     counter.time = (req.body.allTime - curDistance) / velocity
+    //         //     io.emit('START', {
+    //         //       ...counter,
+    //         //     })
+    //         //   }, 3000)
+    //         // console.log('intervalId2', intervalId2)
+    //         // clearInterval(intervalId)
+    //         // }
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
+    //       }
+    //       if (line.idname === 'T9') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
+    //         // console.log('temperature line sending', line.idname, line.value)
+    //       }
+    //     } else if (line.endTime === this.currentTime) {
+    //       if (line.idname === 'R8') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}0|`)
+    //         // console.log(line.idname, 0)
+    //       }
+    //       if (line.idname === 'T9') {
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}0|`)
+    //         // console.log(line.idname, 0)
+    //       }
+    //       if (/V\d+/.test(line.idname)) {
+    //         // console.log('asdasdadasadasd')
+    //         this.sendingCommands = this.sendingCommands.concat(`${line.idname}N|`)
+    //       }
+    //     }
+    //   })
+    //   if (this.sendingCommands) {
+    //     console.log('this.sendingCommands = ', this.sendingCommands)
+    //     // serialPort.write(`${this.sendingCommands}\n`)
+    //     this.sendingCommands = ''
+    //   }
+    //   if (this.currentTime >= this.data.allTime) {
+    //     this.currentTime = 0
+    //     clearInterval(this.intervalId)
+    //   }
+    //   ++this.currentTime
+    //   // console.log(currentTime)
+    //   // if (currentTime % 10 === 0) {
+    //   //   // console.log('currentTime', currentTime)
+    //   // }
+    // }, 1000 / this.velocity)
+    // this.counter.time = (data.allTime - this.currentTime) / this.velocity
     this.io.emit(socketConfig.start, this.counter, data)
   }
 

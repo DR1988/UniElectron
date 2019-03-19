@@ -258,6 +258,13 @@ class MainForm extends Component<Props, State> {
   }
 
   componentDidMount() {
+    const { lineFormer, allTime } = this.state
+    // const StartSignal: startSignal = {
+    //   lineFormer,
+    //   allTime,
+    // }
+    // this.props.socket.emit(socketConfig.start, StartSignal)
+
     this.props.socket.on(socketConfig.makeChange, (data) => {
       // console.log('data', data)
       if (this.state.showEditModal) {

@@ -1,6 +1,6 @@
 import React, { Component, PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import { ComposedChart, Cell, LineChart, Line, ReferenceArea, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import {Brush, ComposedChart, Cell, LineChart, Line, ReferenceLine, ReferenceArea, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 // import { SocketIOClientStatic } from 'socket.io-client'
 
 import socketConfig, { startSignal } from '../../../config/socket.config'
@@ -58,6 +58,44 @@ class Graphs extends Component<Props, State> {
     super(props)
     this.count = 0
     this.state = {
+      rmpsValues: [
+      //   {
+      //   RPMvalue: 425,
+      //   timeStamp: 0
+      // },
+      // {
+      //   RPMvalue: 225,
+      //   timeStamp: 1
+      // },
+      // {
+      //   RPMvalue: 325,
+      //   timeStamp: 2
+      // },
+      // {
+      //   RPMvalue: 455,
+      //   timeStamp: 3
+      // },
+      // {
+      //   RPMvalue: 125,
+      //   timeStamp: 4
+      // },
+      // {
+      //   RPMvalue: 335,
+      //   timeStamp: 5
+      // },
+      // {
+      //   RPMvalue: 215,
+      //   timeStamp: 6
+      // },
+      // {
+      //   RPMvalue: 115,
+      //   timeStamp: 7
+      // },
+      // {
+      //   RPMvalue: 85,
+      //   timeStamp: 8
+      // }
+    ],
       rmpSetValues: [
         { timeStamp: 0, 'RPM set value': 500 },
         { timeStamp: 1, 'RPM current value': 520 },
@@ -100,18 +138,23 @@ class Graphs extends Component<Props, State> {
   }
 
   componentDidMount() {
-    // this.props.socket.on(socketConfig.rpmChange, (data) => {
-    //   const { rmpValue } = data
-    //   // console.log('datas', data)
-    //   this.setState({
-    //     rmpValues: [...this.state.rmpValues, {
-    //       name: 'RPM',
-    //       rpm: data,
-    //     }],
-    //     counts: this.state.counts += 1,
-    //     // rmpValues: [...this.state.rmpValues, rmpValue],
-    //   })
-    // })
+    this.props.socket.on(socketConfig.rpmChange, (data) => {
+      // const { rmpValue } = data
+      // console.log('datas', data)
+
+      this.setState({
+        rmpsValues: [...this.state.rmpsValues, data.value]
+      })
+
+      // this.setState({
+      //   rmpValues: [...this.state.rmpValues, {
+      //     name: 'RPM',
+      //     rpm: data,
+      //   }],
+      //   counts: this.state.counts += 1,
+      //   // rmpValues: [...this.state.rmpValues, rmpValue],
+      // })
+    })
 
     this.props.socket.on(socketConfig.start, (data, form: startSignal) => {
       console.log('form', form);
@@ -123,7 +166,10 @@ class Graphs extends Component<Props, State> {
         return acc
       }, [])
       const datas = []
-      datas.push(RPMchanges[0])
+      datas.push({
+        ...RPMchanges[0],
+        value: RPMchanges[0].value + 120
+      })
       RPMchanges.reduce((acc, curr) => {
         const duration = curr.startTime - acc.endTime
         if (duration !== 0) {
@@ -134,6 +180,10 @@ class Graphs extends Component<Props, State> {
             value: 0,
             changeId: Math.random().toFixed(3)
           })
+        }
+        curr = {
+          ...curr,
+          value: curr.value + 150
         }
         datas.push(curr)
         return curr
@@ -202,9 +252,9 @@ class Graphs extends Component<Props, State> {
       let array
       if (index !== -1) {
         const value = { ...rmpSetValues[index], ...count }
-        console.log('value', value)
+        // console.log('value', value)
         array = [{ ...rmpSetValues[index], ...value }]
-        console.log('commonArray', this.state.commonArray)
+        // console.log('commonArray', this.state.commonArray)
       } else {
         array = [count]
       }
@@ -234,7 +284,8 @@ class Graphs extends Component<Props, State> {
   }
 
   render() {
-    const { rmpValues, graphTicks, allTime, datas, rmpSetValues, stepValues, commonArray } = this.state
+    const { rmpValues, rmpsValues, graphTicks, allTime, datas, rmpSetValues, stepValues, commonArray } = this.state
+    console.log(allTime);
     // console.log('rmpValues', rmpValues)
     // console.log('stepValues', stepValues)
     // console.log('rmpSetValues', rmpSetValues)
@@ -243,14 +294,15 @@ class Graphs extends Component<Props, State> {
     // console.log('graphTicks', graphTicks)
     // console.log('rmpSetValues', rmpSetValues);
     // console.log('rmpValues', rmpValues);
+    // console.log('commonArray', commonArray);
     return (<div>
       {/* {this.state.counts} */}
-      <ResponsiveContainer
+      {/* <ResponsiveContainer
         minWidth={800}
         width="100%"
         height={400}
-      >
-        <BarChart barCategoryGap={0} barGap={0} width={730} height={250} data={datas}>
+      > */}
+        {/* <BarChart barCategoryGap={0} barGap={0} width={730} height={250} data={datas}>
           <CartesianGrid stroke='#f5f5f5' />
           <XAxis dataKey="changeId" />
           <YAxis />
@@ -271,7 +323,7 @@ class Graphs extends Component<Props, State> {
               ))
             }
           </Bar>
-        </BarChart>
+        </BarChart> */}
         {/* <ComposedChart barCategoryGap={0} barGap={0} width={600} height={400} data={datas}
           margin={{ top: 20, right: 0, bottom: 20, left: 0 }}>
           <CartesianGrid stroke='#f5f5f5' />
@@ -297,27 +349,43 @@ class Graphs extends Component<Props, State> {
           <Line type='monotone' dataKey='value' stroke='#ff7300' />
         </ComposedChart> */}
 
-        {/* <LineChart
-          data={commonArray}
-        // width={600} height={300} data={rmpValues}
+        <LineChart
+          data={rmpsValues}
+          width={1200} height={300}
+          //  data={rmpValues}
         // margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <XAxis
             // scale="ordinal"
             type="number"
-            ticks={graphTicks}
+            // ticks={graphTicks}
             domain={[0, allTime]}
             dataKey="timeStamp"
           />
-          <YAxis dataKey="RPM set value" hide yAxisId="setValue" />
-          <YAxis dataKey="RPM set value" domain={[0, 2000]} yAxisId="currentValue" />
+          {/* <YAxis dataKey="value" domain={[0, 3000]} hide yAxisId="setValue" /> */}
+          <YAxis dataKey="RPMvalue" domain={[0, 3000]} />
+          {/* <YAxis /> */}
           <CartesianGrid strokeDasharray="3 3" />
           <Tooltip />
           <Legend />
+          {/* {datas && datas.map(el => {
+            return <ReferenceArea
+                key={Math.random()}
+                // yAxisId="setValue"
+                x1={el.startTime}
+                x2={el.endTime}
+                y1={el.value}
+                y2={el.value - 2}
+                stroke="red"
+                strokeOpacity={1}
+                ifOverflow='extendDomain'
+              />
+            }
+          )} */}
           {stepValues && stepValues.map(el =>
             <ReferenceArea
               key={el.ts}
-              yAxisId="setValue"
+              // yAxisId="setValue"
               x1={el.ts}
               x2={el.tf}
               y1={el.setValue}
@@ -328,15 +396,18 @@ class Graphs extends Component<Props, State> {
           )}
           <Line
             isAnimationActive={false}
-            dot={false}
-            type="monotone"
-            dataKey="RPM current value"
+            type='natural'
+            dataKey="RPMvalue"
             stroke="red"
-            strokeWidth={3}
-            yAxisId="currentValue"
+            strokeWidth={2}
+            fill="red"
+            dot={false}
+            // connectNulls={true}
+            // yAxisId="currentValue"
           />
-        </LineChart> */}
-      </ResponsiveContainer >
+          <Brush  dataKey="RPMvalue"/>
+        </LineChart>
+      {/* </ResponsiveContainer > */}
       {/* <Graph
         // animatable
         scaleFactor={0.2}

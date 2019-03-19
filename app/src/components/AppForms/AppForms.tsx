@@ -13,7 +13,6 @@ interface Props {
 }
 
 const AppForms = ({ currentForm }: Props) => {
-  console.log(currentForm)
   const isMainForm = currentForm === 'MainForm'
   return (
   <div className={s.container}>
