@@ -140,10 +140,10 @@ class Graphs extends Component<Props, State> {
   componentDidMount() {
     this.props.socket.on(socketConfig.rpmChange, (data) => {
       // const { rmpValue } = data
-      // console.log('datas', data)
+      console.log('datas', data)
 
       this.setState({
-        rmpsValues: [...this.state.rmpsValues, data.value]
+        rmpsValues: [...this.state.rmpsValues, data]
       })
 
       // this.setState({

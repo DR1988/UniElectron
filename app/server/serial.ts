@@ -49,8 +49,13 @@ export default (socket: socket.Socket) => {
           //   5000
           // )
         })
+        let i = 0
         parser.on('data', (data) => {
-          socket.emit(socketConfig.rpmChange, data.toString())
+          socket.emit(socketConfig.rpmChange, {
+            timeStamp: i,
+            RPMvalue: data.toString()
+          })
+          i++
           console.log('data: ', `${data}`)
         })
       }/*  else {
