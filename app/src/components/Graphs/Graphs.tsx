@@ -43,6 +43,8 @@ interface State {
   counts: number,
   commonArray: Array<any>,
   rmpValues: Array<any>,
+  startTime: number,
+  endime: number,
 }
 
 interface Props {
@@ -127,6 +129,8 @@ class Graphs extends Component<Props, State> {
         { timeStamp: 350 },
       ],
       graphTicks: [],
+      startTime: 0,
+      endTime: 0,
       allTime: 1,
       counts: 0,
       commonArray: [],
@@ -220,7 +224,7 @@ class Graphs extends Component<Props, State> {
       })
       console.log('stepValues', stepValues)
       this.setState({
-        allTime,
+        endTime: allTime,
         graphTicks,
         rmpSetValues,
         stepValues,
@@ -283,9 +287,17 @@ class Graphs extends Component<Props, State> {
     // RPM current value
   }
 
+  changeScale = (distance: {startIndex: number, endIndex: number}) => {
+    console.log(distance);
+    this.setState({
+      startTime: distance.startIndex,
+      endTime: distance.endIndex,
+    })
+  }
+
   render() {
-    const { rmpValues, rmpsValues, graphTicks, allTime, datas, rmpSetValues, stepValues, commonArray } = this.state
-    console.log(allTime);
+    const { rmpValues, rmpsValues, graphTicks, allTime, endTime, startTime, datas, rmpSetValues, stepValues, commonArray } = this.state
+    // console.log(allTime);
     // console.log('rmpValues', rmpValues)
     // console.log('stepValues', stepValues)
     // console.log('rmpSetValues', rmpSetValues)
@@ -358,8 +370,8 @@ class Graphs extends Component<Props, State> {
           <XAxis
             // scale="ordinal"
             type="number"
-            // ticks={graphTicks}
-            domain={[0, allTime]}
+            // // ticks={graphTicks}
+            domain={[startTime, endTime]}
             dataKey="timeStamp"
           />
           {/* <YAxis dataKey="value" domain={[0, 3000]} hide yAxisId="setValue" /> */}
@@ -405,7 +417,7 @@ class Graphs extends Component<Props, State> {
             // connectNulls={true}
             // yAxisId="currentValue"
           />
-          <Brush  dataKey="RPMvalue"/>
+          <Brush onChange={this.changeScale} dataKey="timeStamp"/>
         </LineChart>
       {/* </ResponsiveContainer > */}
       {/* <Graph

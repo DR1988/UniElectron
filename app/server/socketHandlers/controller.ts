@@ -86,14 +86,14 @@ export default class Controller {
   }
 
   start = (data: startSignal) => {
-    // const resi= res[Symbol.iterator]()
-    // this.inter = setInterval(() => {
-    //   const data = resi.next()
-    //   if(data.done){
-    //     clearInterval(this.inter)
-    //   }
-    //   this.io.emit(socketConfig.rpmChange, data)
-    // }, 100)
+    const resi= res[Symbol.iterator]()
+    this.inter = setInterval(() => {
+      const data = resi.next()
+      if(data.done){
+        clearInterval(this.inter)
+      }
+      this.io.emit(socketConfig.rpmChange, data.value)
+    }, 100)
     // this.init(data)
     // this.counter.distance = 100
     // this.intervalId = setInterval(() => {
