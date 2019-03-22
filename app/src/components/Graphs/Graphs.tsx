@@ -359,23 +359,28 @@ class Graphs extends Component<Props, State> {
   }
 
   incr = () => {
-    const { rmpsValues, endTime } = this.state
-    if(endTime < rmpsValues.length) {
+    const { rmpsValues, endTime, startTime } = this.state
+    if(this.state.endTime + 10 < 350) {
       const endTime = this.state.endTime + 10
       this.setState({
         endTime,
-        width: endTime/rmpsValues.length * 100
+        width: (endTime-startTime)/350 * 100
+      })
+    } else {
+      this.setState({
+        endTime: 350,
+        width: (350-startTime)/350 * 100
       })
     }
   }
 
   decr = () => {
-    const { rmpsValues, endTime } = this.state
+    const { rmpsValues, endTime, startTime} = this.state
     if(endTime > 10) {
         const endTime = this.state.endTime - 10
         this.setState({
         endTime,
-        width: endTime/rmpsValues.length * 100
+        width: (endTime-startTime)/350 * 100
       })
     }
   }
@@ -397,21 +402,23 @@ class Graphs extends Component<Props, State> {
   move = (e: React.MouseEvent ) => {
     if(this.state.isGrab){
       const { endTime, startTime, width, rmpsValues } = this.state
-      const numberOfElements = rmpsValues.length
+      const numberOfElements = 350
       // const width = (endTime-startTime)/21 * 100
       // console.log('width', endTime-startTime)
       // console.log('endTime', endTime)
-      console.log('numberOfElements', numberOfElements)
+      // console.log('numberOfElements', numberOfElements)
       const currentWidth = e.currentTarget.clientWidth
       const initialWidth = currentWidth/width * 100
       const offset = this.lastX + (e.clientX - this.x)/initialWidth*100
+      // console.log('startTimeNew', +(offset * numberOfElements / 100).toFixed(2));
       const startTimeNew = +(offset * numberOfElements / 100).toFixed(2)
       if(offset + 2/initialWidth*100 < 100 - width && offset > 0 ){
         const endTimeNew = /* endTime + */ +(width * numberOfElements / 100 + startTimeNew).toFixed(2)
+        console.log('endTimeNew', endTimeNew);
         //  + +(endTime/initialWidth*100).toFixed(2)
         // console.log('startTimeNew', startTimeNew)
-        console.log('endTimeNew', endTimeNew)
-        console.log('endTimeNew - startTimeNew =', endTimeNew - startTimeNew)
+        // console.log('endTimeNew', endTimeNew)
+        // console.log('endTimeNew - startTimeNew =', endTimeNew - startTimeNew)
         this.setState({
           dx: offset,
           startTime: startTimeNew,
@@ -547,9 +554,9 @@ class Graphs extends Component<Props, State> {
             // connectNulls={true}
             // yAxisId="currentValue"
           />
-          <Brush onChange={this.changeScale} />
+          {/* <Brush onChange={this.changeScale} /> */}
         </LineChart>
-        {/* <div className={s.scale}>
+        <div className={s.scale}>
           <button>-</button>
           <div className={cn(s['mover-container'])}>
             <div
@@ -566,7 +573,7 @@ class Graphs extends Component<Props, State> {
             </div>
           </div>
           <button>+</button>
-        </div> */}
+        </div>
       {/* </ResponsiveContainer > */}
       {/* <Graph
         // animatable

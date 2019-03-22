@@ -95,7 +95,7 @@ export default class Controller {
         clearInterval(this.inter)
       }
       this.io.emit(socketConfig.rpmChange, data.value)
-    }, 1000)
+    }, 200)
     // this.init(data)
     // this.counter.distance = 100
     // this.intervalId = setInterval(() => {
