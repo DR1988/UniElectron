@@ -1,0 +1,18 @@
+.scale{
+  display: flex;
+  margin: 0 50px;
+  height: 25px;
+}
+
+.scale .mover-container{
+  width: 100%;
+  border: red 2px solid;
+  display: flex;
+}
+.mover-container .mover{
+  width: 20px;
+  border: 2px solid gray;
+  /* height: 100%; */
+  position: relative;
+  background-color: silver;
+}

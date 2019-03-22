@@ -2,11 +2,12 @@ import React, { Component, PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import {Brush, ComposedChart, Cell, LineChart, Line, ReferenceLine, ReferenceArea, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 // import { SocketIOClientStatic } from 'socket.io-client'
+import cn from 'classnames'
 
 import socketConfig, { startSignal } from '../../../config/socket.config'
 // import Graph from '../../components/common/graphs/Mygraph'
 // import { CartesianGrids } from '../../components/common/graphs/Elements/index'
-
+import s from './Graphs.css'
 const data = [{ name: 'Page A', uv: 590, pv: 800, amt: 1400 },
 { name: 'Page B', uv: 868, pv: 967, amt: 1506 },
 { name: 'Page C', uv: 1397, pv: 1098, amt: 989 },
@@ -44,7 +45,7 @@ interface State {
   commonArray: Array<any>,
   rmpValues: Array<any>,
   startTime: number,
-  endime: number,
+  endTime: number,
 }
 
 interface Props {
@@ -59,6 +60,8 @@ class Graphs extends Component<Props, State> {
   constructor(props) {
     super(props)
     this.count = 0
+    this.lastX=0
+    this.x=0
     this.state = {
       rmpsValues: [
       //   {
@@ -96,6 +99,58 @@ class Graphs extends Component<Props, State> {
       // {
       //   RPMvalue: 85,
       //   timeStamp: 8
+      // },
+      // {
+      //   RPMvalue: 285,
+      //   timeStamp: 9
+      // },
+      // {
+      //   RPMvalue: 15,
+      //   timeStamp: 10
+      // },
+      // {
+      //   RPMvalue: 115,
+      //   timeStamp: 11
+      // },
+      // {
+      //   RPMvalue: 335,
+      //   timeStamp: 12
+      // },
+      // {
+      //   RPMvalue: 266,
+      //   timeStamp: 13
+      // },
+      // {
+      //   RPMvalue: 432,
+      //   timeStamp: 14
+      // },
+      // {
+      //   RPMvalue: 234,
+      //   timeStamp: 15
+      // },
+      // {
+      //   RPMvalue: 123,
+      //   timeStamp: 16
+      // },
+      // {
+      //   RPMvalue: 169,
+      //   timeStamp: 17
+      // },
+      // {
+      //   RPMvalue: 65,
+      //   timeStamp: 18
+      // },
+      // {
+      //   RPMvalue: 35,
+      //   timeStamp: 19
+      // },
+      // {
+      //   RPMvalue: 85,
+      //   timeStamp: 20
+      // },
+      // {
+      //   RPMvalue: 270,
+      //   timeStamp: 21
       // }
     ],
       rmpSetValues: [
@@ -130,9 +185,11 @@ class Graphs extends Component<Props, State> {
       ],
       graphTicks: [],
       startTime: 0,
-      endTime: 0,
+      endTime: 21,
+      width: 100,
       allTime: 1,
       counts: 0,
+      dx:0,
       commonArray: [],
       rmpValues: [/* {
         name: 'RPM',
@@ -144,7 +201,7 @@ class Graphs extends Component<Props, State> {
   componentDidMount() {
     this.props.socket.on(socketConfig.rpmChange, (data) => {
       // const { rmpValue } = data
-      console.log('datas', data)
+      // console.log('datas', data)
 
       this.setState({
         rmpsValues: [...this.state.rmpsValues, data]
@@ -295,9 +352,78 @@ class Graphs extends Component<Props, State> {
     })
   }
 
+  clear = () => {
+    this.setState({
+      rmpsValues: []
+    })
+  }
+
+  incr = () => {
+    const { rmpsValues, endTime } = this.state
+    if(endTime < rmpsValues.length) {
+      const endTime = this.state.endTime + 10
+      this.setState({
+        endTime,
+        width: endTime/rmpsValues.length * 100
+      })
+    }
+  }
+
+  decr = () => {
+    const { rmpsValues, endTime } = this.state
+    if(endTime > 10) {
+        const endTime = this.state.endTime - 10
+        this.setState({
+        endTime,
+        width: endTime/rmpsValues.length * 100
+      })
+    }
+  }
+
+  grab = (e: React.MouseEvent) => {
+    this.setState({
+      isGrab: true,
+    })
+    this.x = e.clientX
+  }
+
+  unGrab = () => {
+    this.setState({
+      isGrab: false
+    })
+    this.lastX = this.state.dx
+  }
+
+  move = (e: React.MouseEvent ) => {
+    if(this.state.isGrab){
+      const { endTime, startTime, width, rmpsValues } = this.state
+      const numberOfElements = rmpsValues.length
+      // const width = (endTime-startTime)/21 * 100
+      // console.log('width', endTime-startTime)
+      // console.log('endTime', endTime)
+      console.log('numberOfElements', numberOfElements)
+      const currentWidth = e.currentTarget.clientWidth
+      const initialWidth = currentWidth/width * 100
+      const offset = this.lastX + (e.clientX - this.x)/initialWidth*100
+      const startTimeNew = +(offset * numberOfElements / 100).toFixed(2)
+      if(offset + 2/initialWidth*100 < 100 - width && offset > 0 ){
+        const endTimeNew = /* endTime + */ +(width * numberOfElements / 100 + startTimeNew).toFixed(2)
+        //  + +(endTime/initialWidth*100).toFixed(2)
+        // console.log('startTimeNew', startTimeNew)
+        console.log('endTimeNew', endTimeNew)
+        console.log('endTimeNew - startTimeNew =', endTimeNew - startTimeNew)
+        this.setState({
+          dx: offset,
+          startTime: startTimeNew,
+          endTime: endTimeNew
+        })
+      }
+    }
+  }
+
   render() {
-    const { rmpValues, rmpsValues, graphTicks, allTime, endTime, startTime, datas, rmpSetValues, stepValues, commonArray } = this.state
-    // console.log(allTime);
+    const { isGrab, dx, rmpValues, width, rmpsValues, graphTicks, allTime, endTime, startTime, datas, rmpSetValues, stepValues, commonArray } = this.state
+    // console.log('endTime', endTime);
     // console.log('rmpValues', rmpValues)
     // console.log('stepValues', stepValues)
     // console.log('rmpSetValues', rmpSetValues)
@@ -308,6 +434,9 @@ class Graphs extends Component<Props, State> {
     // console.log('rmpValues', rmpValues);
     // console.log('commonArray', commonArray);
     return (<div>
+      <button onClick={this.clear}>Clear</button>
+      <button onClick={this.incr}>+</button>
+      <button onClick={this.decr}>-</button>
       {/* {this.state.counts} */}
       {/* <ResponsiveContainer
         minWidth={800}
@@ -368,6 +497,7 @@ class Graphs extends Component<Props, State> {
         // margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
         >
           <XAxis
+            allowDataOverflow={true}
             // scale="ordinal"
             type="number"
             // // ticks={graphTicks}
@@ -417,8 +547,26 @@ class Graphs extends Component<Props, State> {
             // connectNulls={true}
             // yAxisId="currentValue"
           />
-          <Brush onChange={this.changeScale} dataKey="timeStamp"/>
+          <Brush onChange={this.changeScale} />
         </LineChart>
+        {/* <div className={s.scale}>
+          <button>-</button>
+          <div className={cn(s['mover-container'])}>
+            <div
+              style={{
+                cursor: !isGrab ? 'grab' : '-webkit-grabbing',
+                width: `${width}%`,
+                left: `${dx}%`
+              }}
+              onMouseEnter={this.unGrab}
+              onMouseMove={this.move}
+              onMouseUp={this.unGrab}
+              onMouseDown={this.grab}
+              className={s.mover}>
+            </div>
+          </div>
+          <button>+</button>
+        </div> */}
       {/* </ResponsiveContainer > */}
       {/* <Graph
         // animatable

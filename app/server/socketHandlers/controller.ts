@@ -82,18 +82,20 @@ export default class Controller {
       time: 1,
     }
     this.io.emit(socketConfig.stop, this.counter)
+    console.log('this.inter', this.inter)
     clearInterval(this.inter)
   }
 
   start = (data: startSignal) => {
     const resi= res[Symbol.iterator]()
+    clearInterval(this.inter)
     this.inter = setInterval(() => {
       const data = resi.next()
       if(data.done){
         clearInterval(this.inter)
       }
       this.io.emit(socketConfig.rpmChange, data.value)
-    }, 100)
+    }, 1000)
     // this.init(data)
     // this.counter.distance = 100
     // this.intervalId = setInterval(() => {
