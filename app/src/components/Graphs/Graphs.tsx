@@ -62,6 +62,7 @@ class Graphs extends Component<Props, State> {
     this.count = 0
     this.lastX=0
     this.x=0
+    this.data = null
     this.state = {
       rmpsValues: [
       //   {
@@ -199,29 +200,41 @@ class Graphs extends Component<Props, State> {
   }
 
   componentDidMount() {
-    this.props.socket.on(socketConfig.rpmChange, (data) => {
+    this.props.socket.on(socketConfig.rpmChange, (socketData) => {
       // const { rmpValue } = data
-      // console.log('datas', data)
-
+      const { data, time } = socketData
+      // console.log('socketData', socketData)
+      // console.log('time', time)
+      this.data = data
+      const datas = {
+        RPMvalue: data,
+        timeStamp: time
+      }
       this.setState({
-        rmpsValues: [...this.state.rmpsValues, data]
+        rmpsValues: [...this.state.rmpsValues, datas]
       })
-
-      // this.setState({
-      //   rmpValues: [...this.state.rmpValues, {
-      //     name: 'RPM',
-      //     rpm: data,
-      //   }],
-      //   counts: this.state.counts += 1,
-      //   // rmpValues: [...this.state.rmpValues, rmpValue],
-      // })
     })
 
     this.props.socket.on(socketConfig.start, (data, form: startSignal) => {
-      console.log('form', form);
+      let counter = 0
+      // console.log('form', form);
       const { allTime } = form
+      const { distance, time } = data
+      // console.log('time', time/allTime)
+      // let timer = setInterval(()=> {
+      //   console.log('this.data', this.data)
+      //   const datas = {
+      //     RPMvalue: this.data,
+      //     timeStamp: counter
+      //   }
+      //   counter++
+      //   this.setState({
+      //     rmpsValues: [...this.state.rmpsValues, datas]
+      //   })
+      // }, time/allTime * 1000)
+     
       const RPMchanges = form.lineFormer.filter(el => el.shortName === 'RPM')[0].changes
-      console.log('RPMchanges', RPMchanges)
+      // console.log('RPMchanges', RPMchanges)
       const graphTicks = RPMchanges.reduce((acc, cur) => {
         acc.push(cur.startTime, cur.endTime)
         return acc
@@ -249,7 +262,7 @@ class Graphs extends Component<Props, State> {
         datas.push(curr)
         return curr
       })
-      console.log('datas', datas);
+      // console.log('datas', datas);
       // console.log('graphTicks', graphTicks)
       const rmpSetValues = RPMchanges.reduce((acc, cur) => {
         acc.push({
@@ -265,7 +278,7 @@ class Graphs extends Component<Props, State> {
         // })
         return acc
       }, [])
-      console.log('rmpSetValues', rmpSetValues);
+      // console.log('rmpSetValues', rmpSetValues);
       const RPMcurrentValue = rmpSetValues.filter(el => el['RPM set value'])
       const stepValues = []
       RPMcurrentValue.reduce((acc, curr, ind) => {
@@ -279,8 +292,9 @@ class Graphs extends Component<Props, State> {
         }
         return curr
       })
-      console.log('stepValues', stepValues)
+      // console.log('stepValues', stepValues)
       this.setState({
+        allTime,
         endTime: allTime,
         graphTicks,
         rmpSetValues,
@@ -298,7 +312,7 @@ class Graphs extends Component<Props, State> {
   increaseCounts = () => {
     const { stepValues, rmpSetValues, rmpValues } = this.state
     let currentValue
-    if (this.count === 0) console.log(rmpSetValues)
+    // if (this.count === 0) console.log(rmpSetValues)
     const startTime = stepValues.filter(el => this.count >= el.ts && this.count <= el.tf)[0]
     // console.log('startTime', startTime)
     if (startTime) {
@@ -345,7 +359,7 @@ class Graphs extends Component<Props, State> {
   }
 
   changeScale = (distance: {startIndex: number, endIndex: number}) => {
-    console.log(distance);
+    // console.log(distance);
     this.setState({
       startTime: distance.startIndex,
       endTime: distance.endIndex,
@@ -359,28 +373,28 @@ class Graphs extends Component<Props, State> {
   }
 
   incr = () => {
-    const { rmpsValues, endTime, startTime } = this.state
-    if(this.state.endTime + 10 < 350) {
+    const { rmpsValues, endTime, startTime, allTime } = this.state
+    if(this.state.endTime + 10 < allTime) {
       const endTime = this.state.endTime + 10
       this.setState({
         endTime,
-        width: (endTime-startTime)/350 * 100
+        width: (endTime-startTime)/allTime * 100
       })
     } else {
       this.setState({
-        endTime: 350,
-        width: (350-startTime)/350 * 100
+        endTime: allTime,
+        width: (allTime-startTime)/allTime * 100
       })
     }
   }
 
   decr = () => {
-    const { rmpsValues, endTime, startTime} = this.state
+    const { rmpsValues, endTime, startTime, allTime} = this.state
     if(endTime > 10) {
         const endTime = this.state.endTime - 10
         this.setState({
         endTime,
-        width: (endTime-startTime)/350 * 100
+        width: (endTime-startTime)/allTime * 100
       })
     }
   }
@@ -401,8 +415,7 @@ class Graphs extends Component<Props, State> {
 
   move = (e: React.MouseEvent ) => {
     if(this.state.isGrab){
-      const { endTime, startTime, width, rmpsValues } = this.state
-      const numberOfElements = 350
+      const { endTime, startTime, width, rmpsValues, allTime } = this.state
       // const width = (endTime-startTime)/21 * 100
       // console.log('width', endTime-startTime)
       // console.log('endTime', endTime)
@@ -411,10 +424,10 @@ class Graphs extends Component<Props, State> {
       const initialWidth = currentWidth/width * 100
       const offset = this.lastX + (e.clientX - this.x)/initialWidth*100
       // console.log('startTimeNew', +(offset * numberOfElements / 100).toFixed(2));
-      const startTimeNew = +(offset * numberOfElements / 100).toFixed(2)
+      const startTimeNew = +(offset * allTime / 100).toFixed(2)
       if(offset + 2/initialWidth*100 < 100 - width && offset > 0 ){
-        const endTimeNew = /* endTime + */ +(width * numberOfElements / 100 + startTimeNew).toFixed(2)
-        console.log('endTimeNew', endTimeNew);
+        const endTimeNew = /* endTime + */ +(width * allTime / 100 + startTimeNew).toFixed(2)
+        // console.log('endTimeNew', endTimeNew);
         //  + +(endTime/initialWidth*100).toFixed(2)
         // console.log('startTimeNew', startTimeNew)
         // console.log('endTimeNew', endTimeNew)
@@ -565,6 +578,7 @@ class Graphs extends Component<Props, State> {
                 width: `${width}%`,
                 left: `${dx}%`
               }}
+              onMouseLeave={this.unGrab}
               onMouseEnter={this.unGrab}
               onMouseMove={this.move}
               onMouseUp={this.unGrab}

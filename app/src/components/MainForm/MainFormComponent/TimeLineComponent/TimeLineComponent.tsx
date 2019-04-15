@@ -16,6 +16,8 @@ const TimeLineComponent: StatelessComponent<Props> = ({
   distance,
   width = '100%',
 }) => {
+  // console.log('distance', distance)
+  // console.log('time', time)
   const dividersTemplate = []
   if (allTime > 0) {
     const maxI = allTime / 50

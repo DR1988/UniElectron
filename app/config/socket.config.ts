@@ -7,6 +7,9 @@ export default {
   stop: 'STOP',
   rpmChange: 'rpmChange',
   connect: 'CONNECT',
+  connected: 'CONNECTED',
+  connectionError: 'CONNECTION_ERROR',
+  serial_closed: 'SERIAL_CLOSED',
 }
 
 export interface startSignal {

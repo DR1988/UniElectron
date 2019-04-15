@@ -211,7 +211,17 @@ class MainForm extends Component<Props, State> {
               value: 500,
               changeId: 0,
               duration: 50,
-              waitForValue: true,
+              waitForValue: false,
+              crossingValueEnd: NaN,
+              crossingValueStart: NaN,
+            },
+            {
+              startTime: 70,
+              endTime: 90,
+              value: 2500,
+              changeId: 1,
+              duration: 20,
+              waitForValue: false,
               crossingValueEnd: NaN,
               crossingValueStart: NaN,
             },
@@ -219,7 +229,7 @@ class MainForm extends Component<Props, State> {
               startTime: 100,
               endTime: 150,
               value: 2000,
-              changeId: 1,
+              changeId: 2,
               duration: 50,
               waitForValue: true,
               crossingValueEnd: NaN,
@@ -228,10 +238,10 @@ class MainForm extends Component<Props, State> {
             {
               startTime: 200,
               endTime: 250,
-              value: 1500,
-              changeId: 2,
+              value: 3000,
+              changeId: 3,
               duration: 50,
-              waitForValue: true,
+              waitForValue: false,
               crossingValueEnd: NaN,
               crossingValueStart: NaN,
             },
@@ -239,9 +249,9 @@ class MainForm extends Component<Props, State> {
               startTime: 300,
               endTime: 350,
               value: 1000,
-              changeId: 3,
+              changeId: 4,
               duration: 50,
-              waitForValue: true,
+              waitForValue: false,
               crossingValueEnd: NaN,
               crossingValueStart: NaN,
             },
@@ -251,7 +261,7 @@ class MainForm extends Component<Props, State> {
           name: 'TempSetter',
           shortName: 'T°C',
           id: 9,
-          changes: [{ startTime: 300, endTime: 350, value: 45, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [{ startTime: 300, endTime: 350, value: 45, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false }],
         },
       ],
     }
@@ -279,9 +289,10 @@ class MainForm extends Component<Props, State> {
       }
     })
     this.props.socket.on(socketConfig.start, (data, s) => {
-      console.log(data)
-      console.log(s)
+      // console.log(data)
+      // console.log(s)
       const { distance, time } = data
+      console.log('start time', time)
       this.setState({
         distance,
         time,
@@ -290,6 +301,7 @@ class MainForm extends Component<Props, State> {
     this.props.socket.on(socketConfig.pause, (data) => {
       console.log('data', data)
       const { time } = this.state
+      console.log('time', time)
       this.setState({
         distance: 100 * data.currentTime / time
       })
@@ -587,7 +599,6 @@ class MainForm extends Component<Props, State> {
     }
     let currentItemIndex = previousChanges.length
     if (newEndTime <= changes[previousChanges.length - 1].endTime) {
-      console.log(1231)
       for (let i = 0; i < previousChanges.length; i += 1) {
         if (newEndTime <= previousChanges[i].endTime) {
           currentItemIndex = i
@@ -870,6 +881,25 @@ class MainForm extends Component<Props, State> {
     }
   }
 
+  changeWaitForValue = () => {
+    const { chosenElement, lineFormer } = this.state
+    const { changeId, chosenLine } = chosenElement
+    const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
+    const newlineFormer = cloneDeep(lineFormer)
+    const { waitForValue } = newlineFormer[chosenLine.id].changes[index]
+    newlineFormer[chosenLine.id].changes[index].waitForValue = !waitForValue
+    const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+    newChosenLine.changes[index].waitForValue = !waitForValue
+    this.setState({
+      ...this.state,
+      lineFormer: newlineFormer,
+      chosenElement: {
+        ...this.state.chosenElement,
+        chosenLine: newChosenLine,
+      },
+    })
+  }
+
   render() {
     const { showEditModal, chosenElement } = this.state
     // console.log(chosenElement.chosenLine.name === 'NewValveLine')
@@ -921,6 +951,7 @@ class MainForm extends Component<Props, State> {
                   changeStartTime={this.changeStartTime}
                   changeEndTime={this.changeEndTime}
                   changeRPMValue={this.changeRPMValue}
+                  changeWaitForValue={this.changeWaitForValue}
                 />)
               case 'NewRPMSetter':
                 return (<NewRMPModal

@@ -35,6 +35,7 @@ class ValveLineComponent extends Component<Props>{
           const duration = endTime - startTime
           return (
             <ValveTimeComponent
+              waitForValue={el.waitForValue}
               key={el.changeId}
               lineID={line.id}
               changeId={el.changeId}

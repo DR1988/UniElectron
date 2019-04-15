@@ -1,8 +1,9 @@
-import React, { Component } from 'react'
+import React, { Component, PureComponent } from 'react'
 
 import s from './ValveTimeComponent.css'
 
 interface Props {
+  waitForValue?: boolean,
   changeId: number | string,
   value: number,
   startTime: number,
@@ -14,7 +15,11 @@ interface Props {
   setChosenValveTime: (lineID: number, changeId: number) => void,
 }
 
-class ValveTimeComponent extends Component<Props>{
+class ValveTimeComponent extends PureComponent<Props>{
+  static defaultProps = {
+    waitForValue: false,
+  }
+
   constructor(props: Props) {
     super(props)
   }
@@ -58,6 +63,7 @@ class ValveTimeComponent extends Component<Props>{
       crossingValueEnd,
       lineID,
       changeId,
+      waitForValue,
     } = this.props
     return (
       <div
@@ -76,6 +82,11 @@ class ValveTimeComponent extends Component<Props>{
           width: `${100 * width}%`,
         }}
       >
+        {waitForValue ? (<div className={s.triangle_container}>
+          <div className={s.triangle}>
+
+          </div>
+        </div>) : null}
         {/* {changeId === chosenElement.changeId && lineID === chosenElement.chosenLine.id ?
           <div className={s.modal}>
             <div>{chosenElement.changeId}</div>

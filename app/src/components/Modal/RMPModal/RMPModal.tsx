@@ -60,7 +60,8 @@ const isSetValveTimeEnable = (startTime: number, endTime: number, RPMValue: numb
 }
 
 interface Props extends CommonMoadlInterface {
-  changeRPMValue: (RPMValue: number) => void
+  changeRPMValue: (RPMValue: number) => void,
+  changeWaitForValue: () => void,
 }
 
 const RMPModal: StatelessComponent<Props> = ({
@@ -70,11 +71,12 @@ const RMPModal: StatelessComponent<Props> = ({
   changeStartTime,
   changeEndTime,
   resetToPreviousChanges,
-  removeValveTime
+  removeValveTime,
+  changeWaitForValue,
 }) => {
   const { chosenLine, changeId, wrongSign } = chosenElement
   const filteredChange = chosenLine.changes.filter(change => change.changeId === changeId)[0]
-  const { value, startTime, endTime } = filteredChange
+  const { value, startTime, endTime, waitForValue } = filteredChange
   const wrongSignValue = isSetValveTimeEnable(startTime, endTime, value, wrongSign)
   return (
     <div className={s.root}>
@@ -113,7 +115,7 @@ const RMPModal: StatelessComponent<Props> = ({
           <div>
             <label htmlFor="waitForValue">
               wait for value
-              <input id="waitForValue" type="checkbox" />
+              <input checked={waitForValue} onChange={changeWaitForValue} id="waitForValue" type="checkbox" />
             </label>
           </div>
           {wrongSignValue ?

@@ -21,7 +21,8 @@ export default class Main extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
     this.state = {
-      currentForm: 'Graphs',
+      currentForm: 'MainForm',
+      // currentForm: 'Graphs',
     }
   }
 
