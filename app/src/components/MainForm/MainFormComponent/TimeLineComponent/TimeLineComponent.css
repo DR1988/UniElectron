@@ -3,6 +3,7 @@
   height: 50px;
   display: flex;
   align-items: flex-end;
+  flex-wrap: wrap;
 }
 .time-line_wraper .time-line{
     /* height: 50px * 0.8; */
@@ -15,7 +16,7 @@
       height: 100%;
       justify-content: space-between;
 }
-.time-line_wraper .time-line .time-show .time-former{
+.time-show .time-former{
         position: relative;
         background-color: #648591;
         width: 2px;

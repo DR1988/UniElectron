@@ -9,7 +9,8 @@ export default {
   connect: 'CONNECT',
   connected: 'CONNECTED',
   connectionError: 'CONNECTION_ERROR',
-  serial_closed: 'SERIAL_CLOSED',
+  serialClosed: 'SERIAL_CLOSED',
+  serialSending: 'SERIAL_SENDING',
 }
 
 export interface startSignal {

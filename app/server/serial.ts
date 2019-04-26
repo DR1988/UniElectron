@@ -67,7 +67,7 @@ export default class Serial {
 
   disconnect(){
     this.serialPort.close()
-    this.io.emit(socketConfig.serial_closed)
+    this.io.emit(socketConfig.serialClosed)
   }
 
   sendData(data: string| number[] | Buffer){

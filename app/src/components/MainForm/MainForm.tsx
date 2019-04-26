@@ -130,7 +130,7 @@ class MainForm extends Component<Props, State> {
             value: 1000,
             changeId: 0,
             duration: 50,
-            waitForValue: true,
+            waitForValue: false,
             crossingValueEnd: NaN,
             crossingValueStart: NaN,
           }],
@@ -231,7 +231,7 @@ class MainForm extends Component<Props, State> {
               value: 2000,
               changeId: 2,
               duration: 50,
-              waitForValue: true,
+              waitForValue: false,
               crossingValueEnd: NaN,
               crossingValueStart: NaN,
             },
@@ -274,7 +274,6 @@ class MainForm extends Component<Props, State> {
     //   allTime,
     // }
     // this.props.socket.emit(socketConfig.start, StartSignal)
-
     this.props.socket.on(socketConfig.makeChange, (data) => {
       // console.log('data', data)
       if (this.state.showEditModal) {
@@ -290,20 +289,25 @@ class MainForm extends Component<Props, State> {
     })
     this.props.socket.on(socketConfig.start, (data, s) => {
       // console.log(data)
-      // console.log(s)
+      console.log('--------start---------', new Date())
+      // console.log('ssssss', s)
       const { distance, time } = data
-      console.log('start time', time)
+      // console.log('start time, distance', time, distance)
       this.setState({
         distance,
         time,
       })
     })
     this.props.socket.on(socketConfig.pause, (data) => {
-      console.log('data', data)
-      const { time } = this.state
-      console.log('time', time)
+      console.log('--------pause---------', new Date())
+      console.log(Date.now())
+      // console.log('data', data)
+      const { time, distance, allTime } = this.state
+      // console.log('time distance', time, distance)
+      // console.log('distance', 100 * data.currentTime / time)
       this.setState({
-        distance: 100 * data.currentTime / time
+        distance: 100 * data.currentTime / allTime,
+        time: 0,
       })
     })
     this.props.socket.on(socketConfig.stop, (data) => {
@@ -917,6 +921,7 @@ class MainForm extends Component<Props, State> {
           showModal={this.showModal}
           addNewValveTime={this.addNewValveTime}
           setChosenValveTime={this.setChosenValveTime}
+          socket={this.props.socket}
           {...this.state}
         />
         <ModalWithCondition

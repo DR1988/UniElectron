@@ -58,8 +58,9 @@ export default class Controller {
 
   pause = () => {
     console.log('pause')
+    console.log(Date.now())
     clearInterval(this.intervalId)
-    this.io.emit(socketConfig.pause, { currentTime: this.currentTime / this.velocity })
+    this.io.emit(socketConfig.pause, { currentTime: this.currentTime })
   }
 
   stop = () => {
@@ -179,7 +180,8 @@ export default class Controller {
       })
       if (this.sendingCommands) {
         console.log('this.sendingCommands = ', this.sendingCommands)
-        this.Serial.sendData(`${this.sendingCommands}\n`)
+        this.io.emit(socketConfig.serialSending, this.sendingCommands)
+        // this.Serial.sendData(`${this.sendingCommands}\n`)
         this.sendingCommands = ''
       }
       if (this.currentTime >= this.data.allTime) {
@@ -192,6 +194,7 @@ export default class Controller {
       //   // console.log('currentTime', currentTime)
       // }
     }, 1000 / this.velocity)
+    // this.counter.time = data.allTime / this.velocity
     this.counter.time = (data.allTime - this.currentTime) / this.velocity
     this.io.emit(socketConfig.start, this.counter, data)
   }

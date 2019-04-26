@@ -5,6 +5,7 @@ import { ValveLineType } from './../MainFormInterfaces'
 import ValveLineComponent from './ValveLineComponent'
 import TimeLine from './TimeLineComponent'
 import ValveTimeComponentAdder from './ValveTimeComponentAdder'
+import ReactionFlowComponent from '../../ReactionFlowComponent/ReactionFlowComponent'
 
 interface Props {
   resetState: () => void,
@@ -34,11 +35,12 @@ const MainFormComponent = ({
   pause,
   stop,
   connect,
+  socket,
 }: Props) => (
     <div id="mainForm" className={s.mainForm}>
       <section className={s.sidebar}>
         {/* <NoteComponent /> */}
-        {/* <ReactionFlowComponent /> */}
+        <ReactionFlowComponent socket={socket} lineFormer={lineFormer} time={time}/>
       </section>
       <section className={s['form-container']}>
         {/* <LineDescriptionComponent lines={lineFormer} /> */}

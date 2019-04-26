@@ -16,9 +16,10 @@ const TimeLineComponent: StatelessComponent<Props> = ({
   distance,
   width = '100%',
 }) => {
-  // console.log('distance', distance)
-  // console.log('time', time)
+  // console.log('TimeLineComponent distance', distance)
+  // console.log('TimeLineComponent time', time)
   const dividersTemplate = []
+  const dividersTemplatePercent = []
   if (allTime > 0) {
     const maxI = allTime / 50
     for (let i = 0; i <= maxI; i++) {
@@ -26,6 +27,16 @@ const TimeLineComponent: StatelessComponent<Props> = ({
         <div key={i} className={s['time-former']}>
           <div className={s.divider} />
           <div className={s['time-count']}>{Math.floor((allTime * i) / maxI)}</div>
+        </div>,
+      )
+    }
+  }
+  if (allTime > 0) {
+    for (let i = 0; i <= 10; i++) {
+      dividersTemplatePercent.push(
+        <div key={i} className={s['time-former']}>
+          <div className={s.divider} />
+          <div className={s['time-count']}>{Math.floor((i))}</div>
         </div>,
       )
     }
@@ -54,6 +65,18 @@ const TimeLineComponent: StatelessComponent<Props> = ({
     >
       <div className={s.line} />
       <div className={s['arrow-up']} />
+    </div>
+    <div style={{
+      width: '100%',
+      background: 'rgba(255, 0,0,0.3)',
+      height: '20px',
+      margin: '10px 0 10px 0',
+      display: 'flex',
+      justifyContent: 'space-between',
+    }}
+    className={s['time-show']}
+    >
+      {dividersTemplatePercent}
     </div>
   </div>
   )
