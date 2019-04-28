@@ -152,10 +152,10 @@ class MainForm extends Component<Props, State> {
           id: 0,
           shortName: 'GV1',
           changes: [
-            { startTime: 0, endTime: 10, changeId: 0, duration: 10, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 20, endTime: 80, changeId: 1, duration: 60, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 120, endTime: 240, changeId: 2, duration: 120, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 290, endTime: 340, changeId: 3, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 0, endTime: 20, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+            // { startTime: 20, endTime: 80, changeId: 1, duration: 60, crossingValueEnd: NaN, crossingValueStart: NaN },
+            // { startTime: 120, endTime: 240, changeId: 2, duration: 120, crossingValueEnd: NaN, crossingValueStart: NaN },
+            // { startTime: 290, endTime: 340, changeId: 3, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN },
           ],
         },
         {
@@ -168,37 +168,49 @@ class MainForm extends Component<Props, State> {
           name: 'ValveLine',
           id: 2,
           shortName: 'GV3',
-          changes: [{ startTime: 0, endTime: 10, changeId: 0, duration: 10, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [{ startTime: 60, endTime: 80, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
         },
         {
           name: 'ValveLine',
           id: 3,
           shortName: 'GV4',
-          changes: [],
+          changes: [{ startTime: 90, endTime: 110, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
         },
         {
           name: 'ValveLine',
           id: 4,
           shortName: 'GV5',
-          changes: [],
+          changes: [{ startTime: 120, endTime: 140, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
         },
         {
           name: 'ValveLine',
           id: 5,
           shortName: 'GV6',
-          changes: [],
+          changes: [{ startTime: 150, endTime: 170, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
         },
         {
           name: 'ValveLine',
           id: 6,
           shortName: 'HV1',
-          changes: [{ startTime: 0, endTime: 100, changeId: 0, duration: 100, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [
+            { startTime: 10, endTime: 25, changeId: 0, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 35, endTime: 50, changeId: 1, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 60, endTime: 75, changeId: 2, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 85, endTime: 100, changeId: 3, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 110, endTime: 125, changeId: 4, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+          ],
         },
         {
           name: 'ValveLine',
           id: 7,
           shortName: 'HV2',
-          changes: [{ startTime: 0, endTime: 100, changeId: 0, duration: 100, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [
+            { startTime: 20, endTime: 35, changeId: 0, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 45, endTime: 60, changeId: 1, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 70, endTime: 85, changeId: 2, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 95, endTime: 110, changeId: 3, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 120, endTime: 135, changeId: 4, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+          ],
         },
         {
           name: 'RPMSetter',
@@ -904,6 +916,12 @@ class MainForm extends Component<Props, State> {
     })
   }
 
+  switchHV = () => {
+    this.setState({
+      HVOpen: !this.state.HVOpen,
+    })
+  }
+
   render() {
     const { showEditModal, chosenElement } = this.state
     // console.log(chosenElement.chosenLine.name === 'NewValveLine')
@@ -922,6 +940,7 @@ class MainForm extends Component<Props, State> {
           addNewValveTime={this.addNewValveTime}
           setChosenValveTime={this.setChosenValveTime}
           socket={this.props.socket}
+          switchHV={this.switchHV}
           {...this.state}
         />
         <ModalWithCondition

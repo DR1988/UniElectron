@@ -22,8 +22,8 @@ export default class Serial {
     if(!this.connected) {
     SerialPort.list().then((ports) => {
       ports.forEach((port) => {
-        // console.log(port);
-        if (port.manufacturer.includes('Arduino')) { // have to change it because we can use not only Arduino
+         console.log(port);
+        if (port.manufacturer.includes('Arduino') || port.comName === 'COM3') { // have to change it because we can use not only Arduino
           console.log('arduion found')
           this.serialPort = new SerialPort(port.comName, {
             // baudRate: 9600,
@@ -49,7 +49,7 @@ export default class Serial {
           parser.on('data', (data) => {
             this.setRpmValue(data.toString())
             // this.io.emit(socketConfig.rpmChange, data.toString())
-            // console.log('data: ', `${data}`)
+            console.log('data: ', `${data}`)
           })
         }/*  else {
         console.log('already opened!')

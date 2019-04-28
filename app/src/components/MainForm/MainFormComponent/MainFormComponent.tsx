@@ -20,6 +20,8 @@ interface Props {
   lineFormer: Array<ValveLineType>,
   allTime: number,
   connect: () => void,
+  switchHV: () => void,
+  HVOpen: boolean,
 }
 
 const MainFormComponent = ({
@@ -36,6 +38,8 @@ const MainFormComponent = ({
   stop,
   connect,
   socket,
+  switchHV,
+  HVOpen,
 }: Props) => (
     <div id="mainForm" className={s.mainForm}>
       <section className={s.sidebar}>
@@ -64,6 +68,7 @@ const MainFormComponent = ({
             <button onClick={pause}>Pause</button>
             <button onClick={stop}>Stop</button>
             <button onClick={connect}>Connect</button>
+            <button onClick={switchHV}>{HVOpen ? 'Close': 'Open'}</button>
           </div>
         </section>
         <ValveTimeComponentAdder

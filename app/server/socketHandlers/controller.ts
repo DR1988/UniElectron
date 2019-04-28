@@ -181,7 +181,7 @@ export default class Controller {
       if (this.sendingCommands) {
         console.log('this.sendingCommands = ', this.sendingCommands)
         this.io.emit(socketConfig.serialSending, this.sendingCommands)
-        // this.Serial.sendData(`${this.sendingCommands}\n`)
+        this.Serial.sendData(`${this.sendingCommands}\n`)
         this.sendingCommands = ''
       }
       if (this.currentTime >= this.data.allTime) {
