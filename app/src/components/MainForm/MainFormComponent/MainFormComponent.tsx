@@ -74,8 +74,8 @@ const MainFormComponent = ({
             <button onClick={stop}>Stop</button>
             <button onClick={connect}>Connect</button>
             <button onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
-            <button onClick={downloadProtocol}>DownloadProtocol</button>
-            <button onClick={uploadProtocol}>UploadProtocol</button>
+            {/* <button onClick={downloadProtocol}>DownloadProtocol</button> */}
+            {/* <button onClick={uploadProtocol}>UploadProtocol</button> */}
           </div>
         </section>
         <ValveTimeComponentAdder

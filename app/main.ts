@@ -7,10 +7,17 @@ import * as path from 'path'
 import socketServer from './server/index'
 import serial from './server/serial'
 
-const { app, BrowserWindow } = require('electron')
-
+import { app, BrowserWindow, ipcMain } from 'electron'
+import electronDl, { download } from 'electron-dl'
 // we need this html for later use when
 // adding scripts and styles to a production build
+
+electronDl()
+
+ipcMain.on('download-button', async(event, {url}) => {
+  const win = BrowserWindow.getFocusedWindow()
+  console.log(await download(win, url))
+})
 
 const HTML = `<!DOCTYPE html>
 <html>

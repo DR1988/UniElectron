@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import cloneDeep from 'lodash/cloneDeep'
-import fs from 'fs'
+import { ipcRenderer } from 'electron'
 
 import s from './MainForm.css'
 import { ChosenElement, ValveLineType, Change } from './MainFormInterfaces'
@@ -950,7 +950,14 @@ class MainForm extends Component<Props, State> {
   }
 
   downloadProtocol = () => {
-    
+    // ipcRenderer.send('download-button')
+    // var element = document.createElement('a');
+    // element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent('asdas'));
+    // element.setAttribute('download', 'fileName.txt');
+    // element.style.display = 'none';
+    // document.body.appendChild(element);
+    // element.click();
+    // document.body.removeChild(element);
   }
 
   uploadProtocol = () => {

@@ -67,7 +67,7 @@ export default class AppForms extends Component<Props, State> {
             )}
         >
           isMainForm
-          <button onClick={this.setError}>error</button>
+          {/* <button onClick={this.setError}>error</button> */}
           <MainForm socket={this.socket} />
         </div>
         <div
@@ -79,14 +79,14 @@ export default class AppForms extends Component<Props, State> {
           graphs
           <Graphs socket={this.socket} />
         </div>
-        {/* <section
+        <section
           className={cn(s.modal_container, {[s.modal_container_error]: !!error})}
         >
           <div className={cn(s.modal_content, {[s.modal_content_error]: !!error})}>
             <h5 className={s.text}>{error && error.message}</h5>
             <button onClick={this.acceptError}>Close</button>      
           </div>
-        </section> */}
+        </section>
       </div>
     )
   }

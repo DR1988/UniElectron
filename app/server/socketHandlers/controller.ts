@@ -36,7 +36,7 @@ export default class Controller {
 
     this.lines = []
     this.linesOfActions = []
-    this.velocity = 10
+    this.velocity = 1
     this.intervalId = null
     this.counter = { distance: 0, time: 0 }
 
@@ -121,6 +121,7 @@ export default class Controller {
   }
 
   switchHV = (data) => {
+    // console.log(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')
     this.Serial.sendData(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')    
   }
 
@@ -205,6 +206,7 @@ export default class Controller {
             this.ThermostatController.writeCurrentSetTemp(line.value)
           }
         } else if (line.endTime === this.currentTime) {
+          this.sendingCommands = 'V6N|V7N|'
           if (line.idname === 'R8') {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}0|`)
             // console.log(line.idname, 0)
