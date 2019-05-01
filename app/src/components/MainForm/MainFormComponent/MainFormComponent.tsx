@@ -22,7 +22,9 @@ interface Props {
   connect: () => void,
   switchHV: () => void,
   HVOpen: boolean,
-  socket: SocketIOClient.Socket
+  socket: SocketIOClient.Socket,
+  downloadProtocol: () => void,
+  uploadProtocol: () => void
 }
 
 const MainFormComponent = ({
@@ -41,6 +43,8 @@ const MainFormComponent = ({
   socket,
   switchHV,
   HVOpen,
+  downloadProtocol,
+  uploadProtocol,
 }: Props) => (
     <div id="mainForm" className={s.mainForm}>
       <section className={s.sidebar}>
@@ -69,7 +73,9 @@ const MainFormComponent = ({
             <button onClick={pause}>Pause</button>
             <button onClick={stop}>Stop</button>
             <button onClick={connect}>Connect</button>
-            <button onClick={switchHV}>{HVOpen ? 'Close valves': 'Open valves'}</button>
+            <button onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
+            <button onClick={downloadProtocol}>DownloadProtocol</button>
+            <button onClick={uploadProtocol}>UploadProtocol</button>
           </div>
         </section>
         <ValveTimeComponentAdder

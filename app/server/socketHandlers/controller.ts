@@ -105,7 +105,7 @@ export default class Controller {
       distance: 0,
       time: 1,
     }
-    this.Serial.sendData('S\n')
+    this.Serial.sendData('R80|\n')
     this.turningOff = true
     this.ThermostatController.turnOff()
     this.io.emit(socketConfig.stop, this.counter)
@@ -121,7 +121,7 @@ export default class Controller {
   }
 
   switchHV = (data) => {
-
+    this.Serial.sendData(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')    
   }
 
   startGettingTemperature() {

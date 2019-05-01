@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import cloneDeep from 'lodash/cloneDeep'
+import fs from 'fs'
 
 import s from './MainForm.css'
 import { ChosenElement, ValveLineType, Change } from './MainFormInterfaces'
@@ -55,7 +56,6 @@ class MainForm extends Component<Props, State> {
       time: 0,
       showEditModal: false,
       allTime: 0,
-      HVOpen: false,
       lineFormer: [
         {
           name: 'ValveLine',
@@ -148,6 +148,7 @@ class MainForm extends Component<Props, State> {
       time: 0,
       showEditModal: false,
       allTime: 350,
+      HVOpen: false,
       lineFormer: [
         {
           name: 'ValveLine',
@@ -295,8 +296,8 @@ class MainForm extends Component<Props, State> {
           id: 9,
           changes: [
             { startTime: 50, endTime: 100, value: 32, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
-            { startTime: 100, endTime: 150, value: 34, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
-            { startTime: 150, endTime: 200, value: 36, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
+            { startTime: 100, endTime: 150, value: 34, changeId: 1, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
+            { startTime: 150, endTime: 200, value: 36, changeId: 2, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
           ],
         },
       ],
@@ -941,10 +942,19 @@ class MainForm extends Component<Props, State> {
   }
 
   switchHV = () => {
-    this.props.socket.emit(socketConfig.switchHV, this.state.HVOpen ? 'CV' : 'OV')
+    console.log(this.state.HVOpen)
+    this.props.socket.emit(socketConfig.switchHV, this.state.HVOpen)
     this.setState({
       HVOpen: !this.state.HVOpen,
     })
+  }
+
+  downloadProtocol = () => {
+    
+  }
+
+  uploadProtocol = () => {
+
   }
 
   render() {
@@ -966,6 +976,8 @@ class MainForm extends Component<Props, State> {
           setChosenValveTime={this.setChosenValveTime}
           socket={this.props.socket}
           switchHV={this.switchHV}
+          downloadProtocol={this.downloadProtocol}
+          uploadProtocol={this.uploadProtocol}
           {...this.state}
         />
         <ModalWithCondition
