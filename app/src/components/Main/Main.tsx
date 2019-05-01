@@ -9,8 +9,6 @@ import s from './style.css'
 import FormChoserComponent from '../FormChoserComponent/FormChoserComponent'
 import AppForms from '../AppForms/AppForms'
 
-const socket = io(`${location.origin}`)
-
 export interface Props {}
 
 interface State {

@@ -202,7 +202,8 @@ class Graphs extends Component<Props, State> {
   componentDidMount() {
     this.props.socket.on(socketConfig.rpmChange, (socketData) => {
       // const { rmpValue } = data
-      const { data, time } = socketData
+      const { data, time, temperature } = socketData
+     // console.log('socketData', socketData)
       // console.log('socketData', socketData)
       // console.log('time', time)
       this.data = data
@@ -213,6 +214,10 @@ class Graphs extends Component<Props, State> {
       this.setState({
         rmpsValues: [...this.state.rmpsValues, datas]
       })
+    })
+
+    this.props.socket.on(socketConfig.tempChange, socketData => {
+      console.log('socketDatasocketDatasocketData', socketData)
     })
 
     this.props.socket.on(socketConfig.start, (data, form: startSignal) => {

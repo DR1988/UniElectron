@@ -29,6 +29,7 @@ interface State {
   allTime: number,
   showEditModal: boolean,
   lineFormer: Array<ValveLineType>,
+  HVOpen: boolean,
 }
 
 
@@ -54,6 +55,7 @@ class MainForm extends Component<Props, State> {
       time: 0,
       showEditModal: false,
       allTime: 0,
+      HVOpen: false,
       lineFormer: [
         {
           name: 'ValveLine',
@@ -152,7 +154,7 @@ class MainForm extends Component<Props, State> {
           id: 0,
           shortName: 'GV1',
           changes: [
-            { startTime: 0, endTime: 20, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 150, endTime: 170, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
             // { startTime: 20, endTime: 80, changeId: 1, duration: 60, crossingValueEnd: NaN, crossingValueStart: NaN },
             // { startTime: 120, endTime: 240, changeId: 2, duration: 120, crossingValueEnd: NaN, crossingValueStart: NaN },
             // { startTime: 290, endTime: 340, changeId: 3, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN },
@@ -162,42 +164,56 @@ class MainForm extends Component<Props, State> {
           name: 'ValveLine',
           id: 1,
           shortName: 'GV2',
-          changes: [{ startTime: 30, endTime: 50, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [
+            { startTime: 150, endTime: 170, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
+          ],
         },
         {
           name: 'ValveLine',
           id: 2,
           shortName: 'GV3',
-          changes: [{ startTime: 60, endTime: 80, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [
+            { startTime: 150, endTime: 170, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
+          ],
         },
         {
           name: 'ValveLine',
           id: 3,
           shortName: 'GV4',
-          changes: [{ startTime: 90, endTime: 110, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [
+            { startTime: 150, endTime: 170, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
+          ],
         },
         {
           name: 'ValveLine',
           id: 4,
           shortName: 'GV5',
-          changes: [{ startTime: 120, endTime: 140, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [
+            { startTime: 150, endTime: 170, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
+          ],
         },
         {
           name: 'ValveLine',
           id: 5,
           shortName: 'GV6',
-          changes: [{ startTime: 150, endTime: 170, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }],
+          changes: [
+            { startTime: 150, endTime: 170, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
+          ],
         },
         {
           name: 'ValveLine',
           id: 6,
           shortName: 'HV1',
           changes: [
-            { startTime: 10, endTime: 25, changeId: 0, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 35, endTime: 50, changeId: 1, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 60, endTime: 75, changeId: 2, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 85, endTime: 100, changeId: 3, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 110, endTime: 125, changeId: 4, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 0, endTime: 15, changeId: 0, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 45, endTime: 60, changeId: 1, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 100, endTime: 120, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 150, endTime: 160, changeId: 3, duration: 10, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 200, endTime: 215, changeId: 4, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+
+            // { startTime: 0, endTime: 20, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+            // { startTime: 50, endTime: 60, changeId: 3, duration: 10, crossingValueEnd: NaN, crossingValueStart: NaN },
+            // { startTime: 100, endTime: 115, changeId: 4, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
           ],
         },
         {
@@ -205,11 +221,15 @@ class MainForm extends Component<Props, State> {
           id: 7,
           shortName: 'HV2',
           changes: [
-            { startTime: 20, endTime: 35, changeId: 0, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 45, endTime: 60, changeId: 1, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 70, endTime: 85, changeId: 2, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 95, endTime: 110, changeId: 3, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-            { startTime: 120, endTime: 135, changeId: 4, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 15, endTime: 35, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 60, endTime: 90, changeId: 1, duration: 30, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 125, endTime: 145, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 150, endTime: 190, changeId: 3, duration: 40, crossingValueEnd: NaN, crossingValueStart: NaN },
+            { startTime: 220, endTime: 245, changeId: 4, duration: 25, crossingValueEnd: NaN, crossingValueStart: NaN },
+            
+            // { startTime: 25, endTime: 45, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+            // { startTime: 50, endTime: 90, changeId: 3, duration: 40, crossingValueEnd: NaN, crossingValueStart: NaN },
+            // { startTime: 120, endTime: 145, changeId: 4, duration: 25, crossingValueEnd: NaN, crossingValueStart: NaN },
           ],
         },
         {
@@ -230,7 +250,7 @@ class MainForm extends Component<Props, State> {
             {
               startTime: 70,
               endTime: 90,
-              value: 2500,
+              value: 400,
               changeId: 1,
               duration: 20,
               waitForValue: false,
@@ -240,7 +260,7 @@ class MainForm extends Component<Props, State> {
             {
               startTime: 100,
               endTime: 150,
-              value: 2000,
+              value: 300,
               changeId: 2,
               duration: 50,
               waitForValue: false,
@@ -250,7 +270,7 @@ class MainForm extends Component<Props, State> {
             {
               startTime: 200,
               endTime: 250,
-              value: 3000,
+              value: 500,
               changeId: 3,
               duration: 50,
               waitForValue: false,
@@ -260,7 +280,7 @@ class MainForm extends Component<Props, State> {
             {
               startTime: 300,
               endTime: 350,
-              value: 1000,
+              value: 600,
               changeId: 4,
               duration: 50,
               waitForValue: false,
@@ -273,7 +293,11 @@ class MainForm extends Component<Props, State> {
           name: 'TempSetter',
           shortName: 'T°C',
           id: 9,
-          changes: [{ startTime: 300, endTime: 350, value: 45, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false }],
+          changes: [
+            { startTime: 50, endTime: 100, value: 32, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
+            { startTime: 100, endTime: 150, value: 34, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
+            { startTime: 150, endTime: 200, value: 36, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
+          ],
         },
       ],
     }
@@ -917,6 +941,7 @@ class MainForm extends Component<Props, State> {
   }
 
   switchHV = () => {
+    this.props.socket.emit(socketConfig.switchHV, this.state.HVOpen ? 'CV' : 'OV')
     this.setState({
       HVOpen: !this.state.HVOpen,
     })

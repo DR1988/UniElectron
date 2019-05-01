@@ -22,6 +22,7 @@ interface Props {
   connect: () => void,
   switchHV: () => void,
   HVOpen: boolean,
+  socket: SocketIOClient.Socket
 }
 
 const MainFormComponent = ({
@@ -68,7 +69,7 @@ const MainFormComponent = ({
             <button onClick={pause}>Pause</button>
             <button onClick={stop}>Stop</button>
             <button onClick={connect}>Connect</button>
-            <button onClick={switchHV}>{HVOpen ? 'Close': 'Open'}</button>
+            <button onClick={switchHV}>{HVOpen ? 'Close valves': 'Open valves'}</button>
           </div>
         </section>
         <ValveTimeComponentAdder

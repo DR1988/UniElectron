@@ -23,7 +23,8 @@ export default {
   },
   externals: {
     uws: 'uws',
-    serialport: "require('serialport')"
+    serialport: "require('serialport')",
+    "node-hid": "require('node-hid')",
   },
   module: {
     rules: [

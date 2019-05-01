@@ -78,7 +78,6 @@ async function createWindow() {
     })
   }
    else {
-    // const port : string | number = process.env.PORT || 3000
     const exp = express()
     const http = new Server(exp)
     socketServer(http, serial)

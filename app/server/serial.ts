@@ -5,7 +5,7 @@ import socket from 'socket.io'
 
 let serialPort: SerialPort
 
-console.log('socketConfig', socketConfig)
+// console.log('socketConfig', socketConfig)
 // !serialPort || !serialPort.isOpen()
 
 export default class Serial {
@@ -22,38 +22,29 @@ export default class Serial {
     if(!this.connected) {
     SerialPort.list().then((ports) => {
       ports.forEach((port) => {
-         console.log(port);
         if (port.manufacturer.includes('Arduino') || port.comName === 'COM3') { // have to change it because we can use not only Arduino
           console.log('arduion found')
           this.serialPort = new SerialPort(port.comName, {
-            // baudRate: 9600,
-            //autoOpen: false,
             baudRate: 500000,
             parity: 'none',
-            // parser: SerialPort.parsers.readline('\n'),
           })
           const parser = this.serialPort.pipe(new Readline({ delimiter: '\n' }))
   
-          // serialPort.pipe(parser)
           this.serialPort.on('open', () => {
             this.connected = true
             this.io.emit(socketConfig.connected)
             console.log('opened')
           })
 
-          // this.serialPort.on('disconnect', () => console.log(12312))
           this.serialPort.on('close', () => {
             console.log('closed')
             this.connected = false
           })
-          parser.on('data', (data) => {
+          parser.on('data', (data:string) => {
+            console.log(data, parseInt(data).toString(2))
             this.setRpmValue(data.toString())
-            // this.io.emit(socketConfig.rpmChange, data.toString())
-            console.log('data: ', `${data}`)
           })
-        }/*  else {
-        console.log('already opened!')
-      } */
+        }
       })
     })
       .catch(err => {
@@ -79,4 +70,5 @@ export default class Serial {
   }
 
   getRPMValue = () => this.rpmValue
+
 }
