@@ -36,7 +36,7 @@ export default class Controller {
 
     this.lines = []
     this.linesOfActions = []
-    this.velocity = 1
+    this.velocity = 10
     this.intervalId = null
     this.counter = { distance: 0, time: 0 }
 
@@ -206,7 +206,6 @@ export default class Controller {
             this.ThermostatController.writeCurrentSetTemp(line.value)
           }
         } else if (line.endTime === this.currentTime) {
-          this.sendingCommands = 'V6N|V7N|'
           if (line.idname === 'R8') {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}0|`)
             // console.log(line.idname, 0)
@@ -227,6 +226,7 @@ export default class Controller {
         this.sendingCommands = ''
       }
       if (this.currentTime >= this.data.allTime) {
+        this.Serial.sendData('V6N|V7N|\n') // close pinch valves
         this.currentTime = 0
         clearInterval(this.intervalId)
       }

@@ -23,7 +23,7 @@ export default class ThermostatController {
 
     private init() {
         const devices = HID.devices()
-        console.log('devices', devices)
+        // console.log('devices', devices)
         const termexDevice = devices.find(d => d.manufacturer === 'TERMEX')
         if (!termexDevice) {
             console.log('init error')
@@ -78,7 +78,7 @@ export default class ThermostatController {
 
     async turnOn() {
         const command = convertToASCII(`:${this.termexDevice.serialNumber} RUN WR 1`)
-        console.log('this.termexDevice', this.termexDevice)
+        // console.log('this.termexDevice', this.termexDevice)
         try {
             this.termexHID.write(command)
             const data = await this.dataPromise()
