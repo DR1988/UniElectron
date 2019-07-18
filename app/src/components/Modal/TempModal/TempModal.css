@@ -5,11 +5,74 @@
   background: white;
   box-shadow: 0px 0px 50px 5px rgba(255, 255, 255, 0.5);
 }
+
+.content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.content header {
+  margin-bottom: 10px;
+}
+.content header h3 {
+  padding: 0;
+  margin: 0;
+  margin: 0 10px;
+}
+
+.content main {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
 .inputs{
   display: flex;
 }
+.inputs div{
+  margin: 10px 10px;
+}
+.inputs div input{
+  margin-top: 3px;
+  padding: 5px 10px;
+}
+
+.wait_value_container{
+  display: flex;
+  align-items: center;
+  height: 30px;
+}
+.wait_value_container label {
+  display: flex;
+  cursor: pointer;
+  align-items: flex-end;
+}
+.wait_value_container label input {
+  margin-left: 10px;
+  cursor: pointer;
+  height: 15px;
+  width: 15px;
+}
+
+main .buttons{
+  margin-top: 3px;
+  display: flex;
+  justify-content: space-between;
+}
+
+main .buttons button {
+  margin: 0 10px;
+  width: calc(100%/3);
+} 
 
 .button_disable {
   pointer-events: none;
   color: rgba(255, 255, 255, 0.5);
+}
+
+.left_margin {
+  margin-left: 10px;
 }

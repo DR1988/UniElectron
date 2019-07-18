@@ -26,7 +26,7 @@ class Button extends React.Component<ButtonProps> {
     addNewValveTime(line)
   }
   render() {
-    return <button onClick={this._choseLine}>+</button>
+    return <button onClick={this._choseLine}><p>+</p></button>
   }
 }
 

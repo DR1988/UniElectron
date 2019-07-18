@@ -4,7 +4,7 @@ import cn from 'classnames'
 import s from './ValveLineModal.css'
 import CommonMoadlInterface from '../modalInterfaces'
 
-interface Props extends CommonMoadlInterface{}
+interface Props extends CommonMoadlInterface { }
 
 // type Props = {
 //   closeModal: () => void,
@@ -81,7 +81,10 @@ const ValveLineModal = ({
   return (
     <div className={s.root}>
       <div className={s.content}>
-        <header>Change Values</header>
+        <header> <h3>
+          Change Values
+          </h3>
+        </header>
         <main>
           <div className={s.inputs} >
             <div>
@@ -104,22 +107,24 @@ const ValveLineModal = ({
             </div>
           </div>
           {wrongSignValue ?
-            <div>
+            <div className={s.wrong_sign_container}>
               <span>{wrongSignValue}</span>
             </div> : null}
-          <button
-            className={cn({ [s.button_disable]: wrongSignValue })}
-            onClick={closeModal}
-          >Ok</button>
-          <Button
-            removeValveTime={removeValveTime}
-          />
-          <button
-            onClick={() => {
-              resetToPreviousChanges()
-              closeModal()
-            }}
-          >Cancel</button>
+          <section className={s.buttons}>
+            <button
+              className={cn({ [s.button_disable]: wrongSignValue })}
+              onClick={closeModal}
+            >Ok</button>
+            <Button
+              removeValveTime={removeValveTime}
+            />
+            <button
+              onClick={() => {
+                resetToPreviousChanges()
+                closeModal()
+              }}
+            >Cancel</button>
+          </section>
         </main>
       </div>
     </div>

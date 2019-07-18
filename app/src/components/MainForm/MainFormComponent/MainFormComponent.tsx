@@ -1,4 +1,5 @@
 import React from 'react'
+import cn from 'classnames'
 
 import s from './MainFormComponent.css'
 import { ValveLineType } from './../MainFormInterfaces'
@@ -25,6 +26,7 @@ interface Props {
   socket: SocketIOClient.Socket,
   downloadProtocol: () => void,
   uploadProtocol: () => void
+  serialConnected: boolean,
 }
 
 const MainFormComponent = ({
@@ -45,47 +47,86 @@ const MainFormComponent = ({
   HVOpen,
   downloadProtocol,
   uploadProtocol,
-}: Props) => (
-    <div id="mainForm" className={s.mainForm}>
-      <section className={s.sidebar}>
-        {/* <NoteComponent /> */}
-        <ReactionFlowComponent socket={socket} lineFormer={lineFormer} time={time}/>
-      </section>
-      <section className={s['form-container']}>
-        {/* <LineDescriptionComponent lines={lineFormer} /> */}
-        <section className={s['lines-keeper']}>
-          {lineFormer.map(elem => <ValveLineComponent
-            key={elem.id}
-            line={elem}
-            allTime={allTime}
-            showModal={showModal}
-            setChosenValveTime={setChosenValveTime}
-          />,
-          )}
-          <TimeLine
-            distance={distance}
-            time={time}
-            allTime={allTime}
-          />
-          <div className={s.buttons} >
-            <button onClick={resetState}>Reset</button>
-            <button onClick={start}>Start</button>
-            <button onClick={pause}>Pause</button>
-            <button onClick={stop}>Stop</button>
-            <button onClick={connect}>Connect</button>
-            <button onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
-            {/* <button onClick={downloadProtocol}>DownloadProtocol</button> */}
-            {/* <button onClick={uploadProtocol}>UploadProtocol</button> */}
-          </div>
+  serialConnected,
+}: Props) => {
+  console.log('serialConnected', serialConnected)
+  return (
+    <div>
+
+      <div id="mainForm" className={s.mainForm}>
+        <section className={s.sidebar}>
+          {/* <NoteComponent /> */}
+          <ReactionFlowComponent socket={socket} lineFormer={lineFormer} time={time} />
         </section>
-        <ValveTimeComponentAdder
-          lines={lineFormer}
-          showModal={showModal}
-          addNewValveTime={addNewValveTime}
-        />
-      </section>
+        <section className={s['form-container']}>
+          {/* <LineDescriptionComponent lines={lineFormer} /> */}
+          <section className={s['lines-keeper']}>
+            {lineFormer.map(elem => <ValveLineComponent
+              key={elem.id}
+              line={elem}
+              allTime={allTime}
+              showModal={showModal}
+              setChosenValveTime={setChosenValveTime}
+            />,
+            )}
+            <TimeLine
+              distance={distance}
+              time={time}
+              allTime={allTime}
+            />
+            {/* <div className={s.buttons} >
+            <button
+              className={cn({ [s.inactive]: !serialConnected })}
+              onClick={resetState}>Reset</button>
+            <button
+              className={cn({ [s.inactive]: !serialConnected })}
+              onClick={start}>Start</button>
+            <button
+              className={cn({ [s.inactive]: !serialConnected })}
+              onClick={pause}>Pause</button>
+            <button
+              className={cn({ [s.inactive]: !serialConnected })}
+              onClick={stop}>Stop</button>
+            <button
+              className={cn({ [s.inactive]: !serialConnected })}
+              onClick={() => alert('not implemented')}>Load</button>
+            <button
+              className={cn({ [s.inactive]: !serialConnected })}
+              onClick={() => alert('not implemented')}>Save</button>
+            <button
+              className={cn({ [s.inactive]: !serialConnected })}
+              onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
+            <button onClick={connect}>Connect</button>
+          </div> */}
+          </section>
+          <ValveTimeComponentAdder
+            lines={lineFormer}
+            showModal={showModal}
+            addNewValveTime={addNewValveTime}
+          />
+        </section>
+      </div>
+      <div className={s.buttons} >
+        <button onClick={connect}>Connect</button>
+        <button onClick={() => alert('not implemented')}>Load</button>
+        <button
+          className={cn({ [s.inactive]: !serialConnected })}
+          onClick={start}>Start</button>
+        <button
+          className={cn({ [s.inactive]: !serialConnected })}
+          onClick={pause}>Pause</button>
+        <button
+          className={cn({ [s.inactive]: !serialConnected })}
+          onClick={stop}>Stop</button>
+        <button onClick={resetState}>Reset</button>
+        <button onClick={() => alert('not implemented')}>Save</button>
+        <button
+          className={cn({ [s.inactive]: !serialConnected })}
+          onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
+      </div>
     </div>
   )
+}
 
 
 export default MainFormComponent

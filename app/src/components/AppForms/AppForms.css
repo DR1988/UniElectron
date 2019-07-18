@@ -6,7 +6,6 @@
   display: none;
 }
 .container {
-  border: 1px solid red;
   display: flex;
   position: relative;
   /* justify-content: center; */
@@ -20,9 +19,9 @@
   height: 100%;
   display: flex;
   justify-content: center;
-  background-color: rgba(0,0,0,0);
   transform: scale(0);
   transition: all 0.3s ease-in;
+  background-color: rgba(0,0,0,0.5);
 }
 
 .modal_container_error{
@@ -30,21 +29,31 @@
 }
 
 .modal_content{
-  border: 3px solid red;
   width: 300px;
   height: 200px;
   position: relative;
   top: 50px;
-  background-color: white;
+  background-color: rgba(185, 119, 120, 1);
+  /* background-color: white; */
   display: flex;
   padding: 30px 20px 0 20px;
   align-items: center;
   flex-direction: column;
   transform: scale(0);
   transition: all 0.3s ease-in;
+  border-radius: 5px;
+}
+
+.modal_content button{
+  background-color: rgb(223, 194, 194);
+}
+
+.modal_content button:hover{
+  background-color: rgba(255, 255, 255, 0.85);
 }
 
 .modal_content_error{
+  box-shadow: 0px 0px 75px 10px rgba(0,0,0,0.65);
   transform: scale(1);
 }
 

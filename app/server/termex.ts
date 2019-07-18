@@ -1,6 +1,12 @@
 import * as HID from 'node-hid';
 import * as os from 'os';
+import * as usb from 'usb'
 import { EventEmitter } from 'events';
+
+// probably can use it to detect if hid device(termex) connected
+// usb.on('attach', (d) => {
+//     console.log('d', d)
+// })
 
 const convertToASCII = (str: string) => {
     const arr = []
@@ -103,7 +109,7 @@ export default class ThermostatController {
         const command = convertToASCII(`:${this.termexDevice.serialNumber} RUN RD`)
         this.termexHID.write(command)
         const data = await this.dataPromise()
-        this.statusHandler(data)
+        return this.statusHandler(data)
     }
 
     private readCurrentSetTemp = () => {

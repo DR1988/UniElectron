@@ -1,7 +1,7 @@
 import React, { StatelessComponent, Component } from 'react'
 import cn from 'classnames'
 
-import s from './RMPModal.css'
+import s from './../TempModal/TempModal.css'
 import CommonMoadlInterface from '../modalInterfaces'
 
 interface ButtonProps {
@@ -81,7 +81,7 @@ const RMPModal: StatelessComponent<Props> = ({
   return (
     <div className={s.root}>
       <div className={s.content}>
-        <header>Change RPM Values</header>
+        <header><h3>Change RPM Values</h3></header>
         <main>
           <div className={s.inputs} >
             <div>
@@ -103,38 +103,42 @@ const RMPModal: StatelessComponent<Props> = ({
               />
             </div>
           </div>
-          <div>
-            <label htmlFor="RPM_value">RPM value</label>
-            <br />
-            <CustomInput
-              id="RPM_value"
-              changeValue={changeRPMValue}
-              value={value || 0}
-            />
+          <div className={s.inputs}>
+            <div>
+              <label htmlFor="RPM_value">RPM value</label>
+              <br />
+              <CustomInput
+                id="RPM_value"
+                changeValue={changeRPMValue}
+                value={value || 0}
+              />
+            </div>
           </div>
-          <div>
+          <div className={cn(s.left_margin, s.wait_value_container)}>
             <label htmlFor="waitForValue">
               wait for value
               <input checked={waitForValue} onChange={changeWaitForValue} id="waitForValue" type="checkbox" />
             </label>
           </div>
           {wrongSignValue ?
-            <div>
+            <div className={s.left_margin}>
               <span>{wrongSignValue}</span>
             </div> : null}
-          <button
-            className={cn({ [s.button_disable]: wrongSignValue })}
-            onClick={closeModal}
-          >Ok</button>
-          <Button
-            removeValveTime={removeValveTime}
-          />
-          <button
-            onClick={() => {
-              resetToPreviousChanges()
-              closeModal()
-            }}
-          >Cancel</button>
+          <section className={s.buttons}>
+            <button
+              className={cn({ [s.button_disable]: wrongSignValue })}
+              onClick={closeModal}
+            >Ok</button>
+            <Button
+              removeValveTime={removeValveTime}
+            />
+            <button
+              onClick={() => {
+                resetToPreviousChanges()
+                closeModal()
+              }}
+            >Cancel</button>
+          </section>
         </main>
       </div>
     </div>

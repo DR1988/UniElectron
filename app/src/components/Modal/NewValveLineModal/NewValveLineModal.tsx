@@ -1,7 +1,7 @@
 import React, { Component, StatelessComponent } from 'react'
 import cn from 'classnames'
 
-import s from './NewValveLineModal.css'
+import s from './../ValveLineModal/ValveLineModal.css'
 import CommonMoadlInterface from '../modalInterfaces'
 
 interface Props extends CommonMoadlInterface { }
@@ -52,7 +52,10 @@ const NewValveLineModal: StatelessComponent<Props> = ({
   return (
     <div className={s.root}>
       <div className={s.content}>
-        <header>Change Values</header>
+        <header> <h3>
+          Change Values
+          </h3>
+        </header>
         <main>
           <div className={s.inputs} >
             <div>
@@ -77,19 +80,21 @@ const NewValveLineModal: StatelessComponent<Props> = ({
             </div>
           </div>
           {isSetValveTimeEnable(newStartTime, newEndTime, wrongSign) ?
-            <div>
+            <div className={s.wrong_sign_container}>
               <span>{isSetValveTimeEnable(newStartTime, newEndTime, wrongSign)}</span>
             </div> : null}
-          <button
-            className={cn({ [s.button_disable]: isSetValveTimeEnable(newStartTime, newEndTime, wrongSign) })}
-            onClick={closeModal}
-          >Ok</button>
-          <button
-            onClick={() => {
-              resetToPreviousChanges()
-              closeModal()
-            }}
-          >Cancel</button>
+          <section className={s.buttons}>
+            <button
+              className={cn({ [s.button_disable]: isSetValveTimeEnable(newStartTime, newEndTime, wrongSign) })}
+              onClick={closeModal}
+            >Ok</button>
+            <button
+              onClick={() => {
+                resetToPreviousChanges()
+                closeModal()
+              }}
+            >Cancel</button>
+          </section>
         </main>
       </div>
     </div>

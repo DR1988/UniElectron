@@ -31,6 +31,7 @@ interface State {
   showEditModal: boolean,
   lineFormer: Array<ValveLineType>,
   HVOpen: boolean,
+  serialConnected: boolean,
 }
 
 
@@ -149,6 +150,7 @@ class MainForm extends Component<Props, State> {
       showEditModal: false,
       allTime: 350,
       HVOpen: false,
+      serialConnected: false,
       lineFormer: [
         {
           name: 'ValveLine',
@@ -352,6 +354,12 @@ class MainForm extends Component<Props, State> {
       this.setState({
         distance,
         time,
+      })
+    })
+
+    this.props.socket.on(socketConfig.connected, (data: boolean) => {
+      this.setState({
+        serialConnected: data,
       })
     })
   }
@@ -989,6 +997,7 @@ class MainForm extends Component<Props, State> {
         />
         <ModalWithCondition
           condition={showEditModal}
+          closeModal={this.closeModal}
           // coordinate={this.modalCoordinates}
           render={() => {
             switch (chosenElement.chosenLine.name) {

@@ -11,6 +11,7 @@
    /* flex-grow: 4; */
    /* min-width: 600px; */
    /* padding-left: 10px; */
+   margin-right: 5px;
   width: 100%;
 }
 
@@ -23,4 +24,16 @@
 
 .buttons {
   margin-top: 2rem;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  /* width: 165px; */
+}
+.buttons button {
+  min-width: calc(100%/8.5);
+}
+.buttons .inactive{
+  background-color: #cccccc;
+  color: #666666;
+  pointer-events: none;
 }

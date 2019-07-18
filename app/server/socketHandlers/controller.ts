@@ -1,5 +1,6 @@
 import socketConfig, { startSignal } from '../../config/socket.config'
 import socket from 'socket.io'
+import * as usb from 'usb'
 
 import Serial from '../serial'
 import ThermostatController from '../termex'
@@ -53,20 +54,40 @@ export default class Controller {
   }
 
   private initialize() {
-      console.log('INIT')
-      this.ThermostatController = new ThermostatController(this.eventEmiiter)
+    console.log('INIT')
+    this.ThermostatController = new ThermostatController(this.eventEmiiter)
   }
+
+  // private async usbPromise(): Promise<Boolean> {
+  //   return new Promise((resolve, reject) => {
+  //     usb.on('attach', (device) => {
+  //       device.open()
+  //       device.getStringDescriptor(device.deviceDescriptor.iManufacturer, (err, data) => {
+  //         console.log('data', ':', data)
+  //         resolve(data.toString() === 'TERMEX')
+  //       })
+  //       // resolve(device)
+  //     })
+  //   })
+  // }
 
   private ErrorHandler = async (error) => {
     console.log('error', error)
-    if(this.turningOn) {
+    // console.log('this.usbPromise()', await this.usbPromise())
+    if (this.turningOn) {
       console.log('this.turningOn', this.turningOn)
+      this.io.emit(socketConfig.connected, false)
       await this.delaytTimer(3000)
+      this.io.emit(socketConfig.connected, true)
+      // await this.usbPromise()
       this.ThermostatController = new ThermostatController(this.eventEmiiter)
       this.turningOn = false
-    } else if(this.turningOff){
+    } else if (this.turningOff) {
       console.log('this.turningOff', this.turningOff)
+      this.io.emit(socketConfig.connected, false)
       await this.delaytTimer(3000)
+      this.io.emit(socketConfig.connected, true)
+      // await this.usbPromise()
       this.ThermostatController = new ThermostatController(this.eventEmiiter)
       this.turningOff = false
     } else {
@@ -76,7 +97,7 @@ export default class Controller {
 
   private init = (data: startSignal) => {
     this.linesOfActions = data.lineFormer
-        // console.log(this.linesOfActions[8].changes)
+    // console.log(this.linesOfActions[8].changes)
     this.data = data
     this.lines = []
     for (let j = 0; j < this.linesOfActions.length; j++) {
@@ -122,7 +143,7 @@ export default class Controller {
 
   switchHV = (data) => {
     // console.log(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')
-    this.Serial.sendData(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')    
+    this.Serial.sendData(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')
   }
 
   startGettingTemperature() {
@@ -135,6 +156,8 @@ export default class Controller {
   }
 
   private delaytTimer(ms = 1000) {
+    console.log('------------')
+    console.log(`delay ${ms} ms \n`)
     return new Promise(resolve => {
       setTimeout(() => {
         resolve()

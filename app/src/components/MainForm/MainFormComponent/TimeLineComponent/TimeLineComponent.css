@@ -1,13 +1,13 @@
 .time-line_wraper{
   position: relative;
-  height: 50px;
+  height: 30px;
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
 }
 .time-line_wraper .time-line{
     /* height: 50px * 0.8; */
-    height: 40px;
+    height: 25px;
     border: thin solid #648591;
     border-top: none;
 }
@@ -28,9 +28,10 @@
         }
 .time-line_wraper .time-line .time-show .time-former .time-count{
           position: absolute;
+          left: 3px;
         }
 .time-line_wraper .time-line .time-show .time-former:last-child .time-count{
-          right: 100%;
+          /* right: 100%; */
         }
 .time-line_wraper .time-presenter {
     position: absolute;
@@ -44,7 +45,7 @@
 .time-line_wraper .time-presenter .line {
         position: relative;
         width: 3px;
-        height: 579px;
+        height: 559px;
         background-color: #648591;
       }
       .time-line_wraper .time-presenter .arrow-up {

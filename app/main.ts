@@ -23,11 +23,11 @@ const HTML = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Hello World!</title>
+  <title>Reactor</title>
   <style type="text/css"></style>
 </head>
 <body>
-  <h1>Hello World!</h1>
+  <h1>Reactor</h1>
   We are using Node.js
   Chromium
   and Electron
