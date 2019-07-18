@@ -1,17 +1,10 @@
 import React, { Component } from 'react'
 import cn from 'classnames'
 
-import s from './ValveLineModal.css'
+import s from './../styles/ValveLineModal.css'
 import CommonMoadlInterface from '../modalInterfaces'
 
 interface Props extends CommonMoadlInterface { }
-
-// type Props = {
-//   closeModal: () => void,
-//   removeValveTime: () => void,
-//   chosenElement: ChosenElement,
-//   changeStartTime: (value: number) => void,
-// };
 
 type ButtonProps = {
   removeValveTime: () => void,

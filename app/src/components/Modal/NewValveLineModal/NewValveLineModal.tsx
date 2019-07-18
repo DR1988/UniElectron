@@ -1,7 +1,7 @@
 import React, { Component, StatelessComponent } from 'react'
 import cn from 'classnames'
 
-import s from './../ValveLineModal/ValveLineModal.css'
+import s from './../styles/ValveLineModal.css'
 import CommonMoadlInterface from '../modalInterfaces'
 
 interface Props extends CommonMoadlInterface { }
