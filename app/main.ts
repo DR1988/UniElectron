@@ -27,10 +27,6 @@ const HTML = `<!DOCTYPE html>
   <style type="text/css"></style>
 </head>
 <body>
-  <h1>Reactor</h1>
-  We are using Node.js
-  Chromium
-  and Electron
   <div id="root"></div>
   <script></script>
 </body>

@@ -1,5 +1,7 @@
 import React from 'react'
 import cn from 'classnames'
+// import fs from 'fs'
+// import electron from 'electron'
 
 import s from './MainFormComponent.css'
 import { ValveLineType } from './../MainFormInterfaces'
@@ -7,6 +9,8 @@ import ValveLineComponent from './ValveLineComponent'
 import TimeLine from './TimeLineComponent'
 import ValveTimeComponentAdder from './ValveTimeComponentAdder'
 import ReactionFlowComponent from '../../ReactionFlowComponent/ReactionFlowComponent'
+
+// const { dialog } = electron.remote
 
 interface Props {
   resetState: () => void,
@@ -74,30 +78,6 @@ const MainFormComponent = ({
               time={time}
               allTime={allTime}
             />
-            {/* <div className={s.buttons} >
-            <button
-              className={cn({ [s.inactive]: !serialConnected })}
-              onClick={resetState}>Reset</button>
-            <button
-              className={cn({ [s.inactive]: !serialConnected })}
-              onClick={start}>Start</button>
-            <button
-              className={cn({ [s.inactive]: !serialConnected })}
-              onClick={pause}>Pause</button>
-            <button
-              className={cn({ [s.inactive]: !serialConnected })}
-              onClick={stop}>Stop</button>
-            <button
-              className={cn({ [s.inactive]: !serialConnected })}
-              onClick={() => alert('not implemented')}>Load</button>
-            <button
-              className={cn({ [s.inactive]: !serialConnected })}
-              onClick={() => alert('not implemented')}>Save</button>
-            <button
-              className={cn({ [s.inactive]: !serialConnected })}
-              onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
-            <button onClick={connect}>Connect</button>
-          </div> */}
           </section>
           <ValveTimeComponentAdder
             lines={lineFormer}
@@ -119,7 +99,29 @@ const MainFormComponent = ({
           className={cn({ [s.inactive]: !serialConnected })}
           onClick={stop}>Stop</button>
         <button onClick={resetState}>Reset</button>
-        <button onClick={() => alert('not implemented')}>Save</button>
+        <button onClick={() => {
+          alert('not implemented')
+          // var file = new Blob(['asddad'], { type: 'txt' });
+          // console.log(file)
+          // var a = document.createElement("a"),
+          //   url = URL.createObjectURL(file);
+          // a.href = url;
+          // a.download = 'protocol';
+          // document.body.appendChild(a);
+          // a.click();
+          // a.remove();
+
+          // dialog.showSaveDialog((filename: string) => {
+          //   fs.writeFile(filename, "file new", (err) => {
+          //     if(err) {
+          //       console.log(err)
+          //       return;
+          //     }
+
+          //     alert('file created')
+          //   })
+          // })
+        }}>Save</button>
         <button
           className={cn({ [s.inactive]: !serialConnected })}
           onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
@@ -127,6 +129,5 @@ const MainFormComponent = ({
     </div>
   )
 }
-
 
 export default MainFormComponent

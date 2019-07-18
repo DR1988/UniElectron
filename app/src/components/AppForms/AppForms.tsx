@@ -66,7 +66,6 @@ export default class AppForms extends Component<Props, State> {
               { [s.hideSide]: !isMainForm },
             )}
         >
-          isMainForm
           {/* <button onClick={this.setError}>error</button> */}
           <MainForm socket={this.socket} />
         </div>
@@ -76,7 +75,6 @@ export default class AppForms extends Component<Props, State> {
               { [s.hideSide]: isMainForm },
             )}
         >
-          graphs
           <Graphs socket={this.socket} />
         </div>
         <section

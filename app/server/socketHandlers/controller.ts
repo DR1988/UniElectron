@@ -37,7 +37,7 @@ export default class Controller {
 
     this.lines = []
     this.linesOfActions = []
-    this.velocity = 10
+    this.velocity = 1
     this.intervalId = null
     this.counter = { distance: 0, time: 0 }
 
@@ -78,7 +78,7 @@ export default class Controller {
       console.log('this.turningOn', this.turningOn)
       this.io.emit(socketConfig.connected, false)
       await this.delaytTimer(3000)
-      this.io.emit(socketConfig.connected, true)
+      // this.io.emit(socketConfig.connected, true)
       // await this.usbPromise()
       this.ThermostatController = new ThermostatController(this.eventEmiiter)
       this.turningOn = false
@@ -118,7 +118,7 @@ export default class Controller {
   }
 
   stop = () => {
-    console.log('stop')
+    console.log('controller stop')
     clearInterval(this.intervalId)
     clearInterval(this.temperatureInterval)
     this.currentTime = 0
@@ -149,7 +149,7 @@ export default class Controller {
   startGettingTemperature() {
     this.temperatureInterval = setInterval(async () => {
       this.io.emit(socketConfig.tempChange, {
-        temperature: await this.ThermostatController.getTemperature(),
+        temperature: this.ThermostatController.getTemperature(),
         time: this.currentTime,
       })
     }, 5000 / this.velocity)
@@ -168,6 +168,7 @@ export default class Controller {
     this.turningOn = true
     await this.ThermostatController.turnOn()
     await this.delaytTimer(7000)
+    this.io.emit(socketConfig.connected, true)
     this.start(data)
   }
 
@@ -182,6 +183,14 @@ export default class Controller {
         time: this.currentTime,
       })
 
+      if (!this.ThermostatController.getAlarmStatus()) {
+        this.stop()
+        this.io.emit(socketConfig.thermoStatInitError, {
+          name: "ConnectionError",
+          message: 'THERMOSTAT ERROR. CHECK THERMOSTAT'
+        })
+        return
+      }
       this.lines.forEach((line) => {
         // console.log('line', line.idname)
         if (
