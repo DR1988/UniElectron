@@ -1,10 +1,11 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 
 import s from './ValveLineComponent.css'
 import ValveTimeComponent from './ValveTimeComponent'
 import { ValveLineType } from '../../MainFormInterfaces'
 
 interface Props {
+  ind?: number,
   line: ValveLineType,
   allTime: number,
   showModal: () => void,
@@ -26,30 +27,39 @@ class ValveLineComponent extends Component<Props>{
   }
 
   render() {
-    const { showModal, setChosenValveTime, allTime, line } = this.props
+    const { showModal, setChosenValveTime, allTime, line, ind } = this.props
     const lineName = line.name
     return (
-      <div className={s['time-box_keeper']}>
-        {line.changes.map((el) => {
-          const { startTime, endTime, value, crossingValueEnd, crossingValueStart } = el
-          const duration = endTime - startTime
-          return (
-            <ValveTimeComponent
-              waitForValue={el.waitForValue}
-              key={el.changeId}
-              lineID={line.id}
-              changeId={el.changeId}
-              value={this.setValue(lineName, value || 0, duration)}
-              startTime={startTime / allTime}
-              width={duration / allTime}
-              showModal={showModal}
-              setChosenValveTime={setChosenValveTime}
-              crossingValueEnd={crossingValueEnd}
-              crossingValueStart={crossingValueStart}
-            />
-          )
-        })}
-      </div>
+      <Fragment>
+        <rect
+          y={5 + ind * 55}
+          // d={`M0 ${5 + ind * 55} L500 ${5 + ind * 55} L500 ${5 + (ind + 1) * 55} L0 ${5 + (ind + 1) * 55} z`}
+          className={s['time-box_keeper']}
+        >
+        </rect>
+        {
+          line.changes.map((el) => {
+            const { startTime, endTime, value, crossingValueEnd, crossingValueStart } = el
+            const duration = endTime - startTime
+            return (
+              <ValveTimeComponent
+                ind={ind}
+                waitForValue={el.waitForValue}
+                key={el.changeId}
+                lineID={line.id}
+                changeId={el.changeId}
+                value={this.setValue(lineName, value || 0, duration)}
+                startTime={startTime / allTime}
+                width={duration / allTime}
+                showModal={showModal}
+                setChosenValveTime={setChosenValveTime}
+                crossingValueEnd={crossingValueEnd}
+                crossingValueStart={crossingValueStart}
+              />
+            )
+          })
+        }
+      </Fragment>
     )
   }
 }

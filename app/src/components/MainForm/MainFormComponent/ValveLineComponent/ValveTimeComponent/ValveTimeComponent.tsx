@@ -3,6 +3,7 @@ import React, { Component, PureComponent } from 'react'
 import s from './ValveTimeComponent.css'
 
 interface Props {
+  ind? : number,
   waitForValue?: boolean,
   changeId: number | string,
   value: number,
@@ -64,15 +65,19 @@ class ValveTimeComponent extends PureComponent<Props>{
       lineID,
       changeId,
       waitForValue,
+      ind,
     } = this.props
     return (
-      <div
+      <rect
+        y={5 + ind * 55}
         className={s.timeFormer}
         onClick={this.toggleValveTime}
+        x={`${100 * startTime}%`}
+        // d={`M0 0 L500 0 L500 ${5 + 0 * 55} L0 ${5 + 0 * 55} z`}
         style={{
-          left: `${100 * startTime}%`,
+          // left: `${100 * startTime}%`,
           background: this.getCrossingSpace({ crossingValueStart, crossingValueEnd }),
-          zIndex: crossingValueStart || crossingValueEnd ? 2 : 'auto',
+          // zIndex: crossingValueStart || crossingValueEnd ? 2 : 'auto',
           // crossingValue >= 0 ?
           // // `linear-gradient(90deg, rgba(71, 193, 197, 0.3) ${100 * crossingValue}%, rgba(171, 193, 197, 1) 0%)`
           // `linear-gradient(90deg, rgba(0, 0, 0, 0) ${100 * crossingValue}%, rgba(171, 193, 197, 1) 0%),
@@ -96,7 +101,7 @@ class ValveTimeComponent extends PureComponent<Props>{
             {value}
           </span>
         </div>
-      </div>
+      </rect>
     )
   }
 }

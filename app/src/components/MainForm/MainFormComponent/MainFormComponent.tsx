@@ -64,8 +64,9 @@ const MainFormComponent = ({
         </section>
         <section className={s['form-container']}>
           {/* <LineDescriptionComponent lines={lineFormer} /> */}
-          <section className={s['lines-keeper']}>
-            {lineFormer.map(elem => <ValveLineComponent
+          <svg className={s['lines-keeper']}>
+            {lineFormer.map((elem, ind) => <ValveLineComponent
+              ind={ind}
               key={elem.id}
               line={elem}
               allTime={allTime}
@@ -78,7 +79,7 @@ const MainFormComponent = ({
               time={time}
               allTime={allTime}
             />
-          </section>
+          </svg>
           <ValveTimeComponentAdder
             lines={lineFormer}
             showModal={showModal}

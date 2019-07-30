@@ -1,6 +1,7 @@
 .timeFormer{
   position: absolute;
   height: 100%;
+  height: 50px;
   /* background: radial-gradient( */
     /* closest-side, */
     /* rgba(171, 193, 197, 0.8) 80%, */
@@ -16,6 +17,8 @@
    /* overflow: hidden; */
   cursor: pointer;
   transition: all 0.5s linear, left 0.5s linear;
+  fill: rgba(209, 216, 209, 1);
+
 }
 
 .timeFormer_content{
