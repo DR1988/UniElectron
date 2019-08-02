@@ -53,7 +53,7 @@ const MainFormComponent = ({
   uploadProtocol,
   serialConnected,
 }: Props) => {
-  console.log('serialConnected', serialConnected)
+  // console.log('serialConnected', serialConnected)
   return (
     <div>
 

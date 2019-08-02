@@ -32,7 +32,7 @@ class ReactionFlowComponent extends Component<Props> {
   render() {
     const { lineFormer, time, socket } = this.props
     const changes = lineFormer.map(lf => lf.changes)
-    console.log('time', time)
+    // console.log('time', time)
     const { anim } = this.state
     return (
       <svg id="svg2" version="1.1" viewBox="0 0 744 1050" >

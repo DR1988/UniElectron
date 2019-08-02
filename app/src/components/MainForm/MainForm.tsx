@@ -426,7 +426,7 @@ class MainForm extends Component<Props, State> {
   }
 
   emitChanges = () => {
-    console.log('emit changes')
+    // console.log('emit changes')
   }
 
   setChosenValveTime = (lineID: number, changeId: number): void => {
@@ -477,6 +477,25 @@ class MainForm extends Component<Props, State> {
         wrongSign: '',
       },
     }, () => this.emitChanges())
+  }
+
+  resetToPreviousChanges = () => {
+    const { chosenElement, lineFormer } = this.state
+    const { chosenLine } = chosenElement
+
+    const newlineFormer: Array<ValveLineType> = cloneDeep(lineFormer)
+    newlineFormer[chosenLine.id].changes = [...chosenElement.previousChanges]
+    const maxTime = Math.max(...newlineFormer.map((lines) => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+    this.setState({
+      ...this.state,
+      lineFormer: newlineFormer,
+      allTime: maxTime,
+    })
   }
 
   changeEndTime = (value: number): void => {
@@ -580,26 +599,7 @@ class MainForm extends Component<Props, State> {
         chosenLine: newChosenLine,
       },
     })
-  }
-
-  resetToPreviousChanges = () => {
-    const { chosenElement, lineFormer } = this.state
-    const { chosenLine } = chosenElement
-
-    const newlineFormer: Array<ValveLineType> = cloneDeep(lineFormer)
-    newlineFormer[chosenLine.id].changes = [...chosenElement.previousChanges]
-    const maxTime = Math.max(...newlineFormer.map((lines) => {
-      if (lines.changes.length) {
-        return lines.changes[lines.changes.length - 1].endTime
-      }
-      return 0
-    }))
-    this.setState({
-      ...this.state,
-      lineFormer: newlineFormer,
-      allTime: maxTime,
-    })
-  }
+  }  
 
   insertItem = (array: Array<Change>, index: number, change: Change): Array<Change> => {
     const newArray = array.slice()
@@ -998,6 +998,7 @@ class MainForm extends Component<Props, State> {
         <ModalWithCondition
           condition={showEditModal}
           closeModal={this.closeModal}
+          resetToPreviousChanges={this.resetToPreviousChanges}
           // coordinate={this.modalCoordinates}
           render={() => {
             switch (chosenElement.chosenLine.name) {
