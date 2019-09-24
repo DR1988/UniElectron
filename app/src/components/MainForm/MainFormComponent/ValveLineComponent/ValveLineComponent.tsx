@@ -9,7 +9,8 @@ interface Props {
   line: ValveLineType,
   allTime: number,
   showModal: () => void,
-  setChosenValveTime: (lineID: number, changeId: number) => void
+  setChosenValveTime: (lineID: number, changeId: number) => void,
+  scale: number,
 }
 
 class ValveLineComponent extends Component<Props>{
@@ -27,12 +28,13 @@ class ValveLineComponent extends Component<Props>{
   }
 
   render() {
-    const { showModal, setChosenValveTime, allTime, line, ind } = this.props
+    const { showModal, setChosenValveTime, allTime, line, ind, scale } = this.props
     const lineName = line.name
     return (
       <Fragment>
         <rect
           y={5 + ind * 55}
+          width={'100%'}
           // d={`M0 ${5 + ind * 55} L500 ${5 + ind * 55} L500 ${5 + (ind + 1) * 55} L0 ${5 + (ind + 1) * 55} z`}
           className={s['time-box_keeper']}
         >
@@ -55,6 +57,7 @@ class ValveLineComponent extends Component<Props>{
                 setChosenValveTime={setChosenValveTime}
                 crossingValueEnd={crossingValueEnd}
                 crossingValueStart={crossingValueStart}
+                scale={scale}
               />
             )
           })

@@ -1,14 +1,16 @@
 .time-line_wraper{
+  /* height: 100%; */
   position: relative;
-  height: 30px;
+  /* height: 30px; */
   display: flex;
   align-items: flex-end;
   flex-wrap: wrap;
+  top: calc(100% - 26px);
 }
 .time-line_wraper .time-line{
     /* height: 50px * 0.8; */
     height: 25px;
-    border: thin solid #648591;
+    border-bottom: thin solid #648591;
     border-top: none;
 }
 .time-line_wraper .time-line .time-show{
@@ -39,8 +41,7 @@
     flex-direction: column;
     align-items: center;
     bottom: 0px;
-    width: 3px;
-    
+    width: 0px;
 }
 .time-line_wraper .time-presenter .line {
         position: relative;

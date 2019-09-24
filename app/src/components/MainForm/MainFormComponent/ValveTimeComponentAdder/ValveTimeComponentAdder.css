@@ -1,3 +1,6 @@
+.root{
+  z-index: 10;
+}
 .button_container{
   display: flex;
   align-items: center;

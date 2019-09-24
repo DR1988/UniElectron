@@ -11,8 +11,10 @@
    /* flex-grow: 4; */
    /* min-width: 600px; */
    /* padding-left: 10px; */
-   margin-right: 5px;
+  height: 580px;
+  margin-right: 5px;
   width: 100%;
+  transition: all 0.1s linear;
 }
 
 .form-container {

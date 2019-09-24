@@ -32,10 +32,17 @@ interface State {
   lineFormer: Array<ValveLineType>,
   HVOpen: boolean,
   serialConnected: boolean,
+  scale: number,
+  translateX: number,
+  isMoving: boolean,
+  dx: number
 }
 
 
 class MainForm extends Component<Props, State> {
+
+  svgPageX: number
+
   constructor(props: Props) {
     super(props)
     this.initialState = {
@@ -122,6 +129,10 @@ class MainForm extends Component<Props, State> {
     }
 
     this.state = {
+      scale: 1,
+      translateX: 0,
+      isMoving: false,
+      dx: 0,
       chosenElement: {
         chosenLine: {
           name: 'RPMSetter',
@@ -972,8 +983,55 @@ class MainForm extends Component<Props, State> {
 
   }
 
+  changScale = (e) => {
+    if (e.deltaY < 0) {
+      this.inrease()
+    } else {
+      this.decrease()
+    }
+  }
+
+  inrease = () => {
+    this.setState({
+      scale: this.state.scale + 0.5
+    })
+  }
+  decrease = () => {
+    if (this.state.scale > 1) {
+      this.setState({
+        scale: this.state.scale - 0.5
+      })
+    } else {
+      this.setState({
+        scale: 1,
+        translateX: 0
+      })
+    }
+  }
+
+  lockOnForm = (e) => {
+    if (e.nativeEvent.which === 2) {
+      this.setState({
+        isMoving: !this.state.isMoving
+      })
+      this.svgPageX = e.pageX + this.state.translateX
+    }
+  }
+
+  unlockForm = () => this.setState({ isMoving: false })
+
+  moveForm = (e: React.SyntheticEvent<MouseEvent>) => {
+    // const svgForm = document.getElementById('svgform')
+    const dx = this.svgPageX - e.pageX
+    // this.svgPageX = e.pageX
+    this.setState({
+      translateX: dx,
+    })
+    // console.log(svgForm.getBoundingClientRect())
+  }
+
   render() {
-    const { showEditModal, chosenElement } = this.state
+    const { showEditModal, chosenElement, scale } = this.state
     // console.log(chosenElement.chosenLine.name === 'NewValveLine')
     return (
       <div
@@ -993,6 +1051,12 @@ class MainForm extends Component<Props, State> {
           switchHV={this.switchHV}
           downloadProtocol={this.downloadProtocol}
           uploadProtocol={this.uploadProtocol}
+          inrease={this.inrease}
+          decrease={this.decrease}
+          changScale={this.changScale}
+          lockOnForm={this.lockOnForm}
+          moveForm={this.moveForm}
+          unlockForm={this.unlockForm}
           {...this.state}
         />
         <ModalWithCondition

@@ -12,11 +12,14 @@ interface Props {
   lineID: number,
   crossingValueStart: number,
   crossingValueEnd: number,
-  showModal: (e: React.SyntheticEvent<HTMLDivElement>) => void,
+  showModal: () => void,
   setChosenValveTime: (lineID: number, changeId: number) => void,
+  scale: number,
 }
 
 class ValveTimeComponent extends PureComponent<Props>{
+  currentEvent: React.MouseEvent<SVGRectElement, MouseEvent>
+
   static defaultProps = {
     waitForValue: false,
   }
@@ -28,7 +31,7 @@ class ValveTimeComponent extends PureComponent<Props>{
   getCrossingSpace = (
     { crossingValueStart, crossingValueEnd }: { crossingValueStart: number, crossingValueEnd: number },
   ): string => {
-    console.log(crossingValueStart, crossingValueEnd )
+    console.log(crossingValueStart, crossingValueEnd)
     if (crossingValueStart > 0 && crossingValueEnd < 0) {
       return `linear-gradient(90deg, rgba(0, 0, 0, 0) ${100 * crossingValueStart}%, rgba(171, 193, 197, 1) 0%, rgba(171, 193, 197, 1) ${100 + 100 * crossingValueEnd}%, rgba(0, 0, 0, 0) 0),
       rgba(171, 193, 197, 0.5) repeating-linear-gradient(-45deg, transparent, transparent 7.5px,
@@ -49,38 +52,40 @@ class ValveTimeComponent extends PureComponent<Props>{
     return 'rgba(171, 193, 197, 1)'
   }
 
-  toggleValveTime = (e: React.SyntheticEvent<HTMLDivElement>) => {
+  toggleValveTime = (e: React.MouseEvent<SVGRectElement, MouseEvent>) => {
+    e.persist()
     e.stopPropagation()
+    this.currentEvent = e
     const { changeId, showModal, setChosenValveTime, lineID } = this.props
-    showModal(e)
+    showModal()
     setChosenValveTime(lineID, +changeId)
   }
 
   getCrossingSpaceSvg = (
     { crossingValueStart, crossingValueEnd }: { crossingValueStart: number, crossingValueEnd: number },
   ): string => {
-    console.log('crossingValueStart', crossingValueStart)
-    console.log('crossingValueEnd', crossingValueEnd)
-    const stop1 = document.getElementById('stop-1')
-    const stop2 = document.getElementById('stop-2')
-    const stop3 = document.getElementById('stop-3')
-    const stop4 = document.getElementById('stop-4')
+    const svgform = document.getElementById('svgform')
     if (crossingValueStart > 0 && crossingValueEnd < 0) {
-      stop2.setAttribute('offset', `${100 * crossingValueStart}%`)
-      stop3.setAttribute('offset', `${100 * crossingValueStart}%`)
+      console.log(this.currentEvent.currentTarget)
+      // svgform.appendChild(this.currentEvent.target as Node)
       return 'url(#grad--linear-cross)'
     } else if (crossingValueStart > 0) {
-      stop2.setAttribute('offset', `${ crossingValueStart }%`)
-      stop3.setAttribute('offset', `${ crossingValueStart }%`)
+      console.log(this.currentEvent.currentTarget)
+      // svgform.appendChild(this.currentEvent.target as Node)
       return 'url(#grad--linear-cross)'
     } else if (crossingValueEnd < 0) {
-
+      // svgform.appendChild(this.currentEvent.target as Node)
+      return 'url(#grad--linear-cross)'
     } else if (crossingValueStart === 0) {
-
+      return 'url(#grad--linear-border-left'
     } else if (crossingValueEnd === 0) {
-
+      return 'url(#grad--linear-border-rigth)'
     }
     return 'url(#grad--linear-normal)'
+  }
+
+  setToFront = (elem) => {
+    // console.log('elem', elem)
   }
 
   render() {
@@ -94,37 +99,17 @@ class ValveTimeComponent extends PureComponent<Props>{
       changeId,
       waitForValue,
       ind,
+      scale,
     } = this.props
     return (
       <Fragment>
-        <linearGradient id="grad--linear-cross">
-          <stop id="stop-1" offset="0%" stopColor="rgba(121, 123, 197, 1)" />
-          <stop id="stop-2" offset="20%" stopColor="rgba(121, 123, 197, 1)" />
-          <stop id="stop-3" offset="20%" stopColor="rgba(171, 193, 197, 1)" />
-          <stop id="stop-4" offset="100%" stopColor="rgba(171, 193, 197, 1)" />
-        </linearGradient>
-        <linearGradient id="grad--linear-normal">
-          <stop offset="0%" stopColor="rgba(171, 193, 197, 1)" />
-          <stop offset="100%" stopColor="rgba(171, 193, 197, 1)" />
-        </linearGradient>
         <rect
           y={5 + ind * 55}
           className={s.timeFormer}
-          onClick={this.toggleValveTime}
+          onClick={(e: React.MouseEvent<SVGRectElement, MouseEvent>) => this.toggleValveTime(e)}
           x={`${100 * startTime}%`}
-          // d={`M0 0 L500 0 L500 ${5 + 0 * 55} L0 ${5 + 0 * 55} z`}
           style={{
-            // left: `${100 * startTime}%`,
-            // fill: this.getCrossingSpaceSvg({ crossingValueStart, crossingValueEnd }),
-            // fill: 'url(#grad--linear-normal)',
             fill: this.getCrossingSpaceSvg({ crossingValueStart, crossingValueEnd }),
-            // zIndex: crossingValueStart || crossingValueEnd ? 2 : 'auto',
-            // crossingValue >= 0 ?
-            // // `linear-gradient(90deg, rgba(71, 193, 197, 0.3) ${100 * crossingValue}%, rgba(171, 193, 197, 1) 0%)`
-            // `linear-gradient(90deg, rgba(0, 0, 0, 0) ${100 * crossingValue}%, rgba(171, 193, 197, 1) 0%),
-            // rgba(171, 193, 197, 0.5) repeating-linear-gradient(-45deg, transparent, transparent 7.5px,
-            // rgba(226, 5, 5, 0.5) 7.5px, rgba(226, 5, 5, 0.5) 15px)`
-            // : 'rgba(171, 193, 197, 1)',
             width: `${100 * width}%`,
           }}
         >
@@ -133,16 +118,30 @@ class ValveTimeComponent extends PureComponent<Props>{
 
             </div>
           </div>) : null}
-          {/* {changeId === chosenElement.changeId && lineID === chosenElement.chosenLine.id ?
-          <div className={s.modal}>
-          <div>{chosenElement.changeId}</div>
-        </div> : null } */}
-          <div className={s.timeFormer_content}>
-            <span className={s.timeFormer_sign}>
+        </rect>
+        <foreignObject
+          style={{ pointerEvents: 'none' }}
+          x={`${100 * (startTime)}%`}
+          y={5 + ind * 55}
+          className={s.timeFormer_content}
+          width={`${100 * width}%`}
+          height="50">
+          {/* <div className={s.timeFormer_content}> */}
+          <span style={{ transform: `scaleX(${1 / scale})`}}
+            className={s.timeFormer_sign}>
               {value}
             </span>
-          </div>
-        </rect>
+          {/* </div> */}
+        </foreignObject>
+        {/* <text style={{ pointerEvents: 'none' }}
+          className={s.timeFormer_sign}
+          y={5 + ind * 55 + 25}
+          x={`${100 * (startTime + width / 2)}%`}
+          text-anchor="middle"
+          alignment-baseline="central"
+          >
+          {value}
+        </text> */}
       </Fragment>
     )
   }

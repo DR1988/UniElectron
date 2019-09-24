@@ -31,6 +31,7 @@ interface Props {
   downloadProtocol: () => void,
   uploadProtocol: () => void
   serialConnected: boolean,
+  scale: number
 }
 
 const MainFormComponent = ({
@@ -52,11 +53,20 @@ const MainFormComponent = ({
   downloadProtocol,
   uploadProtocol,
   serialConnected,
+  scale,
+  inrease,
+  decrease,
+  changScale,
+  lockOnForm,
+  translateX,
+  moveForm,
+  isMoving,
+  unlockForm,
 }: Props) => {
+  console.log('translateX', translateX)
   // console.log('serialConnected', serialConnected)
   return (
     <div>
-
       <div id="mainForm" className={s.mainForm}>
         <section className={s.sidebar}>
           {/* <NoteComponent /> */}
@@ -64,17 +74,66 @@ const MainFormComponent = ({
         </section>
         <section className={s['form-container']}>
           {/* <LineDescriptionComponent lines={lineFormer} /> */}
-          <svg className={s['lines-keeper']}>
-            {lineFormer.map((elem, ind) => <ValveLineComponent
-              ind={ind}
-              key={elem.id}
-              line={elem}
-              allTime={allTime}
-              showModal={showModal}
-              setChosenValveTime={setChosenValveTime}
-            />,
-            )}
+          <svg style={{ transform: `scaleX(${scale}) translateX(${translateX}px)`}}
+            id="svgform"
+            className={s['lines-keeper']}
+            onWheel={changScale}
+            onMouseDown={lockOnForm}
+            onMouseUp={lockOnForm}
+            onMouseMove={isMoving ? moveForm : f => f}
+            onMouseLeave={unlockForm}
+          >
+            <g>
+              <linearGradient id="grad"
+                spreadMethod="pad"
+                x1="0" y1="30%" x2="23.5%" y2="20%">
+                <stop offset="0%" stopColor="rgba(171, 193, 197, 0.3)" />
+                <stop offset="25%" stopColor="rgba(171, 193, 197, 0.3)" />
+                <stop offset="25%" stopColor="rgba(226, 5, 5, 0.3)" />
+                <stop offset="50%" stopColor="rgba(226, 5, 5, 0.3)" />
+                <stop offset="50%" stopColor="rgba(171, 193, 197, 0.3)" />
+                <stop offset="75%" stopColor="rgba(171, 193, 197, 0.3)" />
+                <stop offset="75%" stopColor="rgba(226, 5, 5, 0.3)" />
+                <stop offset="100%" stopColor="rgba(226, 5, 5, 0.3)" />
+              </linearGradient>
+
+              <linearGradient id="grad--linear-border-left">
+                <stop offset="0%" stopColor="crimson" />
+                <stop offset="2%" stopColor="crimson" />
+                <stop offset="2%" stopColor="rgba(171, 193, 197, 1)" />
+                <stop offset="100%" stopColor="rgba(171, 193, 197, 1)" />
+              </linearGradient>
+
+              <linearGradient id="grad--linear-border-rigth">
+                <stop offset="0%" stopColor="rgba(171, 193, 197, 1)" />
+                <stop offset="98%" stopColor="rgba(171, 193, 197, 1)" />
+                <stop offset="98%" stopColor="crimson" />
+                <stop offset="100%" stopColor="crimson" />
+              </linearGradient>
+
+              <linearGradient id="grad--linear-cross"
+                xlinkHref="#grad"
+                spreadMethod="repeat" >
+              </linearGradient>
+              <linearGradient id="grad--linear-normal">
+                <stop offset="0%" stopColor="rgba(171, 193, 197, 1)" />
+                <stop offset="100%" stopColor="rgba(171, 193, 197, 1)" />
+              </linearGradient>
+            </g>
+            <g>
+              {lineFormer.map((elem, ind) => <ValveLineComponent
+                ind={ind}
+                key={elem.id}
+                line={elem}
+                allTime={allTime}
+                showModal={showModal}
+                setChosenValveTime={setChosenValveTime}
+                scale={scale}
+              />,
+              )}
+            </g>
             <TimeLine
+              scaleX={scale}
               distance={distance}
               time={time}
               allTime={allTime}
@@ -126,6 +185,8 @@ const MainFormComponent = ({
         <button
           className={cn({ [s.inactive]: !serialConnected })}
           onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
+        <button onClick={inrease}>+</button>
+        <button onClick={decrease}>-</button>
       </div>
     </div>
   )

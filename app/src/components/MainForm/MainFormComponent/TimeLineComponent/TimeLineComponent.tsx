@@ -15,6 +15,7 @@ const TimeLineComponent: StatelessComponent<Props> = ({
   time,
   distance,
   width = '100%',
+  scaleX,
 }) => {
   // console.log('TimeLineComponent distance', distance)
   // console.log('TimeLineComponent time', time)
@@ -25,7 +26,7 @@ const TimeLineComponent: StatelessComponent<Props> = ({
     const maxI = allTime / 50
     for (let i = 0; i <= sliceCount; i++) {
       dividersTemplate.push(
-        <div key={i} className={s['time-former']}>
+        <div style={{ transform: `scaleX(${1 / scaleX})` }} key={i} className={s['time-former']}>
           <div className={s.divider} />
           <div className={s['time-count']}>{Math.floor((allTime * i) / sliceCount)}</div>
         </div>,
@@ -53,21 +54,23 @@ const TimeLineComponent: StatelessComponent<Props> = ({
     }
   }
   // console.log(scale)
-  return (<div className={s['time-line_wraper']}>
-    <div className={s['time-line']} style={{ width: width }} >
-      <div className={s['time-show']}>
-        {dividersTemplate}
-      </div>
-    </div>
-    <div
-      className={s['time-presenter']}
-      style={{ left: `${distance}%`, transition: `left ${time}s linear` }}
-      // style={{ left: distance * scale, transition: `left ${time}s linear` }}
-    >
-      <div className={s.line} />
-      <div className={s['arrow-up']} />
-    </div>
-    {/* <div style={{
+  return (
+    <foreignObject style={{ pointerEvents: 'none' }} height="100%" width="100%">
+      <div className={s['time-line_wraper']}>
+        <div className={s['time-line']} style={{ width: width }} >
+          <div className={s['time-show']}>
+            {dividersTemplate}
+          </div>
+        </div>
+        <div
+          className={s['time-presenter']}
+          style={{ transform: `scaleX(${1 / scaleX})`, left: `${distance}%`, transition: `left ${time}s linear` }}
+        // style={{ left: distance * scale, transition: `left ${time}s linear` }}
+        >
+          <div className={s.line} />
+          <div className={s['arrow-up']} />
+        </div>
+        {/* <div style={{
       width: '100%',
       background: 'rgba(255, 0,0,0.3)',
       height: '20px',
@@ -79,7 +82,8 @@ const TimeLineComponent: StatelessComponent<Props> = ({
     >
       {dividersTemplatePercent}
     </div> */}
-  </div>
+      </div>
+    </foreignObject>
   )
 }
 
