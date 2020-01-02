@@ -1,0 +1,11 @@
+.lines-keeper {
+  /* flex-grow: 4; */
+  /* min-width: 600px; */
+  /* padding-left: 10px; */
+  overflow: hidden;
+  margin-right: 5px;
+  width: 100%;
+}
+.lineKeeperContent {
+  transition: all 0.15s linear;
+}

@@ -3,27 +3,20 @@ import cn from 'classnames'
 // import fs from 'fs'
 // import electron from 'electron'
 
-import s from './MainFormComponent.css'
 import { ValveLineType } from './../MainFormInterfaces'
-import ValveLineComponent from './ValveLineComponent'
-import TimeLine from './TimeLineComponent'
 import ValveTimeComponentAdder from './ValveTimeComponentAdder'
 import ReactionFlowComponent from '../../ReactionFlowComponent/ReactionFlowComponent'
+import ProcessSheetComponent, { Props as ProcessSheetComponentProps } from './ProcessSheetComponent/ProcessSheetComponent'
 
+import s from './MainFormComponent.css'
 // const { dialog } = electron.remote
 
-interface Props {
+interface Props extends ProcessSheetComponentProps {
   resetState: () => void,
   start: () => void,
   pause: () => void,
   stop: () => void,
-  showModal: () => void,
   addNewValveTime: (chosenLine: ValveLineType) => void,
-  setChosenValveTime: (lineID: number, changeId: number) => void,
-  distance: number,
-  time: number,
-  lineFormer: Array<ValveLineType>,
-  allTime: number,
   connect: () => void,
   switchHV: () => void,
   HVOpen: boolean,
@@ -34,14 +27,11 @@ interface Props {
 }
 
 const MainFormComponent = ({
-  distance,
-  time,
   lineFormer,
-  allTime,
+  time,
   showModal,
   resetState,
   addNewValveTime,
-  setChosenValveTime,
   start,
   pause,
   stop,
@@ -52,8 +42,9 @@ const MainFormComponent = ({
   downloadProtocol,
   uploadProtocol,
   serialConnected,
+  ...ProcessSheetComponentProps
 }: Props) => {
-  console.log('serialConnected', serialConnected)
+  // console.log('serialConnected', serialConnected)
   return (
     <div>
 
@@ -63,22 +54,12 @@ const MainFormComponent = ({
           <ReactionFlowComponent socket={socket} lineFormer={lineFormer} time={time} />
         </section>
         <section className={s['form-container']}>
-          {/* <LineDescriptionComponent lines={lineFormer} /> */}
-          <section className={s['lines-keeper']}>
-            {lineFormer.map(elem => <ValveLineComponent
-              key={elem.id}
-              line={elem}
-              allTime={allTime}
-              showModal={showModal}
-              setChosenValveTime={setChosenValveTime}
-            />,
-            )}
-            <TimeLine
-              distance={distance}
-              time={time}
-              allTime={allTime}
-            />
-          </section>
+          <ProcessSheetComponent
+            lineFormer={lineFormer}
+            showModal={showModal}
+            time={time}
+            {...ProcessSheetComponentProps}
+          />
           <ValveTimeComponentAdder
             lines={lineFormer}
             showModal={showModal}

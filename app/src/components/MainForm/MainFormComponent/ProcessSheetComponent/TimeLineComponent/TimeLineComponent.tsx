@@ -7,6 +7,7 @@ interface Props {
   allTime: number,
   time: number,
   distance: number,
+  scale: number,
   width?: string
 }
 
@@ -14,8 +15,10 @@ const TimeLineComponent: StatelessComponent<Props> = ({
   allTime,
   time,
   distance,
+  scale,
   width = '100%',
 }) => {
+  // console.log(allTime)
   // console.log('TimeLineComponent distance', distance)
   // console.log('TimeLineComponent time', time)
   const dividersTemplate = []
@@ -25,7 +28,9 @@ const TimeLineComponent: StatelessComponent<Props> = ({
     const maxI = allTime / 50
     for (let i = 0; i <= sliceCount; i++) {
       dividersTemplate.push(
-        <div key={i} className={s['time-former']}>
+        <div key={i}
+        style={{ transform: `scaleX(${1 / scale})` }}
+        className={s['time-former']}>
           <div className={s.divider} />
           <div className={s['time-count']}>{Math.floor((allTime * i) / sliceCount)}</div>
         </div>,
@@ -44,25 +49,33 @@ const TimeLineComponent: StatelessComponent<Props> = ({
   }
 
   let formWidth = 0
-  let scale = 1
+  // let scale = 1
   const ttllefRightPadding = 40
-  if (typeof window !== 'undefined' && document.getElementById('form-Manupalation')) {
-    formWidth = document.getElementById('form-Manupalation').offsetWidth
-    if ((formWidth - ttllefRightPadding) / allTime > 1 && allTime > 0) {
-      scale = (formWidth - ttllefRightPadding) / allTime
-    }
-  }
+  // if (typeof window !== 'undefined' && document.getElementById('form-Manupalation')) {
+  //   formWidth = document.getElementById('form-Manupalation').offsetWidth
+  //   if ((formWidth - ttllefRightPadding) / allTime > 1 && allTime > 0) {
+  //     scale = (formWidth - ttllefRightPadding) / allTime
+  //   }
+  // }
   // console.log(scale)
-  return (<div className={s['time-line_wraper']}>
-    <div className={s['time-line']} style={{ width: width }} >
-      <div className={s['time-show']}>
+  return (<div
+    // style={{ transform: `scaleX(${scale})` }}
+    className={s['time-line_wraper']}>
+    <div className={s['time-line']}
+      style={{
+        width: width,
+        //  transform: `scaleX(${1 / scale})`
+      }} >
+      <div
+        // style={{ transform: `scaleX(${1 / scale})` }}
+        className={s['time-show']}>
         {dividersTemplate}
       </div>
     </div>
     <div
       className={s['time-presenter']}
-      style={{ left: `${distance}%`, transition: `left ${time}s linear` }}
-      // style={{ left: distance * scale, transition: `left ${time}s linear` }}
+      style={{ left: `${distance * scale}%`, transition: `left ${time}s linear`, transform: `scaleX(${1 / scale})` }}
+    // style={{ left: distance * scale, transition: `left ${time}s linear` }}
     >
       <div className={s.line} />
       <div className={s['arrow-up']} />

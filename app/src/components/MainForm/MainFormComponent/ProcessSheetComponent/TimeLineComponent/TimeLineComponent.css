@@ -10,6 +10,8 @@
     height: 25px;
     border: thin solid #648591;
     border-top: none;
+    border-left: none;
+    border-right: none;
 }
 .time-line_wraper .time-line .time-show{
       display: flex;
@@ -18,10 +20,10 @@
 }
 .time-show .time-former{
         position: relative;
-        background-color: #648591;
-        width: 2px;
+        /* background-color: #648591; */
+        width: 0px;
 }
-.time-line_wraper .time-line .time-show .time-former.divider{
+.time-line_wraper .time-line .time-show .time-former .divider{
           width: 2px;
           height: 100%;
           background-color: #648591;
@@ -29,6 +31,7 @@
 .time-line_wraper .time-line .time-show .time-former .time-count{
           position: absolute;
           left: 3px;
+          top: 0;
         }
 .time-line_wraper .time-line .time-show .time-former:last-child .time-count{
           /* right: 100%; */
@@ -39,7 +42,7 @@
     flex-direction: column;
     align-items: center;
     bottom: 0px;
-    width: 3px;
+    width: 0;
     
 }
 .time-line_wraper .time-presenter .line {

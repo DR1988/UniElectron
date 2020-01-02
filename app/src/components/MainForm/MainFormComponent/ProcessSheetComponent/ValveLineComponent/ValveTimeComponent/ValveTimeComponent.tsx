@@ -13,6 +13,7 @@ interface Props {
   crossingValueEnd: number,
   showModal: (e: React.SyntheticEvent<HTMLDivElement>) => void,
   setChosenValveTime: (lineID: number, changeId: number) => void,
+  scale: number,
 }
 
 class ValveTimeComponent extends PureComponent<Props>{
@@ -64,6 +65,7 @@ class ValveTimeComponent extends PureComponent<Props>{
       lineID,
       changeId,
       waitForValue,
+      scale,
     } = this.props
     return (
       <div
@@ -92,7 +94,8 @@ class ValveTimeComponent extends PureComponent<Props>{
             <div>{chosenElement.changeId}</div>
           </div> : null } */}
         <div className={s.timeFormer_content}>
-          <span className={s.timeFormer_sign}>
+          <span style={{ transform: `scaleX(${1 / scale})` }}
+            className={s.timeFormer_sign}>
             {value}
           </span>
         </div>

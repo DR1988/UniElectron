@@ -32,10 +32,17 @@ interface State {
   lineFormer: Array<ValveLineType>,
   HVOpen: boolean,
   serialConnected: boolean,
+  scale: number,
+  translateX: number,
+  isMoving: boolean,
+  dx: number
 }
 
 
 class MainForm extends Component<Props, State> {
+
+  svgPageX: number
+
   constructor(props: Props) {
     super(props)
     this.initialState = {
@@ -122,6 +129,10 @@ class MainForm extends Component<Props, State> {
     }
 
     this.state = {
+      scale: 1,
+      translateX: 0,
+      isMoving: false,
+      dx: 0,
       chosenElement: {
         chosenLine: {
           name: 'RPMSetter',
@@ -229,7 +240,7 @@ class MainForm extends Component<Props, State> {
             { startTime: 125, endTime: 145, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
             { startTime: 150, endTime: 190, changeId: 3, duration: 40, crossingValueEnd: NaN, crossingValueStart: NaN },
             { startTime: 220, endTime: 245, changeId: 4, duration: 25, crossingValueEnd: NaN, crossingValueStart: NaN },
-            
+
             // { startTime: 25, endTime: 45, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
             // { startTime: 50, endTime: 90, changeId: 3, duration: 40, crossingValueEnd: NaN, crossingValueStart: NaN },
             // { startTime: 120, endTime: 145, changeId: 4, duration: 25, crossingValueEnd: NaN, crossingValueStart: NaN },
@@ -972,6 +983,61 @@ class MainForm extends Component<Props, State> {
 
   }
 
+  changScale = (e: React.WheelEvent) => {
+    e.preventDefault()
+    if (e.deltaY < 0) {
+      this.inrease()
+    } else {
+      this.decrease()
+    }
+  }
+
+  inrease = () => {
+    if(this.state.scale < 15) {
+      this.setState({
+        scale: this.state.scale + 0.5
+      })
+    }
+  }
+  decrease = () => {
+    if (this.state.scale > 1) {
+      this.setState({
+        scale: this.state.scale - 0.5
+      })
+    } else if (this.state.translateX !== 0) {
+      this.setState({
+        translateX: 0
+      })
+    }
+  }
+
+  lockOnForm = (e) => {
+    if (e.nativeEvent.which === 2) {
+      this.setState({
+        isMoving: !this.state.isMoving
+      })
+      this.svgPageX = e.pageX + this.state.translateX
+    }
+  }
+
+  unlockForm = () => this.setState({ isMoving: false })
+
+  moveForm = (e: React.MouseEvent) => {
+    // console.log('e', e.target)
+    console.log('e', e.currentTarget.clientWidth)
+    // const svgForm = document.getElementById('svgform')
+    console.log(this.state.translateX)
+    if (this.state.scale !== 1 ) {
+      const dx = this.svgPageX - e.pageX
+      // this.svgPageX = e.pageX
+      this.setState({
+        translateX: dx,
+      })
+    }
+    // console.log(svgForm.getBoundingClientRect())
+  }
+
+
   render() {
     const { showEditModal, chosenElement } = this.state
     // console.log(chosenElement.chosenLine.name === 'NewValveLine')
@@ -993,6 +1059,10 @@ class MainForm extends Component<Props, State> {
           switchHV={this.switchHV}
           downloadProtocol={this.downloadProtocol}
           uploadProtocol={this.uploadProtocol}
+          changScale={this.changScale}
+          lockOnForm={this.lockOnForm}
+          moveForm={this.moveForm}
+          unlockForm={this.unlockForm}
           {...this.state}
         />
         <ModalWithCondition

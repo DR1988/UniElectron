@@ -9,6 +9,7 @@ interface Props {
   allTime: number,
   showModal: () => void,
   setChosenValveTime: (lineID: number, changeId: number) => void
+  scale: number,
 }
 
 class ValveLineComponent extends Component<Props>{
@@ -26,7 +27,7 @@ class ValveLineComponent extends Component<Props>{
   }
 
   render() {
-    const { showModal, setChosenValveTime, allTime, line } = this.props
+    const { showModal, setChosenValveTime, allTime, line, scale } = this.props
     const lineName = line.name
     return (
       <div className={s['time-box_keeper']}>
@@ -46,6 +47,7 @@ class ValveLineComponent extends Component<Props>{
               setChosenValveTime={setChosenValveTime}
               crossingValueEnd={crossingValueEnd}
               crossingValueStart={crossingValueStart}
+              scale={scale}
             />
           )
         })}

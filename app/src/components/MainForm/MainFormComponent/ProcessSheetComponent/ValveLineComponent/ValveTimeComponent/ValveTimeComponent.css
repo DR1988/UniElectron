@@ -24,6 +24,7 @@
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  position: relative;
 }
 
 .timeFormer_sign{

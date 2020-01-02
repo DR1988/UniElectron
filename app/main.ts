@@ -97,6 +97,7 @@ async function createWindow() {
 
   // and load the index.html of the app.
   if (process.env.NODE_ENV === 'development') {
+    require('electron-react-devtools');
     mainWindow.loadURL(`http://localhost:${port}/`)
   } else {
     mainWindow.loadURL(`http://localhost:${port}/`)

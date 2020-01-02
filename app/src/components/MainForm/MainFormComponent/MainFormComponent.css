@@ -7,14 +7,6 @@
   margin-right: 20px;
 }
 
-.lines-keeper{
-   /* flex-grow: 4; */
-   /* min-width: 600px; */
-   /* padding-left: 10px; */
-   margin-right: 5px;
-  width: 100%;
-}
-
 .form-container {
   display: flex;
   overflow: hidden;
