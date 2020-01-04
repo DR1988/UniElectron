@@ -2,6 +2,7 @@
 import express from 'express'
 import { Server } from 'http'
 import * as path from 'path'
+import fs from 'fs'
 // import serialport from 'serialport'
 
 import socketServer from './server/index'
@@ -14,9 +15,15 @@ import electronDl, { download } from 'electron-dl'
 
 electronDl()
 
-ipcMain.on('download-button', async(event, {url}) => {
-  const win = BrowserWindow.getFocusedWindow()
-  console.log(await download(win, url))
+ipcMain.on('download-button', (event, args) => {
+  if (args.path) {
+    fs.writeFileSync(args.path, JSON.stringify(args.data), 'utf-8')
+  }
+})
+
+ipcMain.on('load-button', (event, args) => {
+  const file = fs.readFileSync(args.path, { encoding: 'utf-8'})
+  event.sender.send('file-loaded', JSON.parse(file))
 })
 
 const HTML = `<!DOCTYPE html>
@@ -54,8 +61,8 @@ async function createWindow() {
   // await installExtensions()
 
   mainWindow = new BrowserWindow({
-    width: 900,
-    height: 700,
+    width: 1400,
+    height: 1200,
     webPreferences: {
       nodeIntegration: true,
     },

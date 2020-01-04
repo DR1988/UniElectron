@@ -9,6 +9,8 @@ export default {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
 
+  target: 'electron-renderer',
+
   entry: path.join(__dirname, '..', 'src/index.tsx'),
 
   output: {

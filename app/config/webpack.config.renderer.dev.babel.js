@@ -10,6 +10,8 @@ export default {
     extensions: ['.js', '.jsx', '.ts', '.tsx'],
   },
 
+  target: 'electron-renderer',
+
   entry: [
     'react-hot-loader/patch',
     'webpack-hot-middleware/client',

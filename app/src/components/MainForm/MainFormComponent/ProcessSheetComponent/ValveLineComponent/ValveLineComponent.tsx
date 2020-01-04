@@ -30,7 +30,11 @@ class ValveLineComponent extends Component<Props>{
     const { showModal, setChosenValveTime, allTime, line, scale } = this.props
     const lineName = line.name
     return (
-      <div className={s['time-box_keeper']}>
+      <div className={s['time-box_keeper']}
+        style={{
+          // transform: `scaleX(${scale})`
+        }}
+      >
         {line.changes.map((el) => {
           const { startTime, endTime, value, crossingValueEnd, crossingValueStart } = el
           const duration = endTime - startTime

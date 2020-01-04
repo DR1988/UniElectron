@@ -6,6 +6,9 @@
   margin-right: 5px;
   width: 100%;
 }
+.crossed {
+  cursor: move;
+}
 .lineKeeperContent {
-  transition: all 0.15s linear;
+  /* transition: all 0.15s linear; */
 }

@@ -32,12 +32,7 @@ interface State {
   lineFormer: Array<ValveLineType>,
   HVOpen: boolean,
   serialConnected: boolean,
-  scale: number,
-  translateX: number,
-  isMoving: boolean,
-  dx: number
 }
-
 
 class MainForm extends Component<Props, State> {
 
@@ -121,7 +116,7 @@ class MainForm extends Component<Props, State> {
         },
         {
           name: 'TempSetter',
-          shortName: 'T°C',
+          shortName: 'TC',
           id: 9,
           changes: [],
         },
@@ -129,10 +124,6 @@ class MainForm extends Component<Props, State> {
     }
 
     this.state = {
-      scale: 1,
-      translateX: 0,
-      isMoving: false,
-      dx: 0,
       chosenElement: {
         chosenLine: {
           name: 'RPMSetter',
@@ -305,7 +296,7 @@ class MainForm extends Component<Props, State> {
         },
         {
           name: 'TempSetter',
-          shortName: 'T°C',
+          shortName: 'TC',
           id: 9,
           changes: [
             { startTime: 50, endTime: 100, value: 32, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
@@ -371,6 +362,16 @@ class MainForm extends Component<Props, State> {
     this.props.socket.on(socketConfig.connected, (data: boolean) => {
       this.setState({
         serialConnected: data,
+      })
+    })
+
+    ipcRenderer.on('file-loaded', (event, data: {
+      lineFormer: Array<ValveLineType>,
+      allTime: number
+    }) => {
+      this.setState({
+        lineFormer: data.lineFormer,
+        allTime: data.allTime
       })
     })
   }
@@ -968,75 +969,22 @@ class MainForm extends Component<Props, State> {
     })
   }
 
-  downloadProtocol = () => {
-    // ipcRenderer.send('download-button')
-    // var element = document.createElement('a');
-    // element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent('asdas'));
-    // element.setAttribute('download', 'fileName.txt');
-    // element.style.display = 'none';
-    // document.body.appendChild(element);
-    // element.click();
-    // document.body.removeChild(element);
+  downloadProtocol = (path: string) => {
+    ipcRenderer.send('download-button', {
+      path,
+      data: {
+        lineFormer: this.state.lineFormer,
+        allTime: this.state.allTime
+      }
+    })
   }
 
-  uploadProtocol = () => {
-
+  uploadProtocol = (path: string) => {
+    console.log('path', path)
+    ipcRenderer.send('load-button', {
+      path
+    })
   }
-
-  changScale = (e: React.WheelEvent) => {
-    e.preventDefault()
-    if (e.deltaY < 0) {
-      this.inrease()
-    } else {
-      this.decrease()
-    }
-  }
-
-  inrease = () => {
-    if(this.state.scale < 15) {
-      this.setState({
-        scale: this.state.scale + 0.5
-      })
-    }
-  }
-  decrease = () => {
-    if (this.state.scale > 1) {
-      this.setState({
-        scale: this.state.scale - 0.5
-      })
-    } else if (this.state.translateX !== 0) {
-      this.setState({
-        translateX: 0
-      })
-    }
-  }
-
-  lockOnForm = (e) => {
-    if (e.nativeEvent.which === 2) {
-      this.setState({
-        isMoving: !this.state.isMoving
-      })
-      this.svgPageX = e.pageX + this.state.translateX
-    }
-  }
-
-  unlockForm = () => this.setState({ isMoving: false })
-
-  moveForm = (e: React.MouseEvent) => {
-    // console.log('e', e.target)
-    console.log('e', e.currentTarget.clientWidth)
-    // const svgForm = document.getElementById('svgform')
-    console.log(this.state.translateX)
-    if (this.state.scale !== 1 ) {
-      const dx = this.svgPageX - e.pageX
-      // this.svgPageX = e.pageX
-      this.setState({
-        translateX: dx,
-      })
-    }
-    // console.log(svgForm.getBoundingClientRect())
-  }
-
 
   render() {
     const { showEditModal, chosenElement } = this.state
@@ -1059,10 +1007,6 @@ class MainForm extends Component<Props, State> {
           switchHV={this.switchHV}
           downloadProtocol={this.downloadProtocol}
           uploadProtocol={this.uploadProtocol}
-          changScale={this.changScale}
-          lockOnForm={this.lockOnForm}
-          moveForm={this.moveForm}
-          unlockForm={this.unlockForm}
           {...this.state}
         />
         <ModalWithCondition
