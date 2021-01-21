@@ -111,7 +111,7 @@
     "react-dom": "^16.8.2",
     "recharts": "^1.5.0",
     "serialport": "^7.1.4",
-    "socket.io": "^2.2.0",
+    "socket.io": "^2.4.0",
     "socket.io-client": "^2.2.0",
     "usb": "^1.6.0"
   }
