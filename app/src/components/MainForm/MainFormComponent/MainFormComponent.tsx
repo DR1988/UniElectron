@@ -70,7 +70,7 @@ const MainFormComponent = ({
       <div className={s.buttons} >
         <button onClick={connect}>Connect</button>
         <button
-          className={cn({ [s.inactive]: !serialConnected })}
+          // className={cn({ [s.inactive]: !serialConnected })}
           onClick={start}>Start</button>
         <button
           className={cn({ [s.inactive]: !serialConnected })}
@@ -87,8 +87,8 @@ const MainFormComponent = ({
               extensions: ['json'],
               name: ''
             }],
-          }, (path) => {
-            downloadProtocol(path)
+          }).then(({filePath}) => {
+              downloadProtocol(filePath)
           })
         }}>Save</button>
         <button onClick={() => {
@@ -99,10 +99,10 @@ const MainFormComponent = ({
               extensions: ['json'],
               name: ''
             }],
-          }, (path) => {
-              if (path) {
-                uploadProtocol(path[0])
-              }
+          }).then(({filePaths}) => {
+            if (filePaths.length) {
+              uploadProtocol(filePaths[0])
+            }
           })
         }}>Load</button>
         <button

@@ -4,7 +4,7 @@ import connection from './socketHandlers/connection'
 
 let isSerialConnetcted: boolean = false
 
-export default (http: Server, serial) => {
+export const socketServer = (http: Server, serial) => {
   const io = socket(http, { serveClient: false })
   io.on('connection', (s) => {
     connection(s, io)

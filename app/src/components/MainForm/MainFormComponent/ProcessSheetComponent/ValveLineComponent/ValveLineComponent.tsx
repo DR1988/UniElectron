@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
 import s from './ValveLineComponent.css'
 import ValveTimeComponent from './ValveTimeComponent'
@@ -12,7 +12,7 @@ interface Props {
   scale: number,
 }
 
-class ValveLineComponent extends Component<Props>{
+class ValveLineComponent extends PureComponent<Props>{
 
   setValue = (
     lineName: 'ValveLine' | 'RPMSetter' | 'TempSetter' | 'NewValveLine' | 'NewRPMSetter' | 'NewTempSetter',

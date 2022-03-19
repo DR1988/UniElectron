@@ -39,22 +39,22 @@ class ProcessSheetComponent extends PureComponent<Props, State> {
     }
   }
   changScale = (e: React.WheelEvent) => {
-    e.preventDefault()
+    // e.preventDefault()
     if (e.deltaY < 0) {
-      this.increase()
+      this.increaseScale()
     } else {
-      this.decrease()
+      this.decreaseScale()
     }
   }
 
-  increase = () => {
+  increaseScale = () => {
     if (this.state.scale < 15) {
       this.setState({
         scale: this.state.scale + 0.5
       })
     }
   }
-  decrease = () => {
+  decreaseScale = () => {
     if (this.state.scale > 1) {
       this.setState({
         scale: this.state.scale - 0.5
@@ -133,7 +133,6 @@ class ProcessSheetComponent extends PureComponent<Props, State> {
           allTime={allTime}
         />
       </div>
-
     </section >
     )
   }

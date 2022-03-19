@@ -55,7 +55,7 @@ export default class Controller {
 
   private initialize() {
     console.log('INIT')
-    this.ThermostatController = new ThermostatController(this.eventEmiiter)
+    // this.ThermostatController = new ThermostatController(this.eventEmiiter)
   }
 
   // private async usbPromise(): Promise<Boolean> {
@@ -80,7 +80,7 @@ export default class Controller {
       await this.delaytTimer(3000)
       // this.io.emit(socketConfig.connected, true)
       // await this.usbPromise()
-      this.ThermostatController = new ThermostatController(this.eventEmiiter)
+      // this.ThermostatController = new ThermostatController(this.eventEmiiter)
       this.turningOn = false
     } else if (this.turningOff) {
       console.log('this.turningOff', this.turningOff)
@@ -88,7 +88,7 @@ export default class Controller {
       await this.delaytTimer(3000)
       this.io.emit(socketConfig.connected, true)
       // await this.usbPromise()
-      this.ThermostatController = new ThermostatController(this.eventEmiiter)
+      // this.ThermostatController = new ThermostatController(this.eventEmiiter)
       this.turningOff = false
     } else {
       this.io.emit(socketConfig.thermoStatInitError, error)
@@ -128,7 +128,7 @@ export default class Controller {
     }
     this.Serial.sendData('R80|\n')
     this.turningOff = true
-    this.ThermostatController.turnOff()
+    // this.ThermostatController.turnOff()
     this.io.emit(socketConfig.stop, this.counter)
   }
 
@@ -143,13 +143,13 @@ export default class Controller {
 
   switchHV = (data) => {
     // console.log(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')
-    this.Serial.sendData(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')
+    this.Serial.sendData(data ? 'V6Y|V7Y|V8Y|\n' : 'V6N|V7N|V8N|\n')
   }
 
   startGettingTemperature() {
     this.temperatureInterval = setInterval(async () => {
       this.io.emit(socketConfig.tempChange, {
-        temperature: this.ThermostatController.getTemperature(),
+        temperature: this.ThermostatController && this.ThermostatController.getTemperature() || 20,
         time: this.currentTime,
       })
     }, 5000 / this.velocity)
@@ -166,8 +166,8 @@ export default class Controller {
   }
   initStart = async (data: startSignal) => {
     this.turningOn = true
-    await this.ThermostatController.turnOn()
-    await this.delaytTimer(7000)
+    // await this.ThermostatController.turnOn()
+    // await this.delaytTimer(7000)
     this.io.emit(socketConfig.connected, true)
     this.start(data)
   }
@@ -183,14 +183,14 @@ export default class Controller {
         time: this.currentTime,
       })
 
-      if (!this.ThermostatController.getAlarmStatus()) {
-        this.stop()
-        this.io.emit(socketConfig.thermoStatInitError, {
-          name: "ConnectionError",
-          message: 'THERMOSTAT ERROR. CHECK THERMOSTAT'
-        })
-        return
-      }
+      // if (!this.ThermostatController.getAlarmStatus()) {
+      //   this.stop()
+      //   this.io.emit(socketConfig.thermoStatInitError, {
+      //     name: "ConnectionError",
+      //     message: 'THERMOSTAT ERROR. CHECK THERMOSTAT'
+      //   })
+      //   return
+      // }
       this.lines.forEach((line) => {
         // console.log('line', line.idname)
         if (
@@ -235,7 +235,7 @@ export default class Controller {
           if (line.idname === 'T9') {
             //this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
             console.log('temperature line sending', line.idname, line.value)
-            this.ThermostatController.writeCurrentSetTemp(line.value)
+            // this.ThermostatController.writeCurrentSetTemp(line.value)
           }
         } else if (line.endTime === this.currentTime) {
           if (line.idname === 'R8') {

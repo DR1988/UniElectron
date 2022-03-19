@@ -3,9 +3,8 @@ import express from 'express'
 import { Server } from 'http'
 import * as path from 'path'
 import fs from 'fs'
-// import serialport from 'serialport'
 
-import socketServer from './server/index'
+import {socketServer} from './server/index'
 import serial from './server/serial'
 
 import { app, BrowserWindow, ipcMain } from 'electron'
@@ -41,7 +40,7 @@ const HTML = `<!DOCTYPE html>
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let mainWindow
+let mainWindow: BrowserWindow
 
 // const installExtensions = async () => {
 //   const installer = require('electron-devtools-installer')
@@ -65,6 +64,8 @@ async function createWindow() {
     height: 1200,
     webPreferences: {
       nodeIntegration: true,
+      enableRemoteModule: true,
+      contextIsolation: false,
     },
   })
 

@@ -1,4 +1,4 @@
-import React, { StatelessComponent } from 'react'
+import React, { FunctionComponent } from 'react'
 import PropTypes from 'prop-types'
 
 import s from './TimeLineComponent.css'
@@ -11,7 +11,7 @@ interface Props {
   width?: string
 }
 
-const TimeLineComponent: StatelessComponent<Props> = ({
+const TimeLineComponent: FunctionComponent<Props> = ({
   allTime,
   time,
   distance,

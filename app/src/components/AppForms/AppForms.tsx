@@ -78,11 +78,11 @@ export default class AppForms extends Component<Props, State> {
           <Graphs socket={this.socket} />
         </div>
         <section
-          className={cn(s.modal_container, {[s.modal_container_error]: !!error})}
+          className={cn(s.modal_container, { [s.modal_container_error]: !!error })}
         >
-          <div className={cn(s.modal_content, {[s.modal_content_error]: !!error})}>
+          <div className={cn(s.modal_content, { [s.modal_content_error]: !!error })}>
             <h5 className={s.text}>{error && error.message}</h5>
-            <button onClick={this.acceptError}>Close</button>      
+            <button onClick={this.acceptError}>Close</button>
           </div>
         </section>
       </div>

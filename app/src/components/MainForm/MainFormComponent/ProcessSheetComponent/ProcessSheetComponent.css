@@ -2,13 +2,14 @@
   /* flex-grow: 4; */
   /* min-width: 600px; */
   /* padding-left: 10px; */
-  overflow: hidden;
-  margin-right: 5px;
+  /* overflow: hidden; */
+  /* margin-right: 5px; */
   width: 100%;
+  overflow-x: scroll;
 }
 .crossed {
   cursor: move;
 }
 .lineKeeperContent {
-  /* transition: all 0.15s linear; */
+  transition: transform 0.15s linear;
 }

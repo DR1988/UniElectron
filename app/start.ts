@@ -2,7 +2,7 @@ import * as path from 'path'
 import { spawn } from 'child_process'
 import * as express from 'express'
 import { Server } from 'http'
-import socketServer from './server'
+// import {socketServer} from './server'
 // import * as SerialPort from 'serialport'
 /* eslint-disable global-require */
 import serial from './server/serial'

@@ -11,8 +11,8 @@ class FormChoserComponent extends Component<Props> {
   render() {
     return (
       <div className={s.root}>
-        <button name="MainForm" onClick={this.props.updateForm}>MainForm</button>
-        <button name="Graphs" onClick={this.props.updateForm}>Graphs</button>
+        {/*<button name="MainForm" onClick={this.props.updateForm}>MainForm</button>*/}
+        {/*<button name="Graphs" onClick={this.props.updateForm}>Graphs</button>*/}
       </div>
     )
   }
