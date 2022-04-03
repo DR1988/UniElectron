@@ -75,12 +75,6 @@ class ValveTimeComponent extends PureComponent<Props>{
           left: `${100 * startTime}%`,
           background: this.getCrossingSpace({ crossingValueStart, crossingValueEnd }),
           zIndex: crossingValueStart || crossingValueEnd ? 2 : 'auto',
-          // crossingValue >= 0 ?
-          // // `linear-gradient(90deg, rgba(71, 193, 197, 0.3) ${100 * crossingValue}%, rgba(171, 193, 197, 1) 0%)`
-          // `linear-gradient(90deg, rgba(0, 0, 0, 0) ${100 * crossingValue}%, rgba(171, 193, 197, 1) 0%),
-          // rgba(171, 193, 197, 0.5) repeating-linear-gradient(-45deg, transparent, transparent 7.5px,
-          // rgba(226, 5, 5, 0.5) 7.5px, rgba(226, 5, 5, 0.5) 15px)`
-          // : 'rgba(171, 193, 197, 1)',
           width: `${100 * width}%`,
         }}
       >
@@ -89,10 +83,6 @@ class ValveTimeComponent extends PureComponent<Props>{
 
           </div>
         </div>) : null}
-        {/* {changeId === chosenElement.changeId && lineID === chosenElement.chosenLine.id ?
-          <div className={s.modal}>
-            <div>{chosenElement.changeId}</div>
-          </div> : null } */}
         <div className={s.timeFormer_content}>
           <span style={{ transform: `scaleX(${1 / scale})` }}
             className={s.timeFormer_sign}>
