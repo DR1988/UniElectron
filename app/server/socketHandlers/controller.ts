@@ -37,7 +37,7 @@ export default class Controller {
 
     this.lines = []
     this.linesOfActions = []
-    this.velocity = 1
+    this.velocity = 4
     this.intervalId = null
     this.counter = { distance: 0, time: 0 }
 
@@ -126,7 +126,8 @@ export default class Controller {
       distance: 0,
       time: 1,
     }
-    this.Serial.sendData('R80|\n')
+    // this.Serial.sendData('R80|\n')
+    this.Serial.sendData('S\n')
     this.turningOff = true
     // this.ThermostatController.turnOff()
     this.io.emit(socketConfig.stop, this.counter)

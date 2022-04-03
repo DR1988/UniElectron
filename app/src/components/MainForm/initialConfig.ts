@@ -211,6 +211,16 @@ export const initialState: MainFormState = {
       ],
     },
     {
+      name: 'ValveLine',
+      id: 8,
+      shortName: 'HV3',
+      changes: [
+        { startTime: 35, endTime: 55, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+        { startTime: 120, endTime: 190, changeId: 1, duration: 70, crossingValueEnd: NaN, crossingValueStart: NaN },
+        { startTime: 225, endTime: 245, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+      ],
+    },
+    {
       name: 'RPMSetter',
       shortName: 'RPM',
       id: 8,

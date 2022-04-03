@@ -41,14 +41,12 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    bottom: 0px;
+    bottom: 0;
     width: 0;
-    
 }
 .time-line_wraper .time-presenter .line {
         position: relative;
         width: 3px;
-        height: 559px;
         background-color: #648591;
       }
       .time-line_wraper .time-presenter .arrow-up {
