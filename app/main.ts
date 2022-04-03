@@ -16,7 +16,7 @@ electronDl()
 
 ipcMain.on('download-button', (event, args) => {
   if (args.path) {
-    fs.writeFileSync(args.path, JSON.stringify(args.data), 'utf-8')
+    fs.writeFileSync(args.path, JSON.stringify(args.data, null, 2), 'utf-8')
   }
 })
 

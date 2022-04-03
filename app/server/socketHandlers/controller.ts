@@ -1,6 +1,7 @@
 import socketConfig, { startSignal } from '../../config/socket.config'
 import socket from 'socket.io'
 import * as usb from 'usb'
+import { ValveLineType } from '../../src/components/MainForm/MainFormInterfaces'
 
 import Serial from '../serial'
 import ThermostatController from '../termex'
@@ -16,7 +17,7 @@ export default class Controller {
   private socket: socket.Socket
   private io: socket.Server
   private lines: Array<any>
-  private linesOfActions: Array<any>
+  private linesOfActions: Array<ValveLineType>
   private velocity: number
   private intervalId: NodeJS.Timeout
   private temperatureInterval: NodeJS.Timeout
@@ -230,20 +231,23 @@ export default class Controller {
           if (line.idname === 'V7') {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
           }
-          if (line.idname === 'R8') {
+          if (line.idname === 'V8') {
+            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+          }
+          if (line.idname === 'R9') {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
           }
-          if (line.idname === 'T9') {
+          if (line.idname === 'T10') {
             //this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
             console.log('temperature line sending', line.idname, line.value)
             // this.ThermostatController.writeCurrentSetTemp(line.value)
           }
         } else if (line.endTime === this.currentTime) {
-          if (line.idname === 'R8') {
+          if (line.idname === 'R9') {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}0|`)
             // console.log(line.idname, 0)
           }
-          if (line.idname === 'T9') {
+          if (line.idname === 'T10') {
             console.log('line', line)
             // this.ThermostatController.turnOff()
           }
@@ -277,6 +281,6 @@ export default class Controller {
   disconnectSerial = () => {
     console.log('DISCONNET');
 
-    this.Serial.disconnect()
+    this.Serial?.disconnect()
   }
 }

@@ -7,6 +7,7 @@ export interface Change {
   value?: number,
   crossingValueStart?: number,
   crossingValueEnd?: number,
+  idname?: string,
 }
 
 export interface ValveLineType {

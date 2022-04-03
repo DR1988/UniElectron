@@ -80,15 +80,21 @@ export const resetedState: MainFormState = {
       changes: [],
     },
     {
+      name: 'ValveLine',
+      id: 8,
+      shortName: 'HV2',
+      changes: [],
+    },
+    {
       name: 'RPMSetter',
       shortName: 'RPM',
-      id: 8,
+      id: 9,
       changes: [],
     },
     {
       name: 'TempSetter',
       shortName: 'TC',
-      id: 9,
+      id: 10,
       changes: [],
     },
   ],
@@ -223,7 +229,7 @@ export const initialState: MainFormState = {
     {
       name: 'RPMSetter',
       shortName: 'RPM',
-      id: 8,
+      id: 9,
       changes: [
         {
           startTime: 0,
@@ -280,7 +286,7 @@ export const initialState: MainFormState = {
     {
       name: 'TempSetter',
       shortName: 'TC',
-      id: 9,
+      id: 10,
       changes: [
         { startTime: 50, endTime: 100, value: 32, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
         { startTime: 100, endTime: 150, value: 34, changeId: 1, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },

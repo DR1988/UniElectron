@@ -170,8 +170,10 @@ export default class Serial {
   }
 
   disconnect() {
-    this.serialPort.close()
-    this.io.emit(socketConfig.serialClosed)
+    if (this.serialPort) {
+      this.serialPort.close()
+      this.io.emit(socketConfig.serialClosed)
+    }
   }
 
   sendData(data: string | number[] | Buffer) {

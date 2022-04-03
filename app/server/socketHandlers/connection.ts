@@ -7,6 +7,7 @@ let controller: Controller = null
 
 export default (socket, io) => {
   console.log('socket id', socket.id, '--------')
+  controller?.disconnectSerial();
   if (!currentState) {
     controller = new Controller(socket, io)
   }
