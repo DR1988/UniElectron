@@ -14,7 +14,7 @@ interface Counter {
 export default class Controller {
   private data: startSignal
   private socket: socket.Socket
-  private io: SocketIOClient.Socket
+  private io: socket.Server
   private lines: Array<any>
   private linesOfActions: Array<any>
   private velocity: number
@@ -30,7 +30,7 @@ export default class Controller {
   private turningOn: boolean
   private turningOff: boolean
 
-  constructor(socket: socket.Socket, io) {
+  constructor(socket: socket.Socket, io: socket.Server) {
     this.data = null
     this.socket = socket
     this.io = io
@@ -252,7 +252,7 @@ export default class Controller {
         }
       })
       if (this.sendingCommands) {
-        // console.log('this.sendingCommands = ', this.sendingCommands)
+        console.log('this.sendingCommands = ', this.sendingCommands)
         this.io.emit(socketConfig.serialSending, this.sendingCommands)
         this.Serial.sendData(`${this.sendingCommands}\n`)
         this.sendingCommands = ''
@@ -271,5 +271,11 @@ export default class Controller {
   connect = () => {
     this.initialize()
     this.Serial.findSerialPort()
+  }
+
+  disconnectSerial = () => {
+    console.log('DISCONNET');
+
+    this.Serial.disconnect()
   }
 }

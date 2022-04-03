@@ -103,37 +103,47 @@ class ProcessSheetComponent extends PureComponent<Props, State> {
     } = this.props
 
     const { scale, translateX, isMoving } = this.state
-    return (<section
-      id="processSheet"
-      className={cn(s['lines-keeper'], { [s.crossed]: this.crossCursor })}
-      onWheel={this.changScale}
-      onMouseDown={this.lockOnForm}
-      onMouseUp={this.lockOnForm}
-      onMouseMove={isMoving ? this.moveForm : f => f}
-      onMouseLeave={this.unlockForm}
-    >
-      <div style={{
-        transform: `scaleX(${scale}) translateX(${translateX}px)`
-      }}
-        className={s.lineKeeperContent}
-      >
-        {lineFormer.map(elem => <ValveLineComponent
-          key={elem.id}
-          line={elem}
-          allTime={allTime}
-          showModal={showModal}
-          setChosenValveTime={setChosenValveTime}
-          scale={scale}
-        />,
-        )}
-        <TimeLine
-          scale={scale}
-          distance={distance}
-          time={time}
-          allTime={allTime}
-        />
-      </div>
-    </section >
+    return (
+      <section className={s.container}>
+        <div className={s.lineNamesContainer}>
+          {lineFormer.map(line => (
+            <div className={s.lineNames}>
+              <span>{line.shortName}</span>
+            </div>
+          ))}
+        </div>
+        <section
+          id="processSheet"
+          className={cn(s['lines-keeper'], { [s.crossed]: this.crossCursor })}
+          onWheel={this.changScale}
+          onMouseDown={this.lockOnForm}
+          onMouseUp={this.lockOnForm}
+          onMouseMove={isMoving ? this.moveForm : f => f}
+          onMouseLeave={this.unlockForm}
+        >
+          <div style={{
+            transform: `scaleX(${scale}) translateX(${translateX}px)`
+          }}
+            className={s.lineKeeperContent}
+          >
+            {lineFormer.map(elem => <ValveLineComponent
+              key={elem.id}
+              line={elem}
+              allTime={allTime}
+              showModal={showModal}
+              setChosenValveTime={setChosenValveTime}
+              scale={scale}
+            />,
+            )}
+            <TimeLine
+              scale={scale}
+              distance={distance}
+              time={time}
+              allTime={allTime}
+            />
+          </div>
+        </section>
+      </section>
     )
   }
 }

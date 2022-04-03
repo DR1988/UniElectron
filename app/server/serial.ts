@@ -70,6 +70,8 @@ export default class Serial {
         receivedData = data;
         clearInterval(interval);
         console.log('arduion found')
+      } else {
+        console.log('data', data);
       }
     })
 
