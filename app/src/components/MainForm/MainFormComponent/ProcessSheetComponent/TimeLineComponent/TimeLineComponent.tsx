@@ -31,7 +31,9 @@ const TimeLineComponent: FunctionComponent<Props> = ({
         style={{ transform: `scaleX(${1 / scale})` }}
         className={s['time-former']}>
           <div className={s.divider} />
-          <div className={s['time-count']}>{Math.floor((allTime * i) / sliceCount)}</div>
+          <div className={s['time-count']} >
+            {Math.floor((allTime * i) / sliceCount)}
+          </div>
         </div>,
       )
     }
