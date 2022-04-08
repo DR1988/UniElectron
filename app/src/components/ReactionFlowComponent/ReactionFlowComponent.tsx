@@ -35,7 +35,7 @@ class ReactionFlowComponent extends Component<Props> {
     // console.log('time', time)
     const { anim } = this.state
     return (
-      <svg id="svg2" version="1.1" viewBox="0 0 744 1050" >
+      <svg id="svg2" version="1.1" viewBox="0 0 744 800" >
         <defs id="defs4">
           <linearGradient id="linearGradient4292">
             <stop id="stop4294" style={{ "stopColor": "#d1d8d1", "stopOpacity": "0.97647059" }} offset="0" />

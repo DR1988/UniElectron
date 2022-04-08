@@ -2,13 +2,16 @@ import React from 'react'
 import cn from 'classnames'
 // import fs from 'fs'
 import electron from 'electron'
+import {Editor} from "react-draft-wysiwyg";
+import {EditorState} from 'draft-js';
 
-import { ValveLineType } from './../MainFormInterfaces'
+import {ValveLineType} from './../MainFormInterfaces'
 import ValveTimeComponentAdder from './ValveTimeComponentAdder'
 import ReactionFlowComponent from '../../ReactionFlowComponent/ReactionFlowComponent'
-import ProcessSheetComponent, { Props as ProcessSheetComponentProps } from './ProcessSheetComponent/ProcessSheetComponent'
+import ProcessSheetComponent, {Props as ProcessSheetComponentProps} from './ProcessSheetComponent/ProcessSheetComponent'
 
 import s from './MainFormComponent.css'
+
 const { dialog } = electron.remote
 
 interface Props extends ProcessSheetComponentProps {
@@ -23,7 +26,9 @@ interface Props extends ProcessSheetComponentProps {
   socket: SocketIOClient.Socket,
   downloadProtocol: (path: string) => void,
   uploadProtocol: (path: string) => void
+  handleEditorStateChange: (editorState: EditorState) => void,
   serialConnected: boolean,
+  textEditorState: EditorState | null,
 }
 
 const MainFormComponent = ({
@@ -42,16 +47,27 @@ const MainFormComponent = ({
   downloadProtocol,
   uploadProtocol,
   serialConnected,
+  handleEditorStateChange,
+  textEditorState,
   ...ProcessSheetComponentProps
 }: Props) => {
-  // console.log('serialConnected', serialConnected)
+
   return (
     <div>
 
       <div id="mainForm" className={s.mainForm}>
         <section className={s.sidebar}>
-          {/* <NoteComponent /> */}
           <ReactionFlowComponent socket={socket} lineFormer={lineFormer} time={time} />
+          <Editor
+              editorState={textEditorState}
+              toolbarClassName="toolbarClassName"
+              wrapperClassName={s.wrapperClassName}
+              editorClassName="editorClassName"
+              toolbar={{
+                options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'history']
+              }}
+              onEditorStateChange={handleEditorStateChange}
+          />
         </section>
         <section className={s['form-container']}>
           <ProcessSheetComponent

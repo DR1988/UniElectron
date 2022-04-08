@@ -1,4 +1,5 @@
 import { ChosenElement, ValveLineType, Change } from './MainFormInterfaces'
+import {EditorState} from 'react-draft-wysiwyg';
 
 export interface MainFormState {
     chosenElement: ChosenElement,
@@ -9,6 +10,7 @@ export interface MainFormState {
     lineFormer: Array<ValveLineType>,
     HVOpen: boolean,
     serialConnected: boolean,
+    textEditorState: EditorState | null
   }
 
 export const resetedState: MainFormState = {
@@ -99,7 +101,8 @@ export const resetedState: MainFormState = {
     },
   ],
   HVOpen: false,
-  serialConnected: false
+  serialConnected: false,
+  textEditorState: null,
 }
 
 export const initialState: MainFormState = {
@@ -294,4 +297,5 @@ export const initialState: MainFormState = {
       ],
     },
   ],
+  textEditorState: null,
 }

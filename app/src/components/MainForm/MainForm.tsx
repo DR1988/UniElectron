@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { ipcRenderer } from 'electron'
 
 import s from './MainForm.css'
-import { ChosenElement, ValveLineType, Change } from './MainFormInterfaces'
+import { ValveLineType, Change } from './MainFormInterfaces'
 import MainFormComponent from './MainFormComponent/MainFormComponent'
 import {MainFormState, resetedState, initialState} from './initialConfig'
 
@@ -17,6 +17,7 @@ import TempModal from '../Modal/TempModal'
 
 import socketConfig, { startSignal } from '../../../config/socket.config'
 import { withCondition } from '../HOC'
+import {convertFromRaw, convertToRaw, EditorState, RawDraftContentState} from 'draft-js';
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
@@ -95,10 +96,12 @@ class MainForm extends Component<Props, MainFormState> {
     ipcRenderer.on('file-loaded', (event, data: {
       lineFormer: Array<ValveLineType>,
       allTime: number
+      editorState: RawDraftContentState,
     }) => {
       this.setState({
         lineFormer: data.lineFormer,
-        allTime: data.allTime
+        allTime: data.allTime,
+        textEditorState: EditorState.createWithContent(convertFromRaw(data.editorState)),
       })
     })
   }
@@ -112,6 +115,7 @@ class MainForm extends Component<Props, MainFormState> {
   resetState = () => {
     this.setState({
       ...this.resetedState,
+      textEditorState: this.state.textEditorState,
     })
   }
 
@@ -701,7 +705,8 @@ class MainForm extends Component<Props, MainFormState> {
       path,
       data: {
         lineFormer: this.state.lineFormer,
-        allTime: this.state.allTime
+        allTime: this.state.allTime,
+        editorState: convertToRaw(this.state.textEditorState.getCurrentContent()),
       }
     })
   }
@@ -713,10 +718,14 @@ class MainForm extends Component<Props, MainFormState> {
     })
   }
 
+  handleEditorStateChange = (editorState: EditorState) => {
+    this.setState({
+      textEditorState: editorState
+    })
+  }
+
   render() {
     const { showEditModal, chosenElement } = this.state
-    // console.log(chosenElement.chosenLine.name === 'NewValveLine')
-    console.log('chosenElement', chosenElement)
     return (
       <div
         id="form-Manupalation"
@@ -735,6 +744,7 @@ class MainForm extends Component<Props, MainFormState> {
           switchHV={this.switchHV}
           downloadProtocol={this.downloadProtocol}
           uploadProtocol={this.uploadProtocol}
+          handleEditorStateChange={this.handleEditorStateChange}
           {...this.state}
         />
         <ModalWithCondition
