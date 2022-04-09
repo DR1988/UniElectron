@@ -14,15 +14,24 @@ interface Props {
   showModal: (e: React.SyntheticEvent<HTMLDivElement>) => void,
   setChosenValveTime: (lineID: number, changeId: number) => void,
   scale: number,
+  formRef: HTMLDivElement | null
 }
 
-class ValveTimeComponent extends PureComponent<Props>{
+type ValveTimeComponentState = {
+  verticalLineY: number
+}
+
+class ValveTimeComponent extends PureComponent<Props, ValveTimeComponentState>{
   static defaultProps = {
     waitForValue: false,
   }
 
   constructor(props: Props) {
     super(props)
+
+    this.state = {
+      verticalLineY: 0
+    }
   }
 
   getCrossingSpace = (
@@ -66,9 +75,23 @@ class ValveTimeComponent extends PureComponent<Props>{
       changeId,
       waitForValue,
       scale,
+      formRef,
     } = this.props
+
     return (
       <div
+        onMouseEnter={(e) => {
+          const valveTimeComponentTop = e.currentTarget.getBoundingClientRect().top
+          const formTop = formRef?.getBoundingClientRect().top
+          this.setState({
+            verticalLineY: formTop - valveTimeComponentTop
+          })
+        }}
+        onMouseLeave={() => {
+          this.setState({
+            verticalLineY: 0
+          })
+        }}
         className={s.timeFormer}
         onClick={this.toggleValveTime}
         style={{
@@ -78,6 +101,28 @@ class ValveTimeComponent extends PureComponent<Props>{
           width: `${100 * width}%`,
         }}
       >
+        <div
+          style={{
+            position: 'absolute',
+            width: 1,
+            height: this.state.verticalLineY ? formRef?.getBoundingClientRect().height : 0,
+            backgroundColor: 'red',
+            top: this.state.verticalLineY,
+            zIndex: 3
+          }}
+        />
+        <div
+          style={{
+            position: 'absolute',
+            width: 1,
+            height: this.state.verticalLineY ? formRef?.getBoundingClientRect().height : 0,
+            backgroundColor: 'red',
+            top: this.state.verticalLineY,
+            right: 0,
+            zIndex: 3
+          }}
+        />
+        <div style={{position: 'absolute'}}/>
         {waitForValue ? (<div className={s.triangle_container}>
           <div className={s.triangle}>
 

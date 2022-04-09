@@ -35,7 +35,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
   const [isMoving, setIsMoving] = useState(false)
   const [formHeight, setFormHeight] = useState(0)
 
-  const formRef = useRef<HTMLElement | null>(null);
+  const formRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     if (formRef.current?.offsetHeight) {
       setFormHeight(formRef.current?.offsetHeight)
@@ -106,7 +106,6 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
         ))}
       </div>
       <section
-        ref={formRef}
         id="processSheet"
         className={cn(s['lines-keeper'], { [s.crossed]: crossCursor })}
         onWheel={changScale}
@@ -115,9 +114,11 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
         onMouseMove={isMoving ? moveForm : f => f}
         onMouseLeave={unlockForm}
       >
-        <div style={{
-          transform: `scaleX(${scale}) translateX(${translateX}px)`
-        }}
+        <div
+          ref={formRef}
+          style={{
+            transform: `scaleX(${scale}) translateX(${translateX}px)`
+          }}
           className={s.lineKeeperContent}
         >
           {lineFormer.map(elem => <ValveLineComponent
@@ -127,6 +128,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
             showModal={showModal}
             setChosenValveTime={setChosenValveTime}
             scale={scale}
+            formRef={formRef.current}
           />,
           )}
           <TimeLine
