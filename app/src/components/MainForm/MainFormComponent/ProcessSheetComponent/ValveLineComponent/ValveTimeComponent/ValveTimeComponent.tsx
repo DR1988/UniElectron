@@ -1,4 +1,4 @@
-import React, { Component, PureComponent } from 'react'
+import React, {useRef, useState} from 'react'
 
 import s from './ValveTimeComponent.css'
 
@@ -17,24 +17,14 @@ interface Props {
   formRef: HTMLDivElement | null
 }
 
-type ValveTimeComponentState = {
-  verticalLineY: number
-}
+const ValveTimeComponent:React.FC<Props> = (props) => {
 
-class ValveTimeComponent extends PureComponent<Props, ValveTimeComponentState>{
-  static defaultProps = {
-    waitForValue: false,
-  }
+  const [verticalLineY, setVerticalLineY] = useState<number | null>(null)
+  const [draggable, setDraggable] = useState(false)
 
-  constructor(props: Props) {
-    super(props)
+  const mouseDragRef = useRef(false)
 
-    this.state = {
-      verticalLineY: 0
-    }
-  }
-
-  getCrossingSpace = (
+  const getCrossingSpace = (
     { crossingValueStart, crossingValueEnd }: { crossingValueStart: number, crossingValueEnd: number },
   ): string => {
     if (crossingValueStart > 0 && crossingValueEnd < 0) {
@@ -57,14 +47,13 @@ class ValveTimeComponent extends PureComponent<Props, ValveTimeComponentState>{
     return 'rgba(171, 193, 197, 1)'
   }
 
-  toggleValveTime = (e: React.SyntheticEvent<HTMLDivElement>) => {
+  const toggleValveTime = (e: React.SyntheticEvent<HTMLDivElement>) => {
     e.stopPropagation()
-    const { changeId, showModal, setChosenValveTime, lineID } = this.props
+    const { changeId, showModal, setChosenValveTime, lineID } = props
     showModal(e)
     setChosenValveTime(lineID, +changeId)
   }
 
-  render() {
     const {
       value,
       width,
@@ -76,27 +65,54 @@ class ValveTimeComponent extends PureComponent<Props, ValveTimeComponentState>{
       waitForValue,
       scale,
       formRef,
-    } = this.props
+    } = props
 
+    const ref = useRef<HTMLDivElement | null>(null)
+    const formBounds = formRef?.getBoundingClientRect()
     return (
       <div
+        ref={ref}
         onMouseEnter={(e) => {
           const valveTimeComponentTop = e.currentTarget.getBoundingClientRect().top
           const formTop = formRef?.getBoundingClientRect().top
-          this.setState({
-            verticalLineY: formTop - valveTimeComponentTop
-          })
+          setVerticalLineY( formTop - valveTimeComponentTop)
         }}
         onMouseLeave={() => {
-          this.setState({
-            verticalLineY: 0
-          })
+            setDraggable(false)
+            mouseDragRef.current = false
+            setVerticalLineY(null)
+        }}
+        onDragStart={() => {
+            return false
+        }}
+        onMouseDown={(e) => {
+            setDraggable(true)
+        }}
+        onMouseUp={(e) => {
+            if (!mouseDragRef.current) {
+                toggleValveTime(e)
+            }
+            mouseDragRef.current = false
+            setDraggable(false)
+        }}
+        onMouseMove={e => {
+            if (draggable && ref.current) {
+                mouseDragRef.current = true
+                const valveTimeComponentBound = e.currentTarget.getBoundingClientRect()
+
+                // console.log('scale', scale)
+                // console.log('fiff', (e.pageX - formRef.getBoundingClientRect().left - valveTimeComponentBound.width / 2)/scale)
+                ref.current.style.left = (e.pageX - formRef.getBoundingClientRect().left - valveTimeComponentBound.width / 2) / scale + 'px'
+
+                // console.log(formBounds)
+            }
+            // console.log('eee', e.nativeEvent.clientX, e.clientX)
         }}
         className={s.timeFormer}
-        onClick={this.toggleValveTime}
+        // onClick={toggleValveTime}
         style={{
           left: `${100 * startTime}%`,
-          background: this.getCrossingSpace({ crossingValueStart, crossingValueEnd }),
+          background: getCrossingSpace({ crossingValueStart, crossingValueEnd }),
           zIndex: crossingValueStart || crossingValueEnd ? 2 : 'auto',
           width: `${100 * width}%`,
         }}
@@ -105,9 +121,9 @@ class ValveTimeComponent extends PureComponent<Props, ValveTimeComponentState>{
           style={{
             position: 'absolute',
             width: 1,
-            height: this.state.verticalLineY ? formRef?.getBoundingClientRect().height : 0,
+            height: verticalLineY !== null ? formBounds.height : 0,
             backgroundColor: 'red',
-            top: this.state.verticalLineY,
+            top: verticalLineY,
             zIndex: 3
           }}
         />
@@ -115,11 +131,11 @@ class ValveTimeComponent extends PureComponent<Props, ValveTimeComponentState>{
           style={{
             position: 'absolute',
             width: 1,
-            height: this.state.verticalLineY ? formRef?.getBoundingClientRect().height : 0,
+            height: verticalLineY !== null ? formBounds.height : 0,
             backgroundColor: 'red',
-            top: this.state.verticalLineY,
+            top: verticalLineY,
             right: 0,
-            zIndex: 3
+            zIndex: 3,
           }}
         />
         <div style={{position: 'absolute'}}/>
@@ -136,7 +152,6 @@ class ValveTimeComponent extends PureComponent<Props, ValveTimeComponentState>{
         </div>
       </div>
     )
-  }
 }
 
 

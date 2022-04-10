@@ -15,7 +15,8 @@
    /* align-items: center; */
    /* overflow: hidden; */
   cursor: pointer;
-  transition: all 0.5s linear, left 0.5s linear;
+  /*transition: all 0.5s linear, left 0.5s linear;*/
+  user-select: none;
 }
 
 .timeFormer_content{
@@ -31,6 +32,7 @@
   color: #232c2f;
   font-size: 1.1rem;
   font-weight: 700;
+  user-select: none;
 }
 
 .crossed {
