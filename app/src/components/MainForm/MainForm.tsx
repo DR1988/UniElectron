@@ -325,6 +325,29 @@ class MainForm extends Component<Props, MainFormState> {
     })
   }
 
+  changeTime = (startTime: number, endTime: number): void => {
+    const { chosenElement, lineFormer } = this.state
+    const { changeId, chosenLine } = chosenElement
+
+    const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
+
+    const newlineFormer = cloneDeep(lineFormer)
+    newlineFormer[chosenLine.id].changes[index].startTime = startTime
+    newlineFormer[chosenLine.id].changes[index].endTime = endTime
+    const newChosenLine: ValveLineType = cloneDeep(chosenLine)
+    console.log('startTimestartTime', startTime)
+    newChosenLine.changes[index].startTime = startTime
+    newChosenLine.changes[index].endTime = endTime
+    this.setState({
+      ...this.state,
+      lineFormer: newlineFormer,
+      chosenElement: {
+        ...this.state.chosenElement,
+        chosenLine: newChosenLine,
+      },
+    })
+  }
+
   resetToPreviousChanges = () => {
     const { chosenElement, lineFormer } = this.state
     const { chosenLine } = chosenElement
@@ -745,11 +768,13 @@ class MainForm extends Component<Props, MainFormState> {
           downloadProtocol={this.downloadProtocol}
           uploadProtocol={this.uploadProtocol}
           handleEditorStateChange={this.handleEditorStateChange}
+          changeTime={this.changeTime}
           {...this.state}
         />
         <ModalWithCondition
           condition={showEditModal}
           closeModal={this.closeModal}
+          resetToPreviousChanges={this.resetToPreviousChanges}
           // coordinate={this.modalCoordinates}
           render={() => {
             switch (chosenElement.chosenLine.name) {

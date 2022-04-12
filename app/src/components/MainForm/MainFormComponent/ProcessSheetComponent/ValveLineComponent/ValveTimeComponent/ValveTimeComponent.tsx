@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react'
+import React, {MouseEvent, useRef, useState} from 'react'
 
 import s from './ValveTimeComponent.css'
 
@@ -15,12 +15,15 @@ interface Props {
   setChosenValveTime: (lineID: number, changeId: number) => void,
   scale: number,
   formRef: HTMLDivElement | null
+  changeTime: (startTime: number, endTime: number) => void
+  allTime: number
 }
 
 const ValveTimeComponent:React.FC<Props> = (props) => {
 
   const [verticalLineY, setVerticalLineY] = useState<number | null>(null)
   const [draggable, setDraggable] = useState(false)
+  const [isCover, setCover] = useState(0)
 
   const mouseDragRef = useRef(false)
 
@@ -65,10 +68,14 @@ const ValveTimeComponent:React.FC<Props> = (props) => {
       waitForValue,
       scale,
       formRef,
+      changeTime,
+      setChosenValveTime,
+      allTime,
     } = props
 
     const ref = useRef<HTMLDivElement | null>(null)
     const formBounds = formRef?.getBoundingClientRect()
+    const shiftX = useRef<number | null>(null)
     return (
       <div
         ref={ref}
@@ -86,27 +93,32 @@ const ValveTimeComponent:React.FC<Props> = (props) => {
             return false
         }}
         onMouseDown={(e) => {
+            shiftX.current = e.clientX - e.currentTarget.getBoundingClientRect().left
+            setChosenValveTime(lineID, +changeId)
             setDraggable(true)
         }}
         onMouseUp={(e) => {
+            if(e.nativeEvent.button === 2) {
+                toggleValveTime(e)
+                return
+            }
             if (!mouseDragRef.current) {
                 toggleValveTime(e)
+                return
             }
             mouseDragRef.current = false
             setDraggable(false)
+
+            changeTime(
+                Math.round(parseInt(ref.current.style.left) / formRef.getBoundingClientRect().width * allTime),
+                Math.round((parseInt(ref.current.style.left)) / formRef.getBoundingClientRect().width * allTime + width * allTime))
         }}
         onMouseMove={e => {
             if (draggable && ref.current) {
+                setCover(1)
                 mouseDragRef.current = true
-                const valveTimeComponentBound = e.currentTarget.getBoundingClientRect()
-
-                // console.log('scale', scale)
-                // console.log('fiff', (e.pageX - formRef.getBoundingClientRect().left - valveTimeComponentBound.width / 2)/scale)
-                ref.current.style.left = (e.pageX - formRef.getBoundingClientRect().left - valveTimeComponentBound.width / 2) / scale + 'px'
-
-                // console.log(formBounds)
+                ref.current.style.left = (e.pageX - formRef.getBoundingClientRect().left - shiftX.current)/ scale + 'px'
             }
-            // console.log('eee', e.nativeEvent.clientX, e.clientX)
         }}
         className={s.timeFormer}
         // onClick={toggleValveTime}

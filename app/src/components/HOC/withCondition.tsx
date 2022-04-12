@@ -3,6 +3,7 @@ import React from 'react'
 interface WithConditionProps {
   condition: boolean
   render: () => JSX.Element
+  resetToPreviousChanges: () => void
 }
 
 const withCondition = <P extends object>(

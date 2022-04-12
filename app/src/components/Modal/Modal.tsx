@@ -6,6 +6,7 @@ import { render } from 'react-dom';
 export interface Props {
   render: () => JSX.Element,
   closeModal: () => void,
+  resetToPreviousChanges: () => void
 }
 
 class Modal extends Component<Props> {
@@ -19,12 +20,13 @@ class Modal extends Component<Props> {
     this.coverRef.current.focus()
   }
   render() {
-    const { closeModal, render } = this.props
+    const { closeModal, render, resetToPreviousChanges } = this.props
     return (
       <div
         ref={this.coverRef}
-        onKeyDown={(e: KeyboardEvent) => {
+        onKeyDown={(e: React.KeyboardEvent) => {
           if (e.keyCode === 27) {
+            resetToPreviousChanges()
             closeModal()
           }
         }

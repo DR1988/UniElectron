@@ -28,7 +28,8 @@ interface Props extends ProcessSheetComponentProps {
   uploadProtocol: (path: string) => void
   handleEditorStateChange: (editorState: EditorState) => void,
   serialConnected: boolean,
-  textEditorState: EditorState | null,
+  textEditorState: EditorState,
+  changeTime: (startTime: number, endTime: number) => void
 }
 
 const MainFormComponent = ({
@@ -49,6 +50,7 @@ const MainFormComponent = ({
   serialConnected,
   handleEditorStateChange,
   textEditorState,
+  changeTime,
   ...ProcessSheetComponentProps
 }: Props) => {
 
@@ -74,6 +76,7 @@ const MainFormComponent = ({
             lineFormer={lineFormer}
             showModal={showModal}
             time={time}
+            changeTime={changeTime}
             {...ProcessSheetComponentProps}
           />
           <ValveTimeComponentAdder

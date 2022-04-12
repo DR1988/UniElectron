@@ -11,6 +11,7 @@ interface Props {
   setChosenValveTime: (lineID: number, changeId: number) => void
   scale: number,
   formRef: HTMLDivElement | null
+  changeTime: (startTime: number, endTime: number) => void
 }
 
 class ValveLineComponent extends PureComponent<Props>{
@@ -28,7 +29,7 @@ class ValveLineComponent extends PureComponent<Props>{
   }
 
   render() {
-    const { showModal, setChosenValveTime, allTime, line, scale, formRef } = this.props
+    const { showModal, setChosenValveTime, allTime, line, scale, formRef, changeTime } = this.props
     const lineName = line.name
     return (
       <div className={s['time-box_keeper']}
@@ -48,12 +49,14 @@ class ValveLineComponent extends PureComponent<Props>{
               value={this.setValue(lineName, value || 0, duration)}
               startTime={startTime / allTime}
               width={duration / allTime}
+              allTime={allTime}
               showModal={showModal}
               setChosenValveTime={setChosenValveTime}
               crossingValueEnd={crossingValueEnd}
               crossingValueStart={crossingValueStart}
               scale={scale}
               formRef={formRef}
+              changeTime={changeTime}
             />
           )
         })}

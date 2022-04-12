@@ -17,6 +17,7 @@ export interface Props {
   showModal: () => void,
   setChosenValveTime: (lineID: number, changeId: number) => void,
   lineFormer: Array<ValveLineType>,
+  changeTime: (startTime: number, endTime: number) => void
 }
 
 interface State {
@@ -100,7 +101,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
     <section className={s.container}>
       <div className={s.lineNamesContainer}>
         {lineFormer.map(line => (
-          <div className={s.lineNames}>
+          <div key={line.id} className={s.lineNames}>
             <span>{line.shortName}</span>
           </div>
         ))}
@@ -128,6 +129,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
             showModal={showModal}
             setChosenValveTime={setChosenValveTime}
             scale={scale}
+            changeTime={props.changeTime}
             formRef={formRef.current}
           />,
           )}
