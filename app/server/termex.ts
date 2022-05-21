@@ -74,7 +74,7 @@ export default class ThermostatController {
 
     private async dataPromise(): Promise<Buffer | String> {
         return Promise.resolve(convertFromASCII(this.termexHID.readSync()))
-        // console.log('data termex', convertFromASCII(this.termexHID.readSync())) 
+        // console.log('data termex', convertFromASCII(this.termexHID.readSync()))
         // return new Promise((resolve, reject) => {
         //     this.termexHID.on('data', (data: Buffer) => {
         //         resolve(data)
@@ -84,7 +84,7 @@ export default class ThermostatController {
 
     private statusHandler = (data: Buffer | string) => {
         const response = data.toString().trim().split('\n')[0]
-        console.log('response', response)
+        // console.log('statusHandler response', response)
         if (this.checkIfStatusError(response)) {
             this.exeptionEmitter.emit('error', {
                 name: 'StatusError',
@@ -113,7 +113,7 @@ export default class ThermostatController {
             })
             this.statusHandler(data)
         } catch (error) {
-            console.log('eeeeeerrror', error)
+            console.log('turnOn Error', error)
         }
     }
 
@@ -123,13 +123,13 @@ export default class ThermostatController {
             this.termexHID.write(command)
             // const data = await this.dataPromise()
             const data = convertFromASCII(this.termexHID.readSync())
+            this.statusHandler(data)
+        } catch (error) {
+            console.log('turnOff Error', error)
             this.exeptionEmitter.emit('error', {
                 name: 'StatusError',
                 message: "THERMOSTAT's STATUS ERROR. CHECK THERMOSTAT"
             })
-            this.statusHandler(data)
-        } catch (error) {
-            console.log('eeeeeerrror', error)
         }
     }
 
@@ -138,6 +138,7 @@ export default class ThermostatController {
         this.termexHID.write(command)
         // const data = await this.dataPromise()
         const data = convertFromASCII(this.termexHID.readSync())
+        console.log('isRunning')
         return this.statusHandler(data)
     }
 
@@ -154,7 +155,7 @@ export default class ThermostatController {
             const data = convertFromASCII(this.termexHID.readSync())
             this.statusHandler(data)
         } catch (error) {
-            console.log('eeeeeerrror', error)
+            console.log('writeCurrentSetTemp Error', error)
         }
     }
 
@@ -168,7 +169,7 @@ export default class ThermostatController {
             // console.log('responseData', responseData)
             return responseData
         } catch (error) {
-            console.log('eeeeeerrror', error)
+            console.log('getTemperature Error', error)
         }
     }
 
@@ -181,7 +182,7 @@ export default class ThermostatController {
             const responseData = this.statusHandler(data)
             return /000000/.test(responseData.trim())
         } catch (error) {
-            console.log('eeeeeeeeeerrrrorr', error)
+            console.log('getAlarmStatus Error', error)
         }
     }
 }

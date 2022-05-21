@@ -30,6 +30,7 @@ export default class Controller {
   private eventEmiiter: EventEmitter
   private turningOn: boolean
   private turningOff: boolean
+  private hasTemperatureFormerChanges: boolean
 
   constructor(socket: socket.Socket, io: socket.Server) {
     this.data = null
@@ -52,11 +53,12 @@ export default class Controller {
     this.eventEmiiter.addListener('error', this.ErrorHandler)
     this.turningOn = false
     this.turningOff = false
+    this.hasTemperatureFormerChanges = false
   }
 
-  private initialize() {
+  private initializeThermostat() {
     console.log('INIT')
-    // this.ThermostatController = new ThermostatController(this.eventEmiiter)
+    this.ThermostatController = new ThermostatController(this.eventEmiiter)
   }
 
   // private async usbPromise(): Promise<Boolean> {
@@ -81,7 +83,7 @@ export default class Controller {
       await this.delaytTimer(3000)
       // this.io.emit(socketConfig.connected, true)
       // await this.usbPromise()
-      // this.ThermostatController = new ThermostatController(this.eventEmiiter)
+      this.ThermostatController = new ThermostatController(this.eventEmiiter)
       this.turningOn = false
     } else if (this.turningOff) {
       console.log('this.turningOff', this.turningOff)
@@ -89,7 +91,7 @@ export default class Controller {
       await this.delaytTimer(3000)
       this.io.emit(socketConfig.connected, true)
       // await this.usbPromise()
-      // this.ThermostatController = new ThermostatController(this.eventEmiiter)
+      this.ThermostatController = new ThermostatController(this.eventEmiiter)
       this.turningOff = false
     } else {
       this.io.emit(socketConfig.thermoStatInitError, error)
@@ -130,14 +132,14 @@ export default class Controller {
     // this.Serial.sendData('R80|\n')
     this.Serial.sendData('S\n')
     this.turningOff = true
-    // this.ThermostatController.turnOff()
+    this.hasTemperatureFormerChanges && this.ThermostatController.turnOff()
     this.io.emit(socketConfig.stop, this.counter)
   }
 
   private checkingValues = (value: string) => {
     const checkingInterval = setInterval(() => {
       if (Math.abs(this.Serial.getRPMValue() - parseInt(value)) < 20) {
-        this.start(this.data)
+        // this.start(this.data)
         clearInterval(checkingInterval)
       }
     }, 1000)
@@ -151,7 +153,7 @@ export default class Controller {
   startGettingTemperature() {
     this.temperatureInterval = setInterval(async () => {
       this.io.emit(socketConfig.tempChange, {
-        temperature: this.ThermostatController && this.ThermostatController.getTemperature() || 20,
+        temperature: this.hasTemperatureFormerChanges && this.ThermostatController && this.ThermostatController.getTemperature() || 20,
         time: this.currentTime,
       })
     }, 5000 / this.velocity)
@@ -167,16 +169,18 @@ export default class Controller {
     })
   }
   initStart = async (data: startSignal) => {
+    const hasTemperatureFormerChanges = data.lineFormer.find(lf => lf.name === 'TempSetter').changes.length > 1
+    this.hasTemperatureFormerChanges = hasTemperatureFormerChanges
     this.turningOn = true
-    // await this.ThermostatController.turnOn()
-    // await this.delaytTimer(7000)
+    this.hasTemperatureFormerChanges && await this.ThermostatController.turnOn()
+    this.hasTemperatureFormerChanges && await this.delaytTimer(7000)
     this.io.emit(socketConfig.connected, true)
     this.start(data)
   }
 
   start = async (data: startSignal) => {
     this.init(data)
-    // await this.ThermostatController.turnOn()
+    // this.hasTemperatureFormerChanges && await this.ThermostatController.turnOn()
     // this.startGettingTemperature()
     this.counter.distance = 100
     this.intervalId = setInterval(() => {
@@ -185,14 +189,14 @@ export default class Controller {
         time: this.currentTime,
       })
 
-      // if (!this.ThermostatController.getAlarmStatus()) {
-      //   this.stop()
-      //   this.io.emit(socketConfig.thermoStatInitError, {
-      //     name: "ConnectionError",
-      //     message: 'THERMOSTAT ERROR. CHECK THERMOSTAT'
-      //   })
-      //   return
-      // }
+      if (this.hasTemperatureFormerChanges && !this.ThermostatController.getAlarmStatus()) {
+        this.stop()
+        this.io.emit(socketConfig.thermoStatInitError, {
+          name: "ConnectionError",
+          message: 'THERMOSTAT ERROR. CHECK THERMOSTAT'
+        })
+        return
+      }
       this.lines.forEach((line) => {
         // console.log('line', line.idname)
         if (
@@ -240,7 +244,7 @@ export default class Controller {
           if (line.idname === 'T10') {
             //this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
             console.log('temperature line sending', line.idname, line.value)
-            // this.ThermostatController.writeCurrentSetTemp(line.value)
+            this.hasTemperatureFormerChanges && this.ThermostatController.writeCurrentSetTemp(line.value)
           }
         } else if (line.endTime === this.currentTime) {
           if (line.idname === 'R9') {
@@ -249,7 +253,7 @@ export default class Controller {
           }
           if (line.idname === 'T10') {
             console.log('line', line)
-            // this.ThermostatController.turnOff()
+            // this.hasTemperatureFormerChanges && this.ThermostatController.turnOff()
           }
           if (/V\d+/.test(line.idname)) {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}N|`)
@@ -274,7 +278,7 @@ export default class Controller {
   }
 
   connect = () => {
-    this.initialize()
+    this.initializeThermostat()
     this.Serial.findSerialPort()
   }
 

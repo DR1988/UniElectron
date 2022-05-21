@@ -291,8 +291,8 @@ export const initialState: MainFormState = {
       shortName: 'TC',
       id: 10,
       changes: [
-        { startTime: 50, endTime: 100, value: 32, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
-        { startTime: 100, endTime: 150, value: 34, changeId: 1, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
+        { startTime: 0, endTime: 30, value: 32, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
+        { startTime: 50, endTime: 80, value: 34, changeId: 1, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
         { startTime: 150, endTime: 200, value: 36, changeId: 2, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
       ],
     },
