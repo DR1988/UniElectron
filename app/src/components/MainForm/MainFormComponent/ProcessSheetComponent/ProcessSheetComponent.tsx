@@ -37,29 +37,45 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
   const [formHeight, setFormHeight] = useState(0)
 
   const formRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     if (formRef.current?.offsetHeight) {
       setFormHeight(formRef.current?.offsetHeight)
     }
-  }, [])
+  }, [formRef.current])
+
+  useEffect(() => {
+    const listener = (e) => {
+      const sectionWidth = sectionRef.current?.getBoundingClientRect().width
+      setTranslateX(sectionWidth/2 - sectionWidth/2 / (scale))
+    }
+    window.addEventListener('resize', listener)
+    return () => window.removeEventListener('resize', listener)
+  }, [scale])
 
   const changScale = (e: React.WheelEvent) => {
-    // e.preventDefault()
-    if (e.deltaY < 0) {
-      increaseScale()
-    } else {
-      decreaseScale()
+    if (sectionRef.current) {
+      if (e.deltaY < 0) {
+        increaseScale()
+      } else {
+        decreaseScale()
+      }
     }
   }
 
   const increaseScale = () => {
     if (scale < 15) {
+      const sectionWidth = sectionRef.current.getBoundingClientRect().width
+      setTranslateX(sectionWidth / 2 - sectionWidth / 2 / (scale + 0.5))
       setScale(scale + 0.5)
     }
   }
 
   const decreaseScale = () => {
     if (scale > 1) {
+      const sectionWidth = sectionRef.current.getBoundingClientRect().width
+      setTranslateX(sectionWidth/2 - sectionWidth/2 / (scale - 0.5))
       setScale(scale - 0.5)
     } else if (translateX !== 0) {
       setTranslateX(0)
@@ -114,6 +130,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
         onMouseUp={lockOnForm}
         onMouseMove={isMoving ? moveForm : f => f}
         onMouseLeave={unlockForm}
+        ref={sectionRef}
       >
         <div
           ref={formRef}

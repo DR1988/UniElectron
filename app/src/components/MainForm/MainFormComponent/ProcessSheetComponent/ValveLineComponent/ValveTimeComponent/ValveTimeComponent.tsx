@@ -84,44 +84,47 @@ const ValveTimeComponent:React.FC<Props> = (props) => {
           const formTop = formRef?.getBoundingClientRect().top
           setVerticalLineY( formTop - valveTimeComponentTop)
         }}
+        //TODO: make it work when it needs to be
         onMouseLeave={() => {
             setDraggable(false)
             mouseDragRef.current = false
             setVerticalLineY(null)
         }}
-        onDragStart={() => {
-            return false
-        }}
-        onMouseDown={(e) => {
-            shiftX.current = e.clientX - e.currentTarget.getBoundingClientRect().left
-            setChosenValveTime(lineID, +changeId)
-            setDraggable(true)
-        }}
-        onMouseUp={(e) => {
-            if(e.nativeEvent.button === 2) {
-                toggleValveTime(e)
-                return
-            }
-            if (!mouseDragRef.current) {
-                toggleValveTime(e)
-                return
-            }
-            mouseDragRef.current = false
-            setDraggable(false)
-
-            changeTime(
-                Math.round(parseInt(ref.current.style.left) / formRef.getBoundingClientRect().width * allTime),
-                Math.round((parseInt(ref.current.style.left)) / formRef.getBoundingClientRect().width * allTime + width * allTime))
-        }}
-        onMouseMove={e => {
-            if (draggable && ref.current) {
-                setCover(1)
-                mouseDragRef.current = true
-                ref.current.style.left = (e.pageX - formRef.getBoundingClientRect().left - shiftX.current)/ scale + 'px'
-            }
-        }}
+        // onDragStart={() => {
+        //     return false
+        // }}
+        // onMouseDown={(e) => {
+        //     shiftX.current = e.clientX - e.currentTarget.getBoundingClientRect().left
+        //     setChosenValveTime(lineID, +changeId)
+        //     setDraggable(true)
+        // }}
+        // onMouseUp={(e) => {
+        //     if(e.nativeEvent.button === 2) {
+        //         toggleValveTime(e)
+        //         return
+        //     }
+        //     if (!mouseDragRef.current) {
+        //         toggleValveTime(e)
+        //         setDraggable(false)
+        //         return
+        //     }
+        //
+        //     mouseDragRef.current = false
+        //     setDraggable(false)
+        //
+        //     changeTime(
+        //         Math.round(parseInt(ref.current.style.left) / formRef.getBoundingClientRect().width * allTime * scale),
+        //         Math.round((parseInt(ref.current.style.left)) / formRef.getBoundingClientRect().width * allTime * scale + width * allTime))
+        // }}
+        // onMouseMove={e => {
+        //     if (draggable && ref.current) {
+        //         setCover(1)
+        //         mouseDragRef.current = true
+        //         ref.current.style.left = (e.pageX - formRef.getBoundingClientRect().left - shiftX.current)/ scale + 'px'
+        //     }
+        // }}
         className={s.timeFormer}
-        // onClick={toggleValveTime}
+        onClick={toggleValveTime}
         style={{
           left: `${100 * startTime}%`,
           background: getCrossingSpace({ crossingValueStart, crossingValueEnd }),
