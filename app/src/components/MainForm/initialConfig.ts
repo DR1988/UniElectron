@@ -99,6 +99,18 @@ export const resetedState: MainFormState = {
       id: 10,
       changes: [],
     },
+    {
+      name: 'AUX',
+      id: 11,
+      shortName: 'AUX1',
+      changes: [],
+    },
+    {
+      name: 'AUX',
+      id: 12,
+      shortName: 'AUX2',
+      changes: [],
+    },
   ],
   HVOpen: false,
   serialConnected: false,
@@ -294,6 +306,22 @@ export const initialState: MainFormState = {
         { startTime: 0, endTime: 30, value: 32, changeId: 0, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
         { startTime: 50, endTime: 80, value: 34, changeId: 1, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
         { startTime: 150, endTime: 200, value: 36, changeId: 2, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
+      ],
+    },
+    {
+      name: 'AUX',
+      id: 11,
+      shortName: 'AUX1',
+      changes: [
+        { startTime: 20, endTime: 30, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
+      ],
+    },
+    {
+      name: 'AUX',
+      id: 12,
+      shortName: 'AUX2',
+      changes: [
+        { startTime: 10, endTime: 40, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
       ],
     },
   ],

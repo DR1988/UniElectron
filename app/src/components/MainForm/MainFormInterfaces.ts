@@ -11,7 +11,7 @@ export interface Change {
 }
 
 export interface ValveLineType {
-  name: 'ValveLine' | 'RPMSetter' | 'TempSetter' | `NewValveLine` | 'NewRPMSetter' | 'NewTempSetter',
+  name: 'ValveLine' | 'RPMSetter' | 'TempSetter' | `NewValveLine` | 'NewRPMSetter' | 'NewTempSetter' | 'AUX'| 'NewAUX',
   // name: string,
   id: number,
   shortName: string,

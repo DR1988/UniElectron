@@ -117,7 +117,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
     <section className={s.container}>
       <div className={s.lineNamesContainer}>
         {lineFormer.map(line => (
-          <div key={line.id} className={s.lineNames}>
+          <div key={line.name + line.id} className={s.lineNames}>
             <span>{line.shortName}</span>
           </div>
         ))}
@@ -140,7 +140,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
           className={s.lineKeeperContent}
         >
           {lineFormer.map(elem => <ValveLineComponent
-            key={elem.id}
+            key={elem.name + elem.id}
             line={elem}
             allTime={allTime}
             showModal={showModal}

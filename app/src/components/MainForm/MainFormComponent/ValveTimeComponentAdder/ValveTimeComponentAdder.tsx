@@ -36,7 +36,7 @@ const ValveTimeComponentAdder: StatelessComponent<Props> = ({
 }) => (
     <div className={s.root} >
       {lines.map(line => (
-        <div key={line.id} className={s.button_container}>
+        <div key={line.name + line.id} className={s.button_container}>
           <Button line={line} {...rest} />
         </div>
       ))}

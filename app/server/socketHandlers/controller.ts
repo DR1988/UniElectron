@@ -238,6 +238,12 @@ export default class Controller {
           if (line.idname === 'V8') {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
           }
+          if (line.idname === 'A11') {
+            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+          }
+          if (line.idname === 'A12') {
+            this.sendingCommands = this.sendingCommands.concat(`${line.idname}Y|`)
+          }
           if (line.idname === 'R9') {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
           }
@@ -258,6 +264,9 @@ export default class Controller {
           if (/V\d+/.test(line.idname)) {
             this.sendingCommands = this.sendingCommands.concat(`${line.idname}N|`)
           }
+          if (/A\d+/.test(line.idname)) {
+            this.sendingCommands = this.sendingCommands.concat(`${line.idname}N|`)
+          }
         }
       })
       if (this.sendingCommands) {
@@ -267,7 +276,7 @@ export default class Controller {
         this.sendingCommands = ''
       }
       if (this.currentTime >= this.data.allTime) {
-        this.Serial.sendData('V0N|V1N|V2N|V3N|V4N|V5N|V6N|V7N|V8N|R90|\n') // close pinch valves
+        this.Serial.sendData('V0N|V1N|V2N|V3N|V4N|V5N|V6N|V7N|V8N|R90|A11N|A12N|\n') // close pinch valves
         this.currentTime = 0
         clearInterval(this.intervalId)
       }

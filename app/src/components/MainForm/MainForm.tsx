@@ -837,7 +837,25 @@ class MainForm extends Component<Props, MainFormState> {
                   changeEndTime={this.changeNewEndTime}
                   changeTempValue={this.changeNewTempValue}
                 />)
-              default: return <div>asd</div>
+              case 'AUX':
+                return (<ValveLineModal
+                    removeValveTime={this.removeValveTime}
+                    chosenElement={chosenElement}
+                    closeModal={this.closeModal}
+                    resetToPreviousChanges={this.resetToPreviousChanges}
+                    changeStartTime={this.changeStartTime}
+                    changeEndTime={this.changeEndTime}
+                />)
+              case 'NewAUX':
+                return (<NewValveLineModal
+                  removeValveTime={this.removeValveTime}
+                  chosenElement={chosenElement}
+                  closeModal={this.closeModal}
+                  resetToPreviousChanges={this.resetToPreviousChanges}
+                  changeStartTime={this.changeNewStartTime}
+                  changeEndTime={this.changeNewEndTime}
+              />)
+              default: return <div>NOTHING TO SHOW</div>
             }
           }}
         />
