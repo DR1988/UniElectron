@@ -64,9 +64,15 @@ const MainFormComponent = ({
               editorState={textEditorState}
               toolbarClassName="toolbarClassName"
               wrapperClassName={s.wrapperClassName}
-              editorClassName="editorClassName"
+              editorClassName={s.editorClassName}
               toolbar={{
-                options: ['inline', 'blockType', 'fontSize', 'fontFamily', 'list', 'textAlign', 'colorPicker', 'history']
+                options: ['inline', 'fontSize', 'list', 'colorPicker', 'history'],
+                inline: {
+                  options: ['bold', 'italic', 'underline', 'superscript', 'subscript'],
+                },
+                list: {
+                  options: ['unordered', 'ordered'],
+                }
               }}
               onEditorStateChange={handleEditorStateChange}
           />

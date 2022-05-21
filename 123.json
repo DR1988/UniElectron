@@ -1,1 +1,376 @@
-{"lineFormer":[{"name":"ValveLine","id":0,"shortName":"GV1","changes":[{"startTime":20,"endTime":40,"changeId":0,"duration":20,"crossingValueEnd":null,"crossingValueStart":null}]},{"name":"ValveLine","id":1,"shortName":"GV2","changes":[{"startTime":50,"endTime":70,"changeId":0,"duration":20,"crossingValueEnd":null,"crossingValueStart":null}]},{"name":"ValveLine","id":2,"shortName":"GV3","changes":[{"startTime":80,"endTime":100,"changeId":0,"duration":20,"crossingValueEnd":null,"crossingValueStart":null}]},{"name":"ValveLine","id":3,"shortName":"GV4","changes":[{"startTime":110,"endTime":130,"changeId":0,"duration":20,"crossingValueEnd":null,"crossingValueStart":null}]},{"name":"ValveLine","id":4,"shortName":"GV5","changes":[{"startTime":140,"endTime":160,"changeId":0,"duration":20,"crossingValueEnd":null,"crossingValueStart":null}]},{"name":"ValveLine","id":5,"shortName":"GV6","changes":[{"startTime":170,"endTime":190,"changeId":0,"duration":20,"crossingValueEnd":null,"crossingValueStart":null}]},{"name":"ValveLine","id":6,"shortName":"HV1","changes":[{"startTime":0,"endTime":15,"changeId":0,"duration":15,"crossingValueEnd":null,"crossingValueStart":null},{"startTime":45,"endTime":60,"changeId":1,"duration":15,"crossingValueEnd":null,"crossingValueStart":null},{"startTime":100,"endTime":120,"changeId":2,"duration":20,"crossingValueEnd":null,"crossingValueStart":null},{"startTime":150,"endTime":160,"changeId":3,"duration":10,"crossingValueEnd":null,"crossingValueStart":null},{"startTime":200,"endTime":215,"changeId":4,"duration":15,"crossingValueEnd":null,"crossingValueStart":null}]},{"name":"ValveLine","id":7,"shortName":"HV2","changes":[{"startTime":15,"endTime":35,"changeId":0,"duration":20,"crossingValueEnd":null,"crossingValueStart":null},{"startTime":60,"endTime":90,"changeId":1,"duration":30,"crossingValueEnd":null,"crossingValueStart":null},{"startTime":125,"endTime":145,"changeId":2,"duration":20,"crossingValueEnd":null,"crossingValueStart":null},{"startTime":150,"endTime":190,"changeId":3,"duration":40,"crossingValueEnd":null,"crossingValueStart":null},{"startTime":220,"endTime":245,"changeId":4,"duration":25,"crossingValueEnd":null,"crossingValueStart":null}]},{"name":"RPMSetter","shortName":"RPM","id":8,"changes":[]},{"name":"TempSetter","shortName":"TC","id":9,"changes":[]}],"allTime":350}
+{
+  "lineFormer": [
+    {
+      "name": "ValveLine",
+      "id": 0,
+      "shortName": "GV1",
+      "changes": [
+        {
+          "startTime": 20,
+          "endTime": 40,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "ValveLine",
+      "id": 1,
+      "shortName": "GV2",
+      "changes": [
+        {
+          "startTime": 50,
+          "endTime": 70,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "ValveLine",
+      "id": 2,
+      "shortName": "GV3",
+      "changes": [
+        {
+          "startTime": 80,
+          "endTime": 100,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "ValveLine",
+      "id": 3,
+      "shortName": "GV4",
+      "changes": [
+        {
+          "startTime": 110,
+          "endTime": 130,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "ValveLine",
+      "id": 4,
+      "shortName": "GV5",
+      "changes": [
+        {
+          "startTime": 140,
+          "endTime": 160,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "ValveLine",
+      "id": 5,
+      "shortName": "GV6",
+      "changes": [
+        {
+          "startTime": 170,
+          "endTime": 190,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "ValveLine",
+      "id": 6,
+      "shortName": "HV1",
+      "changes": [
+        {
+          "startTime": 0,
+          "endTime": 15,
+          "changeId": 0,
+          "duration": 15,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 45,
+          "endTime": 60,
+          "changeId": 1,
+          "duration": 15,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 100,
+          "endTime": 120,
+          "changeId": 2,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 150,
+          "endTime": 160,
+          "changeId": 3,
+          "duration": 10,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 200,
+          "endTime": 215,
+          "changeId": 4,
+          "duration": 15,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "ValveLine",
+      "id": 7,
+      "shortName": "HV2",
+      "changes": [
+        {
+          "startTime": 15,
+          "endTime": 35,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 60,
+          "endTime": 90,
+          "changeId": 1,
+          "duration": 30,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 125,
+          "endTime": 145,
+          "changeId": 2,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 150,
+          "endTime": 190,
+          "changeId": 3,
+          "duration": 40,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 220,
+          "endTime": 245,
+          "changeId": 4,
+          "duration": 25,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "ValveLine",
+      "id": 8,
+      "shortName": "HV3",
+      "changes": [
+        {
+          "startTime": 35,
+          "endTime": 55,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 120,
+          "endTime": 190,
+          "changeId": 1,
+          "duration": 70,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 225,
+          "endTime": 245,
+          "changeId": 2,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "RPMSetter",
+      "shortName": "RPM",
+      "id": 9,
+      "changes": [
+        {
+          "startTime": 0,
+          "endTime": 50,
+          "value": 500,
+          "changeId": 0,
+          "duration": 50,
+          "waitForValue": false,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 70,
+          "endTime": 90,
+          "value": 400,
+          "changeId": 1,
+          "duration": 20,
+          "waitForValue": false,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 100,
+          "endTime": 150,
+          "value": 300,
+          "changeId": 2,
+          "duration": 50,
+          "waitForValue": false,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 200,
+          "endTime": 250,
+          "value": 500,
+          "changeId": 3,
+          "duration": 50,
+          "waitForValue": false,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        },
+        {
+          "startTime": 300,
+          "endTime": 350,
+          "value": 600,
+          "changeId": 4,
+          "duration": 50,
+          "waitForValue": false,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "TempSetter",
+      "shortName": "TC",
+      "id": 10,
+      "changes": [
+        {
+          "startTime": 0,
+          "endTime": 30,
+          "value": 32,
+          "changeId": 0,
+          "duration": 50,
+          "crossingValueEnd": null,
+          "crossingValueStart": null,
+          "waitForValue": false
+        },
+        {
+          "startTime": 50,
+          "endTime": 80,
+          "value": 34,
+          "changeId": 1,
+          "duration": 50,
+          "crossingValueEnd": null,
+          "crossingValueStart": null,
+          "waitForValue": false
+        },
+        {
+          "startTime": 150,
+          "endTime": 200,
+          "value": 36,
+          "changeId": 2,
+          "duration": 50,
+          "crossingValueEnd": null,
+          "crossingValueStart": null,
+          "waitForValue": false
+        }
+      ]
+    },
+    {
+      "name": "AUX",
+      "id": 11,
+      "shortName": "AUX1",
+      "changes": [
+        {
+          "startTime": 20,
+          "endTime": 30,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    },
+    {
+      "name": "AUX",
+      "id": 12,
+      "shortName": "AUX2",
+      "changes": [
+        {
+          "startTime": 10,
+          "endTime": 40,
+          "changeId": 0,
+          "duration": 20,
+          "crossingValueEnd": null,
+          "crossingValueStart": null
+        }
+      ]
+    }
+  ],
+  "allTime": 350,
+  "editorState": {
+    "blocks": [
+      {
+        "key": "d7915",
+        "text": "sdfsdfsd",
+        "type": "unstyled",
+        "depth": 0,
+        "inlineStyleRanges": [],
+        "entityRanges": [],
+        "data": {}
+      },
+      {
+        "key": "5bu8d",
+        "text": "",
+        "type": "unstyled",
+        "depth": 0,
+        "inlineStyleRanges": [],
+        "entityRanges": [],
+        "data": {}
+      },
+      {
+        "key": "dlts8",
+        "text": "sdfgsdfg",
+        "type": "unstyled",
+        "depth": 0,
+        "inlineStyleRanges": [],
+        "entityRanges": [],
+        "data": {}
+      }
+    ],
+    "entityMap": {}
+  }
+}

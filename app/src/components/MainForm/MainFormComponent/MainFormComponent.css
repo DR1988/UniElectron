@@ -35,3 +35,8 @@
 .wrapperClassName {
   border: 2px solid darkgrey;
 }
+
+.editorClassName  {
+  height: 150px;
+  max-height: 150px;
+}
