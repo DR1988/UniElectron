@@ -4,7 +4,7 @@
 .button_container{
   display: flex;
   align-items: center;
-  height: 50px;
+  height: 30px;
   margin-top: 5px;
   /* margin-left: 5px; */
   padding-left: 5px;

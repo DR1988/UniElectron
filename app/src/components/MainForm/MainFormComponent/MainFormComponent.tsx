@@ -163,7 +163,7 @@ const MainFormComponent = ({
           onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
       </div>
       <div className={s.temporaryContainer}>
-        <span className={s.temporaryTitle}>Temporary Protocol Set Buttons</span>
+        <span className={s.temporaryTitle}>Protocol Set Buttons</span>
             <div className={s.loadingProtocolButtons}>
                 <button
                     onMouseUp={(event) => {
