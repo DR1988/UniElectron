@@ -18,6 +18,7 @@ import TempModal from '../Modal/TempModal'
 import socketConfig, { startSignal } from '../../../config/socket.config'
 import { withCondition } from '../HOC'
 import {convertFromRaw, convertToRaw, EditorState, RawDraftContentState} from 'draft-js';
+import SearchingBoardModal from '../Modal/SearchingBoardModal/SearchingBoardModal';
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
@@ -90,6 +91,12 @@ class MainForm extends Component<Props, MainFormState> {
     this.props.socket.on(socketConfig.connected, (data: boolean) => {
       this.setState({
         serialConnected: data,
+      })
+    })
+
+    this.props.socket.on(socketConfig.searchingSerial, (data: boolean) => {
+      this.setState({
+        searchingSerial: data,
       })
     })
 
@@ -935,6 +942,10 @@ class MainForm extends Component<Props, MainFormState> {
               default: return <div>NOTHING TO SHOW</div>
             }
           }}
+        />
+        <ModalWithCondition
+            condition={this.state.searchingSerial}
+            render={() => <SearchingBoardModal />}
         />
       </div>
     )

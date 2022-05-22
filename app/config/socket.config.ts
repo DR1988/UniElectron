@@ -15,6 +15,7 @@ const socketConfig = {
   tempChange: 'tempChange',
   connect: 'CONNECT',
   connected: 'CONNECTED',
+  searchingSerial: 'SEARCHING_SERIAL',
   serialClosed: 'SERIAL_CLOSED',
   serialSending: 'SERIAL_SENDING',
   switchHV: 'SWITCH_HV',

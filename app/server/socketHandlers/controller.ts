@@ -133,6 +133,11 @@ export default class Controller {
     this.Serial.sendData('S\n')
     this.turningOff = true
     this.hasTemperatureFormerChanges && this.ThermostatController.turnOff()
+    //хак - термоконтроллер после того как перейдет в состояние выключено дискиптор HID устройства больше не доступен
+    //и его надо инициализировать заново, но с задержкой
+    setTimeout(() => {
+      this.initializeThermostat()
+    }, 2000)
     this.io.emit(socketConfig.stop, this.counter)
   }
 
@@ -288,6 +293,7 @@ export default class Controller {
 
   connect = () => {
     this.initializeThermostat()
+    this.io.emit(socketConfig.searchingSerial, true)
     this.Serial.findSerialPort()
   }
 

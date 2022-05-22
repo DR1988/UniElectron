@@ -29,17 +29,6 @@ export default class Serial {
     let receivedData = '';
     let counter = 0;
     let interval;
-    // const interval = setInterval(() => {
-    //   if (counter > 3) {
-    //
-    //     if(this.serialPort.isOpen) {
-    //       this.serialPort.close();
-    //     }
-    //
-    //     clearInterval(interval);
-    //   }
-    //   counter++;
-    // }, 1000);
 
     this.serialPort = new SerialPort(path, {
       baudRate: 500000,
@@ -60,7 +49,7 @@ export default class Serial {
     })
 
     this.serialPort.on('close', () => {
-      console.log('closed')
+      console.log('serialPort closed')
       this.connected = false
       this.io.emit(socketConfig.connected, false)
     })
@@ -70,6 +59,7 @@ export default class Serial {
         receivedData = data;
         clearInterval(interval);
         console.log('arduion found')
+        this.io.emit(socketConfig.searchingSerial, false)
       } else {
         console.log('data', data);
       }
@@ -92,13 +82,6 @@ export default class Serial {
         }
         counter++;
       }, 1000);
-      // if (counter > 3 && receivedData === '') {
-      //   console.log('REJECTED')
-      //   reject(false);
-      // } else if (receivedData === 'CONNECTED') {
-      //   console.log('RESOLVED')
-      //   resolve(true);
-      // }
     })
   }
 
@@ -120,51 +103,8 @@ export default class Serial {
           console.log('EEEEE', e)
         }
       }
-
-      // ports.forEach(port => {
-      //   this.connectToPort(port.path);
-      // })
-
-      // SerialPort.list().then((ports) => {
-      //   console.log('ports', ports)
-      //   this.serialList = ports;
-      //   ports.forEach((port) => {
-      //     if (port.manufacturer.includes('Arduino') || port.manufacturer.includes('Microsoft') || port.path === 'COM3') { // have to change it because we can use not only Arduino
-      //       console.log('arduion found')
-      //       this.serialPort = new SerialPort(port.path, {
-      //         baudRate: 500000,
-      //         parity: 'none',
-      //         autoOpen: false
-      //       })
-      //
-      //       this.serialPort.open((err) => {
-      //         console.log('err', err)
-      //       })
-      //       const parser = this.serialPort.pipe(new Readline({ delimiter: '\n' }))
-      //
-      //       this.serialPort.on('open', () => {
-      //         this.connected = true
-      //         this.io.emit(socketConfig.connected, true)
-      //         console.log('opened')
-      //       })
-      //
-      //       this.serialPort.on('close', () => {
-      //         console.log('closed')
-      //         this.connected = false
-      //         this.io.emit(socketConfig.connected, false)
-      //       })
-      //       parser.on('data', (data: string) => {
-      //         console.log(data, parseInt(data).toString(2))
-      //         this.setRpmValue(data.toString())
-      //       })
-      //     }
-      //   })
-      // })
-      //   .catch(err => {
-      //     this.io.emit(socketConfig.connectionError, err)
-      //     console.log('Err', err)
-      //   })
     } else {
+      this.io.emit(socketConfig.searchingSerial, false)
       this.io.emit(socketConfig.connected, true)
     }
   }

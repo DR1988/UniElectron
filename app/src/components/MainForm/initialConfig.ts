@@ -12,6 +12,7 @@ export interface MainFormState {
     serialConnected: boolean,
     textEditorState: EditorState
     temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
+    searchingSerial: boolean
   }
 
 export const resetedState: MainFormState = {
@@ -130,6 +131,7 @@ export const resetedState: MainFormState = {
   HVOpen: false,
   serialConnected: false,
   textEditorState: EditorState.createEmpty(),
+  searchingSerial: false,
   temporaryButtonNames: {
     firstTemporaryButton: '',
     secondTemporaryButton: '',
@@ -348,6 +350,7 @@ export const initialState: MainFormState = {
       description: 'AUX2'
     },
   ],
+  searchingSerial: false,
   textEditorState: EditorState.createEmpty(),
   temporaryButtonNames: {
     firstTemporaryButton: '',
