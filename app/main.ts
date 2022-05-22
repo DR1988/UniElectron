@@ -25,6 +25,20 @@ ipcMain.on('load-button', (event, args) => {
   event.sender.send('file-loaded', JSON.parse(file))
 })
 
+ipcMain.on('temporary-load-button', (event, args) => {
+  const file = fs.readFileSync(args.path, { encoding: 'utf-8'})
+  const baseName = path.basename(args.path)
+  const protocolNameForButton = baseName.split('.')[0]
+
+  event.sender.send('temporary-file-loaded', {
+    temporaryButtons: {
+      buttonPosition: args.temporaryProtocolButtonPosition,
+      name: protocolNameForButton
+    },
+    protocol: JSON.parse(file)
+  })
+})
+
 const HTML = `<!DOCTYPE html>
 <html>
 <head>

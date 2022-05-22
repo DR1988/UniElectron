@@ -1,3 +1,5 @@
+import {RawDraftContentState} from 'draft-js';
+
 export interface Change {
   startTime: number,
   endTime: number,
@@ -28,4 +30,18 @@ export interface ChosenElement {
   newEndTime: number,
   newRPMValue?: number,
   newTempValue?: number,
+}
+
+export type TemporaryProtocolButtonPosition = 'firstTemporaryButton' | 'secondTemporaryButton' | 'thirdTemporaryButton'
+
+export type TemporaryFileLoaded = {
+  temporaryButtons: {
+    buttonPosition: TemporaryProtocolButtonPosition
+    name: string
+  },
+  protocol: {
+    lineFormer: Array<ValveLineType>,
+    allTime: number
+    editorState: RawDraftContentState,
+  }
 }

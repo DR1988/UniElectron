@@ -5,7 +5,7 @@ import electron from 'electron'
 import {Editor} from "react-draft-wysiwyg";
 import {EditorState} from 'draft-js';
 
-import {ValveLineType} from './../MainFormInterfaces'
+import {TemporaryProtocolButtonPosition, ValveLineType} from './../MainFormInterfaces'
 import ValveTimeComponentAdder from './ValveTimeComponentAdder'
 import ReactionFlowComponent from '../../ReactionFlowComponent/ReactionFlowComponent'
 import ProcessSheetComponent, {Props as ProcessSheetComponentProps} from './ProcessSheetComponent/ProcessSheetComponent'
@@ -26,10 +26,13 @@ interface Props extends ProcessSheetComponentProps {
   socket: SocketIOClient.Socket,
   downloadProtocol: (path: string) => void,
   uploadProtocol: (path: string) => void
+  uploadTemporaryProtocol: (path: string, temporaryProtocolButtonPosition: TemporaryProtocolButtonPosition) => void
   handleEditorStateChange: (editorState: EditorState) => void,
   serialConnected: boolean,
   textEditorState: EditorState,
   changeTime: (startTime: number, endTime: number) => void
+  temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
+  setProtocol: (name: TemporaryProtocolButtonPosition) => void
 }
 
 const MainFormComponent = ({
@@ -51,8 +54,26 @@ const MainFormComponent = ({
   handleEditorStateChange,
   textEditorState,
   changeTime,
+  uploadTemporaryProtocol,
+  temporaryButtonNames,
+  setProtocol,
   ...ProcessSheetComponentProps
 }: Props) => {
+
+  const openDialogForTemporaryButtons = (name: TemporaryProtocolButtonPosition) => {
+      dialog.showOpenDialog(null, {
+          defaultPath: '',
+          title: 'Загрузить протокол',
+          filters: [{
+              extensions: ['json'],
+              name: ''
+          }],
+      }).then(({filePaths}) => {
+          if (filePaths.length) {
+              uploadTemporaryProtocol(filePaths[0], name)
+          }
+      })
+  }
 
   return (
     <div>
@@ -93,18 +114,23 @@ const MainFormComponent = ({
         </section>
       </div>
       <div className={s.buttons} >
-        <button onClick={connect}>Connect</button>
         <button
-          // className={cn({ [s.inactive]: !serialConnected })}
+            className={s.protocolButton}
+            onClick={connect}>Connect</button>
+        <button
+            className={s.protocolButton}
+            // className={cn({ [s.inactive]: !serialConnected })}
           onClick={start}>Start</button>
         <button
-          className={cn({ [s.inactive]: !serialConnected })}
+          className={cn({ [s.inactive]: !serialConnected }, s.protocolButton)}
           onClick={pause}>Pause</button>
         <button
-          className={cn({ [s.inactive]: !serialConnected })}
+          className={cn({ [s.inactive]: !serialConnected }, s.protocolButton)}
           onClick={stop}>Stop</button>
         <button onClick={resetState}>Reset</button>
-        <button onClick={() => {
+        <button
+            className={s.protocolButton}
+            onClick={() => {
           dialog.showSaveDialog(null, {
             defaultPath: '',
             title: 'Сохранить протокол',
@@ -116,7 +142,9 @@ const MainFormComponent = ({
               downloadProtocol(filePath)
           })
         }}>Save</button>
-        <button onClick={() => {
+        <button
+          className={s.protocolButton}
+          onClick={() => {
           dialog.showOpenDialog(null, {
             defaultPath: '',
             title: 'Загрузить протокол',
@@ -131,10 +159,54 @@ const MainFormComponent = ({
           })
         }}>Load</button>
         <button
-          className={cn({ [s.inactive]: !serialConnected })}
+          className={cn({ [s.inactive]: !serialConnected}, s.protocolButton)}
           onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
       </div>
-    </div>
+      <div className={s.temporaryContainer}>
+        <span className={s.temporaryTitle}>Temporary Protocol Set Buttons</span>
+            <div className={s.loadingProtocolButtons}>
+                <button
+                    onMouseUp={(event) => {
+                      if (event.nativeEvent.button === 2) {
+                          openDialogForTemporaryButtons('firstTemporaryButton')
+                      }
+                      if (event.nativeEvent.button === 0) {
+                          setProtocol('firstTemporaryButton')
+                      }
+                    }}
+                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.firstTemporaryButton && s.emptyProtocolButton)}
+                >
+                    {temporaryButtonNames.firstTemporaryButton}
+                </button>
+                <button
+                    onMouseUp={(event) => {
+                        if (event.nativeEvent.button === 2) {
+                            openDialogForTemporaryButtons('secondTemporaryButton')
+                        }
+                        if (event.nativeEvent.button === 0) {
+                            setProtocol('secondTemporaryButton')
+                        }
+                    }}
+                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.secondTemporaryButton && s.emptyProtocolButton)}
+                >
+                    {temporaryButtonNames.secondTemporaryButton}
+                </button>
+                <button
+                    onMouseUp={(event) => {
+                        if (event.nativeEvent.button === 2) {
+                            openDialogForTemporaryButtons('thirdTemporaryButton')
+                        }
+                        if (event.nativeEvent.button === 0) {
+                            setProtocol('thirdTemporaryButton')
+                        }
+                    }}
+                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
+                >
+                    {temporaryButtonNames.thirdTemporaryButton}
+                </button>
+          </div>
+        </div>
+      </div>
   )
 }
 

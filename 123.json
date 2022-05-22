@@ -330,7 +330,7 @@
       "shortName": "AUX2",
       "changes": [
         {
-          "startTime": 10,
+          "startTime": 20,
           "endTime": 40,
           "changeId": 0,
           "duration": 20,
@@ -344,26 +344,8 @@
   "editorState": {
     "blocks": [
       {
-        "key": "d7915",
-        "text": "sdfsdfsd",
-        "type": "unstyled",
-        "depth": 0,
-        "inlineStyleRanges": [],
-        "entityRanges": [],
-        "data": {}
-      },
-      {
-        "key": "5bu8d",
-        "text": "",
-        "type": "unstyled",
-        "depth": 0,
-        "inlineStyleRanges": [],
-        "entityRanges": [],
-        "data": {}
-      },
-      {
-        "key": "dlts8",
-        "text": "sdfgsdfg",
+        "key": "cn05n",
+        "text": "asdasfsdf",
         "type": "unstyled",
         "depth": 0,
         "inlineStyleRanges": [],

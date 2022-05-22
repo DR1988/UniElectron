@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { ipcRenderer } from 'electron'
 
 import s from './MainForm.css'
-import { ValveLineType, Change } from './MainFormInterfaces'
+import {ValveLineType, Change, TemporaryFileLoaded, TemporaryProtocolButtonPosition} from './MainFormInterfaces'
 import MainFormComponent from './MainFormComponent/MainFormComponent'
 import {MainFormState, resetedState, initialState} from './initialConfig'
 
@@ -32,7 +32,6 @@ class MainForm extends Component<Props, MainFormState> {
   constructor(props: Props) {
     super(props)
     this.resetedState = resetedState
-
     this.state = initialState
   }
 
@@ -79,6 +78,7 @@ class MainForm extends Component<Props, MainFormState> {
         time: 0,
       })
     })
+
     this.props.socket.on(socketConfig.stop, (data) => {
       const { distance, time } = data
       this.setState({
@@ -104,7 +104,60 @@ class MainForm extends Component<Props, MainFormState> {
         textEditorState: EditorState.createWithContent(convertFromRaw(data.editorState)),
       })
     })
+
+    ipcRenderer.on('temporary-file-loaded', (event, data: TemporaryFileLoaded) => {
+      const {protocol, temporaryButtons} = data
+
+      window.localStorage.setItem(temporaryButtons.buttonPosition, JSON.stringify({
+          temporaryButtons: {
+            buttonPosition: temporaryButtons.buttonPosition,
+            name: temporaryButtons.name
+          },
+          protocol:{
+            lineFormer: protocol.lineFormer,
+            allTime: protocol.allTime,
+            textEditorState: protocol.editorState
+          },
+      }))
+
+      this.setState({
+        lineFormer: protocol.lineFormer,
+        allTime: protocol.allTime,
+        textEditorState: EditorState.createWithContent(convertFromRaw(protocol.editorState)),
+        temporaryButtonNames: {...this.state.temporaryButtonNames, [temporaryButtons.buttonPosition]: temporaryButtons.name}
+      })
+    })
+
+    this.getFromLocalStorage()
   }
+
+  getFromLocalStorage = () => {
+    const firstTemporaryButtonData = JSON.parse(window.localStorage.getItem('firstTemporaryButton'))
+    const secondTemporaryButtonData = JSON.parse(window.localStorage.getItem('secondTemporaryButton'))
+    const thirdTemporaryButtonData = JSON.parse(window.localStorage.getItem('thirdTemporaryButton'))
+
+    this.setLocalStorageData(firstTemporaryButtonData)
+    this.setLocalStorageData(secondTemporaryButtonData)
+    this.setLocalStorageData(thirdTemporaryButtonData)
+  }
+
+  setLocalStorageData = (data: TemporaryFileLoaded) => {
+    if (data) {
+      console.log('buttonPosition', data.temporaryButtons.buttonPosition)
+      setTimeout(() => {
+        // setTimeout - хак чтобы установить все значения в стейт для temporaryButtonNames
+        this.setState({
+          ...this.state,
+          temporaryButtonNames: {
+            ...this.state.temporaryButtonNames,
+            [data.temporaryButtons.buttonPosition]: data.temporaryButtons.name,
+          }
+        })
+
+      }, 0)
+    }
+  }
+
 
   componentWillUnmount() {
     this.props.socket.removeAllListeners()
@@ -116,6 +169,7 @@ class MainForm extends Component<Props, MainFormState> {
     this.setState({
       ...this.resetedState,
       textEditorState: this.state.textEditorState,
+      temporaryButtonNames: this.state.temporaryButtonNames,
     })
   }
 
@@ -741,10 +795,30 @@ class MainForm extends Component<Props, MainFormState> {
     })
   }
 
+  uploadTemporaryProtocol = (path: string, temporaryProtocolButtonPosition: TemporaryProtocolButtonPosition) => {
+    ipcRenderer.send('temporary-load-button', {
+      path,
+      temporaryProtocolButtonPosition
+    })
+  }
+
   handleEditorStateChange = (editorState: EditorState) => {
     this.setState({
       textEditorState: editorState
     })
+  }
+
+  setProtocol = (name: TemporaryProtocolButtonPosition) => {
+    const data = JSON.parse(window.localStorage.getItem(name))
+    if (data) {
+      const {protocol} = data
+      this.setState({
+        lineFormer: protocol.lineFormer,
+        allTime: protocol.allTime,
+        textEditorState: EditorState.createWithContent(convertFromRaw(protocol.textEditorState)),
+      })
+    }
+
   }
 
   render() {
@@ -769,6 +843,9 @@ class MainForm extends Component<Props, MainFormState> {
           uploadProtocol={this.uploadProtocol}
           handleEditorStateChange={this.handleEditorStateChange}
           changeTime={this.changeTime}
+          uploadTemporaryProtocol={this.uploadTemporaryProtocol}
+          temporaryButtonNames={this.state.temporaryButtonNames}
+          setProtocol={this.setProtocol}
           {...this.state}
         />
         <ModalWithCondition

@@ -23,7 +23,7 @@
   flex-wrap: wrap;
   /* width: 165px; */
 }
-.buttons button {
+.buttons .protocolButton {
   min-width: calc(100%/8.5);
 }
 .buttons .inactive{
@@ -39,4 +39,42 @@
 .editorClassName  {
   height: 150px;
   max-height: 150px;
+}
+
+.temporaryContainer {
+  display: flex;
+  align-items: center;
+  margin-top: 15px;
+  padding: 5px;
+  padding-bottom: 8px;
+  border: 2px solid darkgrey;
+  position: relative;
+  width: fit-content;
+}
+
+.temporaryContainer .temporaryTitle {
+  position: absolute;
+  background-color: white;
+  display: block;
+  height: 1rem;
+  top: -10px;
+}
+
+.loadingProtocolButtons {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.loadingProtocolButtons .loadingProtocolButton {
+  width: 185px;
+  overflow: hidden;
+}
+
+.loadingProtocolButtons .loadingProtocolButton:not(:first-child) {
+  margin-left: 10px;
+}
+
+.emptyProtocolButton {
+  background-color: rgba(221, 237, 243, 1);
 }

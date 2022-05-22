@@ -1,4 +1,4 @@
-import { ChosenElement, ValveLineType, Change } from './MainFormInterfaces'
+import {ChosenElement, ValveLineType, Change, TemporaryProtocolButtonPosition} from './MainFormInterfaces'
 import {EditorState} from 'draft-js';
 
 export interface MainFormState {
@@ -11,6 +11,7 @@ export interface MainFormState {
     HVOpen: boolean,
     serialConnected: boolean,
     textEditorState: EditorState
+    temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
   }
 
 export const resetedState: MainFormState = {
@@ -115,6 +116,11 @@ export const resetedState: MainFormState = {
   HVOpen: false,
   serialConnected: false,
   textEditorState: EditorState.createEmpty(),
+  temporaryButtonNames: {
+    firstTemporaryButton: '',
+    secondTemporaryButton: '',
+    thirdTemporaryButton: ''
+  }
 }
 
 export const initialState: MainFormState = {
@@ -326,4 +332,9 @@ export const initialState: MainFormState = {
     },
   ],
   textEditorState: EditorState.createEmpty(),
+  temporaryButtonNames: {
+    firstTemporaryButton: '',
+    secondTemporaryButton: '',
+    thirdTemporaryButton: ''
+  }
 }
