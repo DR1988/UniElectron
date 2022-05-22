@@ -22,6 +22,7 @@ export const resetedState: MainFormState = {
       id: 0,
       shortName: 'GV1',
       changes: [{ startTime: 0, endTime: 0, changeId: 0, duration: 0, crossingValueEnd: NaN, crossingValueStart: NaN }],
+      description: 'Reactor gas inlet'
     },
     newStartTime: 0,
     newEndTime: 0,
@@ -39,78 +40,91 @@ export const resetedState: MainFormState = {
       id: 0,
       shortName: 'GV1',
       changes: [],
+      description: 'Reactor gas inlet'
     },
     {
       name: 'ValveLine',
       id: 1,
       shortName: 'GV2',
       changes: [],
+      description: 'Reactor gas outlet'
     },
     {
       name: 'ValveLine',
       id: 2,
       shortName: 'GV3',
       changes: [],
+      description: 'Left feeder gas inlet'
     },
     {
       name: 'ValveLine',
       id: 3,
       shortName: 'GV4',
       changes: [],
+      description: 'Left feeder gas outlet'
     },
     {
       name: 'ValveLine',
       id: 4,
       shortName: 'GV5',
       changes: [],
+      description: 'Right feeder gas inlet'
     },
     {
       name: 'ValveLine',
       id: 5,
       shortName: 'GV6',
       changes: [],
+      description: 'Right feeder gas outlet'
     },
     {
       name: 'ValveLine',
       id: 6,
       shortName: 'HV1',
       changes: [],
+      description: 'Left feeder hydraulic valve'
     },
     {
       name: 'ValveLine',
       id: 7,
       shortName: 'HV2',
       changes: [],
+      description: 'Right feeder hydraulic valve'
     },
     {
       name: 'ValveLine',
       id: 8,
-      shortName: 'HV2',
+      shortName: 'HV3',
       changes: [],
+      description: 'Reactor out hydraulic valve'
     },
     {
       name: 'RPMSetter',
       shortName: 'RPM',
       id: 9,
       changes: [],
+      description: 'Stirrer'
     },
     {
       name: 'TempSetter',
       shortName: 'TC',
       id: 10,
       changes: [],
+      description: 'Thermostat'
     },
     {
       name: 'AUX',
       id: 11,
       shortName: 'AUX1',
       changes: [],
+      description: 'AUX1'
     },
     {
       name: 'AUX',
       id: 12,
       shortName: 'AUX2',
       changes: [],
+      description: 'AUX2'
     },
   ],
   HVOpen: false,
@@ -139,6 +153,7 @@ export const initialState: MainFormState = {
         crossingValueEnd: NaN,
         crossingValueStart: NaN,
       }],
+      description: 'Stirrer'
     },
     newStartTime: 0,
     newEndTime: 0,
@@ -160,10 +175,8 @@ export const initialState: MainFormState = {
       shortName: 'GV1',
       changes: [
         { startTime: 20, endTime: 40, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
-        // { startTime: 20, endTime: 80, changeId: 1, duration: 60, crossingValueEnd: NaN, crossingValueStart: NaN },
-        // { startTime: 120, endTime: 240, changeId: 2, duration: 120, crossingValueEnd: NaN, crossingValueStart: NaN },
-        // { startTime: 290, endTime: 340, changeId: 3, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN },
       ],
+      description: 'Reactor gas inlet'
     },
     {
       name: 'ValveLine',
@@ -172,6 +185,7 @@ export const initialState: MainFormState = {
       changes: [
         { startTime: 50, endTime: 70, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
       ],
+      description: 'Reactor gas outlet'
     },
     {
       name: 'ValveLine',
@@ -180,6 +194,7 @@ export const initialState: MainFormState = {
       changes: [
         { startTime: 80, endTime: 100, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
       ],
+      description: 'Left feeder gas inlet'
     },
     {
       name: 'ValveLine',
@@ -188,6 +203,7 @@ export const initialState: MainFormState = {
       changes: [
         { startTime: 110, endTime: 130, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
       ],
+      description: 'Left feeder gas outlet'
     },
     {
       name: 'ValveLine',
@@ -196,6 +212,7 @@ export const initialState: MainFormState = {
       changes: [
         { startTime: 140, endTime: 160, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
       ],
+      description: 'Right feeder gas inlet'
     },
     {
       name: 'ValveLine',
@@ -204,6 +221,7 @@ export const initialState: MainFormState = {
       changes: [
         { startTime: 170, endTime: 190, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
       ],
+      description: 'Right feeder gas outlet'
     },
     {
       name: 'ValveLine',
@@ -215,11 +233,8 @@ export const initialState: MainFormState = {
         { startTime: 100, endTime: 120, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
         { startTime: 150, endTime: 160, changeId: 3, duration: 10, crossingValueEnd: NaN, crossingValueStart: NaN },
         { startTime: 200, endTime: 215, changeId: 4, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
-
-        // { startTime: 0, endTime: 20, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
-        // { startTime: 50, endTime: 60, changeId: 3, duration: 10, crossingValueEnd: NaN, crossingValueStart: NaN },
-        // { startTime: 100, endTime: 115, changeId: 4, duration: 15, crossingValueEnd: NaN, crossingValueStart: NaN },
       ],
+      description: 'Left feeder hydraulic valve'
     },
     {
       name: 'ValveLine',
@@ -231,11 +246,8 @@ export const initialState: MainFormState = {
         { startTime: 125, endTime: 145, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
         { startTime: 150, endTime: 190, changeId: 3, duration: 40, crossingValueEnd: NaN, crossingValueStart: NaN },
         { startTime: 220, endTime: 245, changeId: 4, duration: 25, crossingValueEnd: NaN, crossingValueStart: NaN },
-
-        // { startTime: 25, endTime: 45, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
-        // { startTime: 50, endTime: 90, changeId: 3, duration: 40, crossingValueEnd: NaN, crossingValueStart: NaN },
-        // { startTime: 120, endTime: 145, changeId: 4, duration: 25, crossingValueEnd: NaN, crossingValueStart: NaN },
       ],
+      description: 'Right feeder hydraulic valve'
     },
     {
       name: 'ValveLine',
@@ -246,11 +258,13 @@ export const initialState: MainFormState = {
         { startTime: 120, endTime: 190, changeId: 1, duration: 70, crossingValueEnd: NaN, crossingValueStart: NaN },
         { startTime: 225, endTime: 245, changeId: 2, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
       ],
+      description: 'Reactor out hydraulic valve'
     },
     {
       name: 'RPMSetter',
       shortName: 'RPM',
       id: 9,
+      description: 'Stirrer',
       changes: [
         {
           startTime: 0,
@@ -313,6 +327,7 @@ export const initialState: MainFormState = {
         { startTime: 50, endTime: 80, value: 34, changeId: 1, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
         { startTime: 150, endTime: 200, value: 36, changeId: 2, duration: 50, crossingValueEnd: NaN, crossingValueStart: NaN, waitForValue: false },
       ],
+      description: 'Thermostat'
     },
     {
       name: 'AUX',
@@ -321,6 +336,7 @@ export const initialState: MainFormState = {
       changes: [
         { startTime: 20, endTime: 30, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
       ],
+      description: 'AUX1'
     },
     {
       name: 'AUX',
@@ -329,6 +345,7 @@ export const initialState: MainFormState = {
       changes: [
         { startTime: 10, endTime: 40, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN }
       ],
+      description: 'AUX2'
     },
   ],
   textEditorState: EditorState.createEmpty(),

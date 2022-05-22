@@ -18,6 +18,7 @@ export interface ValveLineType {
   id: number,
   shortName: string,
   changes: Array<Change>,
+  description: string,
 }
 
 export interface ChosenElement {

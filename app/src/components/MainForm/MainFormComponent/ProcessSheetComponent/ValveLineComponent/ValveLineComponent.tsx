@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 
 import s from './ValveLineComponent.css'
 import ValveTimeComponent from './ValveTimeComponent'
-import { ValveLineType } from '../../MainFormInterfaces'
+import {ValveLineType} from '../../../MainFormInterfaces';
 
 interface Props {
   line: ValveLineType,
@@ -17,7 +17,7 @@ interface Props {
 class ValveLineComponent extends PureComponent<Props>{
 
   setValue = (
-    lineName: 'ValveLine' | 'RPMSetter' | 'TempSetter' | 'NewValveLine' | 'NewRPMSetter' | 'NewTempSetter',
+    lineName: 'ValveLine' | 'RPMSetter' | 'TempSetter' | 'NewValveLine' | 'NewRPMSetter' | 'NewTempSetter' | 'AUX' | 'NewAUX',
     value: number, duration: number): number => {
     switch (lineName) {
       case 'RPMSetter':

@@ -119,6 +119,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
         {lineFormer.map(line => (
           <div key={line.name + line.id} className={s.lineNames}>
             <span>{line.shortName}</span>
+            <div className={s.lineNamesSignContainer}>{line.description}</div>
           </div>
         ))}
       </div>

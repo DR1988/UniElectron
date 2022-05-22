@@ -1052,7 +1052,7 @@ class ReactionFlowComponent extends Component<Props> {
                   textAnchor: "start",
                 }}
             >
-              {"GV5"}
+              {"GV4"}
             </tspan>
           </text>
           <text
@@ -1099,7 +1099,7 @@ class ReactionFlowComponent extends Component<Props> {
                   textAnchor: "start",
                 }}
             >
-              {"GV2"}
+              {"GV3"}
             </tspan>
           </text>
           <text
@@ -1193,7 +1193,7 @@ class ReactionFlowComponent extends Component<Props> {
                   textAnchor: "start",
                 }}
             >
-              {"GV3"}
+              {"GV5"}
             </tspan>
           </text>
           <text
@@ -1239,7 +1239,7 @@ class ReactionFlowComponent extends Component<Props> {
                   textAnchor: "start",
                 }}
             >
-              {"GV4"}
+              {"GV2"}
             </tspan>
           </text>
           <text
