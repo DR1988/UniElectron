@@ -60,7 +60,7 @@ class CustomInput extends Component<CustomInputProps> { // eslint-disable-line
 const getWrongValue = (startTime: number, endTime: number, TempValue: number, wrongSign: string): string => {
   if (startTime >= endTime) return 'Start time should be less then End time'
   if (TempValue < 10) return 'TempValue should be greater 10'
-  if (TempValue > 70) return 'TempValue should be less 70'
+  if (TempValue > 90) return 'TempValue should be less 90'
   if (wrongSign) return wrongSign
   // if (newStartTime <= newEndTime) return 'Start time should be less then End time'
   return ''

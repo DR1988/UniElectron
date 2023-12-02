@@ -39,7 +39,7 @@ export default class Controller {
 
     this.lines = []
     this.linesOfActions = []
-    this.velocity = 4
+    this.velocity = 1
     this.intervalId = null
     this.counter = { distance: 0, time: 0 }
 
