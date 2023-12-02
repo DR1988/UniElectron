@@ -136,6 +136,13 @@ class MainForm extends Component<Props, MainFormState> {
     })
 
     this.getFromLocalStorage()
+
+    this.props.socket.on(socketConfig.protocolFinish, () => {
+      this.setState({
+        ...this.state,
+        disableStart: false,
+      })
+    })
   }
 
   getFromLocalStorage = () => {
@@ -187,6 +194,7 @@ class MainForm extends Component<Props, MainFormState> {
       allTime,
     }
     this.props.socket.emit(socketConfig.start, StartSignal)
+    this.setState({...this.state, disableStart: true})
   }
 
   pause = () => this.props.socket.emit(socketConfig.pause)
@@ -196,6 +204,7 @@ class MainForm extends Component<Props, MainFormState> {
   stop = () => {
     console.log('stop')
     this.props.socket.emit(socketConfig.stop)
+    this.setState({...this.state, disableStart: false})
     // this.props.socket.emit('INC')
   }
 

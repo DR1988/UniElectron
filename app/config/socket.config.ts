@@ -19,6 +19,7 @@ const socketConfig = {
   serialClosed: 'SERIAL_CLOSED',
   serialSending: 'SERIAL_SENDING',
   switchHV: 'SWITCH_HV',
+  protocolFinish: 'protocolFinish',
 }
 
 export interface startSignal {

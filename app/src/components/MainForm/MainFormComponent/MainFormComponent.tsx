@@ -33,6 +33,7 @@ interface Props extends ProcessSheetComponentProps {
   changeTime: (startTime: number, endTime: number) => void
   temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
   setProtocol: (name: TemporaryProtocolButtonPosition) => void
+  disableStart: boolean
 }
 
 const MainFormComponent = ({
@@ -57,6 +58,7 @@ const MainFormComponent = ({
   uploadTemporaryProtocol,
   temporaryButtonNames,
   setProtocol,
+  disableStart,
   ...ProcessSheetComponentProps
 }: Props) => {
 
@@ -118,12 +120,11 @@ const MainFormComponent = ({
             className={s.protocolButton}
             onClick={connect}>Connect</button>
         <button
-            className={s.protocolButton}
-            // className={cn({ [s.inactive]: !serialConnected })}
+            className={cn({ [s.inactive]: disableStart }, s.protocolButton)}
           onClick={start}>Start</button>
-        <button
+        {/* <button
           className={cn({ [s.inactive]: !serialConnected }, s.protocolButton)}
-          onClick={pause}>Pause</button>
+          onClick={pause}>Pause</button> */}
         <button
           className={cn({ [s.inactive]: !serialConnected }, s.protocolButton)}
           onClick={stop}>Stop</button>

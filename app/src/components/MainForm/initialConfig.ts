@@ -13,6 +13,7 @@ export interface MainFormState {
     textEditorState: EditorState
     temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
     searchingSerial: boolean
+    disableStart: boolean
   }
 
 export const resetedState: MainFormState = {
