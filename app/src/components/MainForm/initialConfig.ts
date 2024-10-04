@@ -136,7 +136,12 @@ export const resetedState: MainFormState = {
   temporaryButtonNames: {
     firstTemporaryButton: '',
     secondTemporaryButton: '',
-    thirdTemporaryButton: ''
+    thirdTemporaryButton: '',
+    fourthTemporaryButton: '',
+    fifthTemporaryButton: '',
+    sixthTemporaryButton: '',
+    seventhTemporaryButton: '',
+    eigthTemporaryButton: ''
   }
 }
 
@@ -356,6 +361,11 @@ export const initialState: MainFormState = {
   temporaryButtonNames: {
     firstTemporaryButton: '',
     secondTemporaryButton: '',
-    thirdTemporaryButton: ''
+    thirdTemporaryButton: '',
+    fourthTemporaryButton: '',
+    fifthTemporaryButton: '',
+    sixthTemporaryButton: '',
+    seventhTemporaryButton: '',
+    eigthTemporaryButton: ''
   }
 }

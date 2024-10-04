@@ -149,10 +149,20 @@ class MainForm extends Component<Props, MainFormState> {
     const firstTemporaryButtonData = JSON.parse(window.localStorage.getItem('firstTemporaryButton'))
     const secondTemporaryButtonData = JSON.parse(window.localStorage.getItem('secondTemporaryButton'))
     const thirdTemporaryButtonData = JSON.parse(window.localStorage.getItem('thirdTemporaryButton'))
-
+    const fourthTemporaryButtonData = JSON.parse(window.localStorage.getItem('fourthTemporaryButton'))
+    const fifthTemporaryButtonData = JSON.parse(window.localStorage.getItem('fifthTemporaryButton'))
+    const sixthTemporaryButtonData = JSON.parse(window.localStorage.getItem('sixthTemporaryButton'))
+    const seventhTemporaryButtonData = JSON.parse(window.localStorage.getItem('seventhTemporaryButton'))
+    const eigthTemporaryButtonData = JSON.parse(window.localStorage.getItem('eigthTemporaryButton'))
+  
     this.setLocalStorageData(firstTemporaryButtonData)
     this.setLocalStorageData(secondTemporaryButtonData)
     this.setLocalStorageData(thirdTemporaryButtonData)
+    this.setLocalStorageData(fourthTemporaryButtonData)
+    this.setLocalStorageData(fifthTemporaryButtonData)
+    this.setLocalStorageData(sixthTemporaryButtonData)
+    this.setLocalStorageData(seventhTemporaryButtonData)
+    this.setLocalStorageData(eigthTemporaryButtonData)
   }
 
   setLocalStorageData = (data: TemporaryFileLoaded) => {

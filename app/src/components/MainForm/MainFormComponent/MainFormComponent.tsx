@@ -13,7 +13,7 @@ import ProcessSheetComponent, {Props as ProcessSheetComponentProps} from './Proc
 import s from './MainFormComponent.css'
 
 const { dialog } = electron.remote
-
+const EmptyName = ''
 interface Props extends ProcessSheetComponentProps {
   resetState: () => void,
   start: () => void,
@@ -177,7 +177,7 @@ const MainFormComponent = ({
                     }}
                     className={cn(s.loadingProtocolButton, !temporaryButtonNames.firstTemporaryButton && s.emptyProtocolButton)}
                 >
-                    {temporaryButtonNames.firstTemporaryButton}
+                    {temporaryButtonNames.firstTemporaryButton || EmptyName}
                 </button>
                 <button
                     onMouseUp={(event) => {
@@ -190,7 +190,7 @@ const MainFormComponent = ({
                     }}
                     className={cn(s.loadingProtocolButton, !temporaryButtonNames.secondTemporaryButton && s.emptyProtocolButton)}
                 >
-                    {temporaryButtonNames.secondTemporaryButton}
+                    {temporaryButtonNames.secondTemporaryButton || EmptyName}
                 </button>
                 <button
                     onMouseUp={(event) => {
@@ -203,8 +203,74 @@ const MainFormComponent = ({
                     }}
                     className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
                 >
-                    {temporaryButtonNames.thirdTemporaryButton}
+                    {temporaryButtonNames.thirdTemporaryButton || EmptyName}
                 </button>
+                <button                
+                    onMouseUp={(event) => {
+                        if (event.nativeEvent.button === 2) {
+                            openDialogForTemporaryButtons('fourthTemporaryButton')
+                        }
+                        if (event.nativeEvent.button === 0) {
+                            setProtocol('fourthTemporaryButton')
+                        }
+                    }}
+                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
+                >
+                    {temporaryButtonNames.fourthTemporaryButton || EmptyName}
+                </button>
+                <button
+                    onMouseUp={(event) => {
+                        if (event.nativeEvent.button === 2) {
+                            openDialogForTemporaryButtons('fifthTemporaryButton')
+                        }
+                        if (event.nativeEvent.button === 0) {
+                            setProtocol('fifthTemporaryButton')
+                        }
+                    }}
+                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
+                >
+                    {temporaryButtonNames.fifthTemporaryButton || EmptyName}
+                </button>
+                <button
+                    onMouseUp={(event) => {
+                        if (event.nativeEvent.button === 2) {
+                            openDialogForTemporaryButtons('sixthTemporaryButton')
+                        }
+                        if (event.nativeEvent.button === 0) {
+                            setProtocol('sixthTemporaryButton')
+                        }
+                    }}
+                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
+                >
+                    {temporaryButtonNames.sixthTemporaryButton || EmptyName}
+                </button>
+                <button
+                    onMouseUp={(event) => {
+                        if (event.nativeEvent.button === 2) {
+                            openDialogForTemporaryButtons('seventhTemporaryButton')
+                        }
+                        if (event.nativeEvent.button === 0) {
+                            setProtocol('seventhTemporaryButton')
+                        }
+                    }}
+                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
+                >
+                    {temporaryButtonNames.seventhTemporaryButton || EmptyName}
+                </button>
+                <button
+                    onMouseUp={(event) => {
+                        if (event.nativeEvent.button === 2) {
+                            openDialogForTemporaryButtons('eigthTemporaryButton')
+                        }
+                        if (event.nativeEvent.button === 0) {
+                            setProtocol('eigthTemporaryButton')
+                        }
+                    }}
+                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
+                >
+                    {temporaryButtonNames.eigthTemporaryButton || EmptyName}
+                </button>
+               
           </div>
         </div>
       </div>
