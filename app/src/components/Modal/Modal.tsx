@@ -26,8 +26,13 @@ class Modal extends Component<Props> {
       <div
         ref={this.coverRef}
         onKeyDown={(e: React.KeyboardEvent) => {
+          console.log('eeee', e.keyCode);
+          
           if (shouldCloseOnEsp && e.keyCode === 27) {
             resetToPreviousChanges?.()
+            closeModal?.()
+          }
+          if ( e.keyCode === 13) {
             closeModal?.()
           }
         }

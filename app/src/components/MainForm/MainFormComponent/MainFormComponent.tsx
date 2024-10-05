@@ -34,6 +34,8 @@ interface Props extends ProcessSheetComponentProps {
   temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
   setProtocol: (name: TemporaryProtocolButtonPosition) => void
   disableStart: boolean
+  openInsertSpaceModal: () => void
+  openRemoveSpaceModal: () => void
 }
 
 const MainFormComponent = ({
@@ -59,6 +61,8 @@ const MainFormComponent = ({
   temporaryButtonNames,
   setProtocol,
   disableStart,
+  openInsertSpaceModal,
+  openRemoveSpaceModal,
   ...ProcessSheetComponentProps
 }: Props) => {
 
@@ -79,7 +83,6 @@ const MainFormComponent = ({
 
   return (
     <div>
-
       <div id="mainForm" className={s.mainForm}>
         <section className={s.sidebar}>
           <ReactionFlowComponent socket={socket} lineFormer={lineFormer} time={time} />
@@ -101,18 +104,40 @@ const MainFormComponent = ({
           />
         </section>
         <section className={s['form-container']}>
-          <ProcessSheetComponent
-            lineFormer={lineFormer}
-            showModal={showModal}
-            time={time}
-            changeTime={changeTime}
-            {...ProcessSheetComponentProps}
-          />
-          <ValveTimeComponentAdder
-            lines={lineFormer}
-            showModal={showModal}
-            addNewValveTime={addNewValveTime}
-          />
+          <section className={s['protocol-form']}>
+            {/* <ValveTimeComponentAdder
+              lines={lineFormer}
+              showModal={showModal}
+              addNewValveTime={addNewValveTime}
+            /> */}
+            <ProcessSheetComponent
+              lineFormer={lineFormer}
+              showModal={showModal}
+              time={time}
+              changeTime={changeTime}
+              addNewValveTime={addNewValveTime}
+              {...ProcessSheetComponentProps}
+            />
+            {/* <ValveTimeComponentAdder
+              lines={lineFormer}
+              showModal={showModal}
+              addNewValveTime={addNewValveTime}
+            /> */}
+          </section>
+          <div className={cn(s.spaceButtonsContainer)}>
+            <button 
+              className={s.spaceButton}
+              onClick={openInsertSpaceModal}
+            >
+              Insert Space
+            </button>
+            <button
+              className={s.spaceButton} 
+              onClick={openRemoveSpaceModal}
+            >
+              Remove Space
+            </button>
+          </div>
         </section>
       </div>
       <div className={s.buttons} >
@@ -280,8 +305,9 @@ const MainFormComponent = ({
                 </button>
                
           </div>
-        </div>
       </div>
+     
+    </div>
   )
 }
 

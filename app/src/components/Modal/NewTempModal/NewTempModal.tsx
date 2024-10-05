@@ -101,8 +101,6 @@ const NewTempModal = ({
                 value={newEndTime}
               />
             </div>
-          </div>
-          <div className={s.inputs}>
             <div>
               <label htmlFor="Temp_value">Temp value</label>
               <br />

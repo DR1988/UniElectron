@@ -9,6 +9,7 @@ import { ValveLineType } from './../../MainFormInterfaces'
 
 import s from './ProcessSheetComponent.css'
 import { render } from 'react-dom'
+import ValveTimeComponentAdder from '../ValveTimeComponentAdder/ValveTimeComponentAdder'
 
 export interface Props {
   distance: number,
@@ -18,6 +19,7 @@ export interface Props {
   setChosenValveTime: (lineID: number, changeId: number) => void,
   lineFormer: Array<ValveLineType>,
   changeTime: (startTime: number, endTime: number) => void
+  addNewValveTime: (chosenLine: ValveLineType) => void,
 }
 
 interface State {
@@ -111,17 +113,27 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
     showModal,
     setChosenValveTime,
     lineFormer,
+    addNewValveTime
   } = props
 
   return (
     <section className={s.container}>
-      <div className={s.lineNamesContainer}>
-        {lineFormer.map(line => (
-          <div key={line.name + line.id} className={s.lineNames}>
-            <span>{line.shortName}</span>
-            <div className={s.lineNamesSignContainer}>{line.description}</div>
-          </div>
-        ))}
+      <div className={s.valveAdderAndLineNamesContainer}>
+        <div className={s.lineNamesContainer}>
+          {lineFormer.map(line => (
+            <div key={line.name + line.id} className={s.lineNames}>
+              <span>{line.shortName}</span>
+              <div className={s.lineNamesSignContainer}>{line.description}</div>
+            </div>
+          ))}
+        </div>
+        <div className={s.valveAdderContainer}>
+          <ValveTimeComponentAdder
+              lines={lineFormer}
+              showModal={showModal}
+              addNewValveTime={addNewValveTime}
+            />
+        </div>
       </div>
       <section
         id="processSheet"

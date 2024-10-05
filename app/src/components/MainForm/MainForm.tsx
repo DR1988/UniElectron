@@ -14,11 +14,13 @@ import RMPModal from '../Modal/RMPModal'
 import NewRMPModal from '../Modal/NewRMPModal'
 import NewTempModal from '../Modal/NewTempModal'
 import TempModal from '../Modal/TempModal'
+import {InsertSpaceModal} from '../Modal/InsertSpaceModal/InsertSpaceModal'
 
 import socketConfig, { startSignal } from '../../../config/socket.config'
 import { withCondition } from '../HOC'
 import {convertFromRaw, convertToRaw, EditorState, RawDraftContentState} from 'draft-js';
 import SearchingBoardModal from '../Modal/SearchingBoardModal/SearchingBoardModal';
+import { RemoveSpaceModal } from '../Modal/RemoveSpaceModal/RemoveSpaceModal'
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
@@ -847,6 +849,290 @@ class MainForm extends Component<Props, MainFormState> {
 
   }
 
+  openInsertSpaceModal = () => {
+    const newlineFormer = cloneDeep(this.state.lineFormer)
+    this.setState({
+      inserModalChanges: {
+        ...this.state.inserModalChanges,
+        isOpen: true,
+      },
+      savedLineFormer: newlineFormer
+    })
+  }
+
+  closeInsertSpaceModal = () => {
+    this.setState({
+      inserModalChanges: {
+        ...this.state.inserModalChanges,
+        isOpen: false,
+        additionalTimeValue: 0,
+        startTimeValue: 0,
+      },
+    })
+  }
+
+  getInsertedLineFormer = (
+    startTime: number,
+    addTime: number,
+    lineFormer: Array<ValveLineType>
+  ) => {
+    const insertedLineFormer = lineFormer.map(lf => {
+      const insertedChange = lf.changes.map(change => {
+        if (change.endTime <= startTime) {
+          return change
+        } else if (startTime <= change.startTime) {
+          return {
+            ...change,
+            startTime: change.startTime + addTime,
+            endTime: change.endTime + addTime
+          }
+        } else if (startTime > change.startTime && startTime < change.endTime) {
+          return {
+            ...change,
+            endTime: change.endTime + addTime
+          }
+        }
+
+        return change
+      })
+
+      return {
+        ...lf,
+        changes: insertedChange
+      }
+    })
+
+    return insertedLineFormer
+
+  }
+
+  getRemoveLineFormer = (
+    startTime: number,
+    endTime: number,
+    lineFormer: Array<ValveLineType>
+  ):Array<ValveLineType> => {
+    const period = endTime - startTime
+
+    const insertedLineFormer = lineFormer.map(lf => {
+      const insertedChange = lf.changes.map(change => {
+        if (startTime <= change.startTime && endTime >= change.endTime) {
+          return {
+            ...change,
+            changeId: undefined
+          }
+        } else if (change.endTime <= startTime) {
+          return change
+        } else if (startTime <= change.startTime) {
+          const newStartTime = change.startTime - period
+          return {
+            ...change,
+            startTime: newStartTime >= 0 ? newStartTime : 0,
+            endTime: change.endTime - period
+          }
+        } else if (startTime > change.startTime && startTime < change.endTime) {
+          return {
+            ...change,
+            endTime: startTime
+          }
+        } else if (endTime > change.startTime && endTime < change.endTime) {
+          return {
+            ...change,
+            endTime: endTime
+          }
+        } 
+
+        return change
+      })
+    
+
+      return {
+        ...lf,
+        changes: insertedChange.filter(fchange => fchange.changeId !== undefined)
+      }
+    })
+
+    return insertedLineFormer as Array<ValveLineType>
+
+  }
+  
+  changeInsertSpaceStartTime = (value: number) => {
+    const additionalTime = this.state.inserModalChanges.additionalTimeValue
+    const prevLineFormer = this.state.savedLineFormer
+    
+    const insertedLineFormer = this.getInsertedLineFormer(value, additionalTime, prevLineFormer)
+
+    const maxTime = Math.max(...prevLineFormer.map(lines => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+
+    this.setState({
+      ...this.state,
+      lineFormer: insertedLineFormer,
+      allTime: maxTime + additionalTime,
+      inserModalChanges: {
+        ...this.state.inserModalChanges,
+        startTimeValue: value
+      }
+    })
+  }
+
+  changeInsertSpaceAddtitionalTime = (value: number) => {
+    const insertSpaceStartTime = this.state.inserModalChanges.startTimeValue
+    const prevLineFormer = this.state.savedLineFormer
+      
+    const insertedLineFormer = this.getInsertedLineFormer(insertSpaceStartTime, value,prevLineFormer)
+
+    const maxTime = Math.max(...prevLineFormer.map(lines => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+
+    this.setState({
+      ...this.state,
+      lineFormer: insertedLineFormer,
+      allTime: maxTime + value,
+      inserModalChanges: {
+        ...this.state.inserModalChanges,
+        additionalTimeValue: value
+      }
+    })
+    
+  }
+
+  resetInsertModalChanges = () => {
+    const prevLineFormer = this.state.savedLineFormer
+    const maxTime = Math.max(...prevLineFormer.map(lines => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+
+    this.setState({
+      lineFormer: prevLineFormer,
+      allTime: maxTime
+    })
+  }
+
+  openRemoveSpaceModal = () => {
+    const newlineFormer = cloneDeep(this.state.lineFormer)
+    this.setState({
+      removeModalChanges: {
+        ...this.state.removeModalChanges,
+        isOpen: true,
+      },
+      savedLineFormer: newlineFormer
+    })
+  }
+
+  closeRemoveSpaceModal = () => {
+    this.setState({
+      removeModalChanges: {
+        ...this.state.removeModalChanges,
+        isOpen: false,
+        endTimeValue: 0,
+        startTimeValue: 0,
+      },
+    })
+  }
+
+  changeRemoveSpaceStartTime = (value: number) => {
+    const endTime = this.state.removeModalChanges.endTimeValue
+
+    if (endTime === 0) {
+      console.log('value', value);
+      
+      this.setState({
+        ...this.state,
+        removeModalChanges: {
+          ...this.state.removeModalChanges,
+          startTimeValue: value
+        }
+      })
+    } else {
+
+      const prevLineFormer = this.state.savedLineFormer
+      const period = endTime - value
+
+      const insertedLineFormer = this.getRemoveLineFormer(value, endTime, prevLineFormer)
+
+      const maxTime = Math.max(...prevLineFormer.map(lines => {
+        if (lines.changes.length) {
+          return lines.changes[lines.changes.length - 1].endTime
+        }
+        return 0
+      }))
+
+      this.setState({
+        ...this.state,
+        lineFormer: insertedLineFormer,
+        allTime: maxTime - period,
+        removeModalChanges: {
+          ...this.state.removeModalChanges,
+          startTimeValue: value
+        }
+      })
+    }
+  }
+
+  changeRemoveSpaceEndTime = (value: number) => {
+    const startTime = this.state.removeModalChanges.startTimeValue
+
+    if (value <= startTime) {
+      this.setState({
+        ...this.state,
+        removeModalChanges: {
+          ...this.state.removeModalChanges,
+          endTimeValue: value
+        }
+      })
+    } else {
+
+      const prevLineFormer = this.state.savedLineFormer
+      const period = value - startTime
+
+      const insertedLineFormer = this.getRemoveLineFormer(startTime, value, prevLineFormer)
+
+      const maxTime = Math.max(...prevLineFormer.map(lines => {
+        if (lines.changes.length) {
+          return lines.changes[lines.changes.length - 1].endTime
+        }
+        return 0
+      }))
+
+      this.setState({
+        ...this.state,
+        lineFormer: insertedLineFormer,
+        allTime: maxTime - period,
+        removeModalChanges: {
+          ...this.state.removeModalChanges,
+          endTimeValue: value
+        }
+      })
+
+    }
+  }
+
+  resetRemoveModalChanges = () => {
+    const prevLineFormer = this.state.savedLineFormer
+    const maxTime = Math.max(...prevLineFormer.map(lines => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+
+    this.setState({
+      lineFormer: prevLineFormer,
+      allTime: maxTime
+    })
+  }
+
   render() {
     const { showEditModal, chosenElement } = this.state
     return (
@@ -872,6 +1158,8 @@ class MainForm extends Component<Props, MainFormState> {
           uploadTemporaryProtocol={this.uploadTemporaryProtocol}
           temporaryButtonNames={this.state.temporaryButtonNames}
           setProtocol={this.setProtocol}
+          openInsertSpaceModal={this.openInsertSpaceModal}
+          openRemoveSpaceModal={this.openRemoveSpaceModal}
           {...this.state}
         />
         <ModalWithCondition
@@ -966,6 +1254,35 @@ class MainForm extends Component<Props, MainFormState> {
             condition={this.state.searchingSerial}
             render={() => <SearchingBoardModal />}
         />
+        <ModalWithCondition
+          closeModal={this.closeInsertSpaceModal}
+          condition={this.state.inserModalChanges.isOpen}
+          resetToPreviousChanges={this.resetInsertModalChanges}
+          render={() => 
+            <InsertSpaceModal
+              closeModal={this.closeInsertSpaceModal}
+              changeStartTime={this.changeInsertSpaceStartTime}
+              changeAddtitionalTime={this.changeInsertSpaceAddtitionalTime}
+              {...this.state.inserModalChanges}
+              resetChanges={this.resetInsertModalChanges}
+            />
+          }
+        />
+        <ModalWithCondition
+          closeModal={this.closeRemoveSpaceModal}
+          condition={this.state.removeModalChanges.isOpen}
+          resetToPreviousChanges={this.resetRemoveModalChanges}
+          render={() => 
+            <RemoveSpaceModal
+              closeModal={this.closeRemoveSpaceModal}
+              changeStartTime={this.changeRemoveSpaceStartTime}
+              changeEndTime={this.changeRemoveSpaceEndTime}
+              {...this.state.removeModalChanges}
+              resetChanges={this.resetRemoveModalChanges}
+            />
+          }
+        />
+        
       </div>
     )
   }

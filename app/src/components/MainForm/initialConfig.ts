@@ -1,4 +1,4 @@
-import {ChosenElement, ValveLineType, Change, TemporaryProtocolButtonPosition} from './MainFormInterfaces'
+import {ChosenElement, ValveLineType, InsertSpace, RemoveSpace, TemporaryProtocolButtonPosition} from './MainFormInterfaces'
 import {EditorState} from 'draft-js';
 
 export interface MainFormState {
@@ -14,6 +14,9 @@ export interface MainFormState {
     temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
     searchingSerial: boolean
     disableStart: boolean
+    inserModalChanges: InsertSpace
+    removeModalChanges: RemoveSpace
+    savedLineFormer: Array<ValveLineType>,
   }
 
 export const resetedState: MainFormState = {
@@ -142,7 +145,18 @@ export const resetedState: MainFormState = {
     sixthTemporaryButton: '',
     seventhTemporaryButton: '',
     eigthTemporaryButton: ''
-  }
+  },
+  inserModalChanges: {
+    isOpen: false,
+    startTimeValue: 0,
+    additionalTimeValue: 0,
+  },
+  removeModalChanges: {
+    isOpen: false,
+    startTimeValue: 0,
+    endTimeValue: 0,
+  },
+  savedLineFormer: []
 }
 
 export const initialState: MainFormState = {
@@ -367,5 +381,16 @@ export const initialState: MainFormState = {
     sixthTemporaryButton: '',
     seventhTemporaryButton: '',
     eigthTemporaryButton: ''
-  }
+  },
+  inserModalChanges: {
+    isOpen: false,
+    startTimeValue: 0,
+    additionalTimeValue: 0,
+  },
+  removeModalChanges: {
+    isOpen: false,
+    startTimeValue: 0,
+    endTimeValue: 0,
+  },
+  savedLineFormer: []
 }

@@ -10,6 +10,12 @@
 }
 
 .form-container {
+  overflow: hidden;
+  min-width: 550px;
+  width: 100%;
+}
+
+.protocol-form {
   display: flex;
   overflow: hidden;
   min-width: 550px;
@@ -82,4 +88,15 @@
 
 .emptyProtocolButton {
   background-color: rgba(221, 237, 243, 1);
+}
+
+.spaceButtonsContainer {
+  margin-top: 5px;
+  display: flex;
+  justify-content: flex-start;
+  height: 42px;
+}
+
+.spaceButton:not(:first-child) {
+  margin-left: 10px;
 }

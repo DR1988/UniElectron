@@ -54,3 +54,15 @@ export type TemporaryFileLoaded = {
     editorState: RawDraftContentState,
   }
 }
+
+export type InsertSpace = {
+  isOpen: boolean
+  startTimeValue: number
+  additionalTimeValue: number
+}
+
+export type RemoveSpace = {
+  isOpen: boolean
+  startTimeValue: number
+  endTimeValue: number
+}

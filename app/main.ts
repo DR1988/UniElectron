@@ -43,7 +43,7 @@ const HTML = `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Reactor</title>
+  <title>TQ Reactor</title>
   <style type="text/css"></style>
 </head>
 <body>

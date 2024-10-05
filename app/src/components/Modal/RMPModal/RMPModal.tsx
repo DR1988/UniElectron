@@ -102,8 +102,6 @@ const RMPModal: StatelessComponent<Props> = ({
                 value={filteredChange.endTime}
               />
             </div>
-          </div>
-          <div className={s.inputs}>
             <div>
               <label htmlFor="RPM_value">RPM value</label>
               <br />
