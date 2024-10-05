@@ -167,6 +167,7 @@ const MainFormComponent = ({
         <span className={s.temporaryTitle}>Protocol Set Buttons</span>
             <div className={s.loadingProtocolButtons}>
                 <button
+                title= {temporaryButtonNames.firstTemporaryButton || EmptyName}
                     onMouseUp={(event) => {
                       if (event.nativeEvent.button === 2) {
                           openDialogForTemporaryButtons('firstTemporaryButton')
@@ -180,6 +181,7 @@ const MainFormComponent = ({
                     {temporaryButtonNames.firstTemporaryButton || EmptyName}
                 </button>
                 <button
+                title= {temporaryButtonNames.secondTemporaryButton || EmptyName}
                     onMouseUp={(event) => {
                         if (event.nativeEvent.button === 2) {
                             openDialogForTemporaryButtons('secondTemporaryButton')
@@ -193,6 +195,7 @@ const MainFormComponent = ({
                     {temporaryButtonNames.secondTemporaryButton || EmptyName}
                 </button>
                 <button
+                title={temporaryButtonNames.thirdTemporaryButton || EmptyName}
                     onMouseUp={(event) => {
                         if (event.nativeEvent.button === 2) {
                             openDialogForTemporaryButtons('thirdTemporaryButton')
@@ -205,7 +208,8 @@ const MainFormComponent = ({
                 >
                     {temporaryButtonNames.thirdTemporaryButton || EmptyName}
                 </button>
-                <button                
+                <button     
+                title= {temporaryButtonNames.fourthTemporaryButton || EmptyName}           
                     onMouseUp={(event) => {
                         if (event.nativeEvent.button === 2) {
                             openDialogForTemporaryButtons('fourthTemporaryButton')
@@ -219,6 +223,7 @@ const MainFormComponent = ({
                     {temporaryButtonNames.fourthTemporaryButton || EmptyName}
                 </button>
                 <button
+                title= {temporaryButtonNames.fifthTemporaryButton || EmptyName}
                     onMouseUp={(event) => {
                         if (event.nativeEvent.button === 2) {
                             openDialogForTemporaryButtons('fifthTemporaryButton')
@@ -232,6 +237,7 @@ const MainFormComponent = ({
                     {temporaryButtonNames.fifthTemporaryButton || EmptyName}
                 </button>
                 <button
+                title= {temporaryButtonNames.sixthTemporaryButton || EmptyName}
                     onMouseUp={(event) => {
                         if (event.nativeEvent.button === 2) {
                             openDialogForTemporaryButtons('sixthTemporaryButton')
@@ -245,6 +251,7 @@ const MainFormComponent = ({
                     {temporaryButtonNames.sixthTemporaryButton || EmptyName}
                 </button>
                 <button
+                title={temporaryButtonNames.seventhTemporaryButton || EmptyName}
                     onMouseUp={(event) => {
                         if (event.nativeEvent.button === 2) {
                             openDialogForTemporaryButtons('seventhTemporaryButton')
@@ -258,6 +265,7 @@ const MainFormComponent = ({
                     {temporaryButtonNames.seventhTemporaryButton || EmptyName}
                 </button>
                 <button
+                    title={temporaryButtonNames.eigthTemporaryButton || EmptyName}
                     onMouseUp={(event) => {
                         if (event.nativeEvent.button === 2) {
                             openDialogForTemporaryButtons('eigthTemporaryButton')
