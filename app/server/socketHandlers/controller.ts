@@ -174,7 +174,7 @@ export default class Controller {
     })
   }
   initStart = async (data: startSignal) => {
-    const hasTemperatureFormerChanges = data.lineFormer.find(lf => lf.name === 'TempSetter').changes.length > 1
+    const hasTemperatureFormerChanges = data.lineFormer.find(lf => lf.name === 'TempSetter').changes.length > 0
     this.hasTemperatureFormerChanges = hasTemperatureFormerChanges
     this.turningOn = true
     this.hasTemperatureFormerChanges && await this.ThermostatController.turnOn()
