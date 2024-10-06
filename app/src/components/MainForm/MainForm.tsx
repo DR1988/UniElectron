@@ -3,7 +3,7 @@ import cloneDeep from 'lodash/cloneDeep'
 import { ipcRenderer } from 'electron'
 
 import s from './MainForm.css'
-import {ValveLineType, Change, TemporaryFileLoaded, TemporaryProtocolButtonPosition} from './MainFormInterfaces'
+import {ValveLineType, Change, TemporaryFileLoaded, TemporaryProtocolButtonPosition, ShortNames} from './MainFormInterfaces'
 import MainFormComponent from './MainFormComponent/MainFormComponent'
 import {MainFormState, resetedState, initialState} from './initialConfig'
 
@@ -21,6 +21,7 @@ import { withCondition } from '../HOC'
 import {convertFromRaw, convertToRaw, EditorState, RawDraftContentState} from 'draft-js';
 import SearchingBoardModal from '../Modal/SearchingBoardModal/SearchingBoardModal';
 import { RemoveSpaceModal } from '../Modal/RemoveSpaceModal/RemoveSpaceModal'
+import { ManualControlModal } from '../Modal/ManualControlModal/ManulaControlModal'
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
@@ -1133,6 +1134,27 @@ class MainForm extends Component<Props, MainFormState> {
     })
   }
 
+  openManualControlModal = () => {
+    this.setState({
+      isManualControlModalOpen: true
+    })
+  }
+
+  closeManualControlModal = () => {
+    this.setState({
+      isManualControlModalOpen: false
+    })
+  }
+
+  sendRPMValueToController = (rpmValue: number) => {
+    
+    this.props.socket.emit(socketConfig.setRPMValue, rpmValue)
+  }
+
+  toggleManualControlValves = (shorName: ShortNames, value: boolean) => {
+    this.props.socket.emit(socketConfig.switchValves, {shorName, value})
+  }
+
   render() {
     const { showEditModal, chosenElement } = this.state
     return (
@@ -1160,6 +1182,7 @@ class MainForm extends Component<Props, MainFormState> {
           setProtocol={this.setProtocol}
           openInsertSpaceModal={this.openInsertSpaceModal}
           openRemoveSpaceModal={this.openRemoveSpaceModal}
+          openManualControlModal={this.openManualControlModal}
           {...this.state}
         />
         <ModalWithCondition
@@ -1282,6 +1305,18 @@ class MainForm extends Component<Props, MainFormState> {
             />
           }
         />
+          <ModalWithCondition
+            closeModal={this.closeManualControlModal}
+            condition={this.state.isManualControlModalOpen}
+            containerMargin={30}
+            render={() => 
+              <ManualControlModal
+                sendRPMValue={this.sendRPMValueToController}
+                closeModal={this.closeManualControlModal}
+                toggleValve={this.toggleManualControlValves}
+              />
+            }
+          />
         
       </div>
     )

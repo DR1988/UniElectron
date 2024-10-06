@@ -1,7 +1,7 @@
 import socketConfig, { startSignal } from '../../config/socket.config'
 import socket from 'socket.io'
 import * as usb from 'usb'
-import { ValveLineType } from '../../src/components/MainForm/MainFormInterfaces'
+import { ShortNames, ValveLineType } from '../../src/components/MainForm/MainFormInterfaces'
 
 import Serial from '../serial'
 import ThermostatController from '../termex'
@@ -10,6 +10,69 @@ import { EventEmitter } from 'events';
 interface Counter {
   distance: number,
   time: number,
+}
+
+const shortNamesToActionMapper = (name: ShortNames, value: boolean) => {
+  console.log('name', name, value);
+  
+  switch (name) {
+    case 'GV1':
+      if (value) {
+        return 'V0Y|'
+      } else {
+        return 'V0N|'
+      }
+    case 'GV2':
+      if (value) {
+        return 'V1Y|'
+      } else {
+        return 'V1N|'
+      }
+    case 'GV3':
+      if (value) {
+        return 'V2Y|'
+      } else {
+        return 'V2N|'
+      }
+    case 'GV4':
+      if (value) {
+        return 'V3Y|'
+      } else {
+        return 'V3N|'
+      }
+    case 'GV5':
+      if (value) {
+        return 'V4Y|'
+      } else {
+        return 'V4N|'
+      }
+    case 'GV6':
+      if (value) {
+        return 'V5Y|'
+      } else {
+        return 'V5N|'
+      }
+    case 'HV1':
+      if (value) {
+        return 'V6Y|'
+      } else {
+        return 'V6N|'
+      }
+    case 'HV2':
+      if (value) {
+        return 'V7Y|'
+      } else {
+        return 'V7N|'
+      }
+    case 'HV3':
+      if (value) {
+        return 'V8Y|'
+      } else {
+        return 'V8N|'
+      }
+    default:
+      return ''
+  }
 }
 
 export default class Controller {
@@ -153,6 +216,24 @@ export default class Controller {
   switchHV = (data) => {
     // console.log(data ? 'V6Y|V7Y|\n' : 'V6N|V7N|\n')
     this.Serial.sendData(data ? 'V6Y|V7Y|V8Y|\n' : 'V6N|V7N|V8N|\n')
+  }
+
+  rpmStart = (data: number) => {
+    
+    if (data > 0) {
+      this.Serial.sendData(`R9${data}|\n`)
+    } else {
+      this.Serial.sendData(`R90}|\n`)
+    }
+  }
+
+  switchValves = ({shorName, value}: {shorName: ShortNames, value: boolean}) => {
+    const result = shortNamesToActionMapper(shorName, value)
+    console.log('sww', `${result}\n`);
+    
+    if (result) {
+      this.Serial.sendData(`${result}\n`)
+    }
   }
 
   startGettingTemperature() {

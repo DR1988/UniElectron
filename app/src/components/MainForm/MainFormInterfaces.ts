@@ -12,11 +12,27 @@ export interface Change {
   idname?: string,
 }
 
+export type ShortNames =
+ | 'RPM'
+ | 'GV1'
+ | 'GV2'
+ | 'GV3'
+ | 'GV4'
+ | 'GV5'
+ | 'GV6'
+ | 'HV1'
+ | 'HV2'
+ | 'HV3'
+ | 'TC'
+ | 'AUX1'
+ | 'AUX2'
+
+
 export interface ValveLineType {
   name: 'ValveLine' | 'RPMSetter' | 'TempSetter' | `NewValveLine` | 'NewRPMSetter' | 'NewTempSetter' | 'AUX'| 'NewAUX',
   // name: string,
   id: number,
-  shortName: string,
+  shortName: ShortNames,
   changes: Array<Change>,
   description: string,
 }

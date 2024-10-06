@@ -100,3 +100,7 @@
 .spaceButton:not(:first-child) {
   margin-left: 10px;
 }
+
+.manualButton {
+  margin-left: auto;
+}

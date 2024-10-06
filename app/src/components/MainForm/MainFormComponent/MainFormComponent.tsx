@@ -36,6 +36,7 @@ interface Props extends ProcessSheetComponentProps {
   disableStart: boolean
   openInsertSpaceModal: () => void
   openRemoveSpaceModal: () => void
+  openManualControlModal: () => void
 }
 
 const MainFormComponent = ({
@@ -63,6 +64,7 @@ const MainFormComponent = ({
   disableStart,
   openInsertSpaceModal,
   openRemoveSpaceModal,
+  openManualControlModal,
   ...ProcessSheetComponentProps
 }: Props) => {
 
@@ -105,11 +107,6 @@ const MainFormComponent = ({
         </section>
         <section className={s['form-container']}>
           <section className={s['protocol-form']}>
-            {/* <ValveTimeComponentAdder
-              lines={lineFormer}
-              showModal={showModal}
-              addNewValveTime={addNewValveTime}
-            /> */}
             <ProcessSheetComponent
               lineFormer={lineFormer}
               showModal={showModal}
@@ -118,11 +115,6 @@ const MainFormComponent = ({
               addNewValveTime={addNewValveTime}
               {...ProcessSheetComponentProps}
             />
-            {/* <ValveTimeComponentAdder
-              lines={lineFormer}
-              showModal={showModal}
-              addNewValveTime={addNewValveTime}
-            /> */}
           </section>
           <div className={cn(s.spaceButtonsContainer)}>
             <button 
@@ -136,6 +128,13 @@ const MainFormComponent = ({
               onClick={openRemoveSpaceModal}
             >
               Remove Space
+            </button>
+
+            <button
+              className={(s.spaceButton, s.manualButton)} 
+              onClick={openManualControlModal}
+            >
+              Manual Control
             </button>
           </div>
         </section>

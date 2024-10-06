@@ -20,6 +20,8 @@ const socketConfig = {
   serialSending: 'SERIAL_SENDING',
   switchHV: 'SWITCH_HV',
   protocolFinish: 'protocolFinish',
+  setRPMValue: 'SET_RPM_VALUE',
+  switchValves: 'SWITCH_VALVES'
 }
 
 export interface startSignal {

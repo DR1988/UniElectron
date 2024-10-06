@@ -8,6 +8,7 @@ export interface Props {
   closeModal?: () => void,
   resetToPreviousChanges?: () => void
   shouldCloseOnEsp?: boolean
+  containerMargin?: number
 }
 
 class Modal extends Component<Props> {
@@ -21,13 +22,13 @@ class Modal extends Component<Props> {
     this.coverRef.current.focus()
   }
   render() {
-    const { closeModal, render, resetToPreviousChanges, shouldCloseOnEsp = true } = this.props
+    const { closeModal, render, resetToPreviousChanges, shouldCloseOnEsp = true, containerMargin } = this.props
+    console.log('containerMargin', containerMargin);
+    
     return (
       <div
         ref={this.coverRef}
-        onKeyDown={(e: React.KeyboardEvent) => {
-          console.log('eeee', e.keyCode);
-          
+        onKeyDown={(e: React.KeyboardEvent) => {          
           if (shouldCloseOnEsp && e.keyCode === 27) {
             resetToPreviousChanges?.()
             closeModal?.()
@@ -39,6 +40,7 @@ class Modal extends Component<Props> {
         } className={s.cover} tabIndex={1}>
         <div
           className={s.container}
+          style={{marginTop: containerMargin}}
         >
           <div className={s.content}>
             {render()}
