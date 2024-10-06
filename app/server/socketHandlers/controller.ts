@@ -281,7 +281,8 @@ export default class Controller {
         this.sendingCommands = ''
       }
       if (this.currentTime >= this.data.allTime) {
-        this.Serial.sendData('V0N|V1N|V2N|V3N|V4N|V5N|V6N|V7N|V8N|R90|A11N|A12N|\n') // close pinch valves
+        this.Serial.sendData('S\n')
+        // this.Serial.sendData('V0N|V1N|V2N|V3N|V4N|V5N|V6N|V7N|V8N|R90|A11N|A12N|\n') // close pinch valves
         this.currentTime = 0
         
         this.io.emit(socketConfig.protocolFinish)

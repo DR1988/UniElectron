@@ -112,12 +112,12 @@ const NewRMPModal = ({
               />
             </div>
           </div>
-          <div className={cn(s.left_margin, s.wait_value_container)}>
+          {/* <div className={cn(s.left_margin, s.wait_value_container)}>
             <label htmlFor="waitForValue">
               wait for value
               <input id="waitForValue" type="checkbox" />
             </label>
-          </div>
+          </div> */}
           {wrongSignValue ?
             <div className={s.left_margin}>
               <span>{wrongSignValue}</span>
