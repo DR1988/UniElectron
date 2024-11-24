@@ -1,0 +1,76 @@
+.container {
+  background-color: rgba(171, 193, 197, 1);
+}
+
+.content {
+  padding: 5px;
+}
+
+.closeButtonContainer {
+  margin-top: 5px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.selectorContainer {
+  margin-top: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+.acceptButtonContainer {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 5px;
+}
+
+.acceptButton {
+  cursor: pointer;
+  height: 20px;
+  width: 50px;
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  align-items: center;
+}
+
+.acceptButtonSign {
+  line-height: 16px;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+
+.closeButton {
+  cursor: pointer;
+  position: relative;
+  height: 20px;
+  width: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+.closeButtonLine {
+  pointer-events: none;
+  position: absolute;
+  width: 2px;
+  height: 20px;
+  background-color: black;
+}
+
+.closeButtonLineRight {
+  transform: rotate(45deg);
+}
+
+.closeButtonLineLeft {
+  transform: rotate(-45deg);
+}
+
+.inputContainer {
+  padding-top: 5px;
+}
+
+.label {
+  margin-left: 3px;
+}
+

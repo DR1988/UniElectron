@@ -15,7 +15,7 @@
    /* align-items: center; */
    /* overflow: hidden; */
   cursor: pointer;
-  /*transition: all 0.5s linear, left 0.5s linear;*/
+  transition: all 0.5s linear, left 0.5s linear;
   user-select: none;
 }
 

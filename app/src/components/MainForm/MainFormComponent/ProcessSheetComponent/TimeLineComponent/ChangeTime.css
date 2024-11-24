@@ -1,0 +1,29 @@
+.container {
+  padding: 5px;
+  background-color: white;
+}
+
+.content {
+}
+
+.controlsContainer {
+  display: flex;
+  flex-direction: row;
+}
+
+.controls {
+  width: 60px;
+}
+
+.restControl {
+  margin-left: 5px;
+}
+
+.controlLabel {
+  font-size: 12px;
+}
+
+.controlInput {
+  outline: none;
+  width: 60px;
+}

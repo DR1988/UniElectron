@@ -49,7 +49,7 @@ export interface ChosenElement {
   newTempValue?: number,
 }
 
-export type TemporaryProtocolButtonPosition = 
+export type TemporaryProtocolButtonPosition =
 'firstTemporaryButton'
  | 'secondTemporaryButton'
  | 'thirdTemporaryButton'
@@ -58,7 +58,7 @@ export type TemporaryProtocolButtonPosition =
  | 'sixthTemporaryButton'
  | 'seventhTemporaryButton'
  | 'eigthTemporaryButton'
- 
+
 export type TemporaryFileLoaded = {
   temporaryButtons: {
     buttonPosition: TemporaryProtocolButtonPosition

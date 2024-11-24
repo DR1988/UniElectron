@@ -55,7 +55,8 @@
   padding-bottom: 8px;
   border: 2px solid darkgrey;
   position: relative;
-  width: fit-content;
+  /*width: fit-content;*/
+  /*overflow: auto;*/
 }
 
 .temporaryContainer .temporaryTitle {
@@ -72,13 +73,15 @@
   display: flex;
   justify-content: flex-start;
   height: 42px;
+  width: fit-content;
+  overflow: auto;
 }
 
 .loadingProtocolButtons .loadingProtocolButton {
   width: 182px;
   overflow: hidden;
-  text-overflow: ellipsis; 
-  overflow: hidden; 
+  text-overflow: ellipsis;
+  overflow: hidden;
   white-space: nowrap;
 }
 

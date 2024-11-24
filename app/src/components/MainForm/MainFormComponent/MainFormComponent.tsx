@@ -11,6 +11,7 @@ import ReactionFlowComponent from '../../ReactionFlowComponent/ReactionFlowCompo
 import ProcessSheetComponent, {Props as ProcessSheetComponentProps} from './ProcessSheetComponent/ProcessSheetComponent'
 
 import s from './MainFormComponent.css'
+import {RemoveSpaceOption} from '../../CommonTypes';
 
 const { dialog } = electron.remote
 const EmptyName = ''
@@ -37,6 +38,7 @@ interface Props extends ProcessSheetComponentProps {
   openInsertSpaceModal: () => void
   openRemoveSpaceModal: () => void
   openManualControlModal: () => void
+  removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
 }
 
 const MainFormComponent = ({
@@ -117,21 +119,21 @@ const MainFormComponent = ({
             />
           </section>
           <div className={cn(s.spaceButtonsContainer)}>
-            <button 
+            <button
               className={s.spaceButton}
               onClick={openInsertSpaceModal}
             >
               Insert Space
             </button>
             <button
-              className={s.spaceButton} 
+              className={s.spaceButton}
               onClick={openRemoveSpaceModal}
             >
               Remove Space
             </button>
 
             <button
-              className={(s.spaceButton, s.manualButton)} 
+              className={(s.spaceButton, s.manualButton)}
               onClick={openManualControlModal}
             >
               Manual Control
@@ -232,8 +234,8 @@ const MainFormComponent = ({
                 >
                     {temporaryButtonNames.thirdTemporaryButton || EmptyName}
                 </button>
-                <button     
-                title= {temporaryButtonNames.fourthTemporaryButton || EmptyName}           
+                <button
+                title= {temporaryButtonNames.fourthTemporaryButton || EmptyName}
                     onMouseUp={(event) => {
                         if (event.nativeEvent.button === 2) {
                             openDialogForTemporaryButtons('fourthTemporaryButton')
@@ -302,10 +304,10 @@ const MainFormComponent = ({
                 >
                     {temporaryButtonNames.eigthTemporaryButton || EmptyName}
                 </button>
-               
+
           </div>
       </div>
-     
+
     </div>
   )
 }

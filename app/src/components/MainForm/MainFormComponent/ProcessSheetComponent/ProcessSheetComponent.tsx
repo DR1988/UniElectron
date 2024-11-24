@@ -1,4 +1,12 @@
-import React, {StatelessComponent, PureComponent, useState, useRef, useEffect} from 'react'
+import React, {
+  StatelessComponent,
+  PureComponent,
+  useState,
+  useRef,
+  useEffect,
+  MouseEventHandler,
+  useCallback
+} from 'react'
 import PropTypes from 'prop-types'
 import cn from 'classnames'
 
@@ -10,6 +18,8 @@ import { ValveLineType } from './../../MainFormInterfaces'
 import s from './ProcessSheetComponent.css'
 import { render } from 'react-dom'
 import ValveTimeComponentAdder from '../ValveTimeComponentAdder/ValveTimeComponentAdder'
+import throttle from 'lodash/throttle';
+import {RemoveSpaceOption} from '../../../CommonTypes';
 
 export interface Props {
   distance: number,
@@ -20,6 +30,7 @@ export interface Props {
   lineFormer: Array<ValveLineType>,
   changeTime: (startTime: number, endTime: number) => void
   addNewValveTime: (chosenLine: ValveLineType) => void,
+  removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
 }
 
 interface State {
@@ -43,9 +54,11 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (formRef.current?.offsetHeight) {
-      setFormHeight(formRef.current?.offsetHeight)
+      setTimeout(() => { // костыль - так как в TimeLine компоненте не адекватно подстваляет выоста в стили и происходит пересчет высоты формы
+        setFormHeight(formRef.current?.offsetHeight)
+      }, 0)
     }
-  }, [formRef.current])
+  }, [])
 
   useEffect(() => {
     const listener = (e) => {
@@ -113,8 +126,20 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
     showModal,
     setChosenValveTime,
     lineFormer,
-    addNewValveTime
+    addNewValveTime,
+    removeSelectedTimeElements
   } = props
+
+  const mousePosition = useRef(0)
+
+
+  const throttleStartPositionRef = useRef(throttle((position: number) => {
+    mousePosition.current = position
+  }, 30));
+
+  const handleMouseMove =  (event: React.MouseEvent) => {
+    throttleStartPositionRef.current(event.clientX - event.currentTarget.getBoundingClientRect().left)
+  }
 
   return (
     <section className={s.container}>
@@ -136,6 +161,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
         </div>
       </div>
       <section
+        // onMouseMove={handleMouseMove}
         id="processSheet"
         className={cn(s['lines-keeper'], { [s.crossed]: crossCursor })}
         onWheel={changScale}
@@ -164,11 +190,13 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
           />,
           )}
           <TimeLine
+            formRef={formRef.current}
             timeLineHeight={formHeight}
             scale={scale}
             distance={distance}
             time={time}
             allTime={allTime}
+            removeSelectedTimeElements={removeSelectedTimeElements}
           />
         </div>
       </section>

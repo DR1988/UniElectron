@@ -1,13 +1,19 @@
-import React, { Component } from 'react'
+import React, {Component} from 'react'
 import cloneDeep from 'lodash/cloneDeep'
-import { ipcRenderer } from 'electron'
+import {ipcRenderer} from 'electron'
 
 import s from './MainForm.css'
-import {ValveLineType, Change, TemporaryFileLoaded, TemporaryProtocolButtonPosition, ShortNames} from './MainFormInterfaces'
+import {
+  ValveLineType,
+  Change,
+  TemporaryFileLoaded,
+  TemporaryProtocolButtonPosition,
+  ShortNames
+} from './MainFormInterfaces'
 import MainFormComponent from './MainFormComponent/MainFormComponent'
 import {MainFormState, resetedState, initialState} from './initialConfig'
 
-import Modal, { Props as modalProps } from '../Modal'
+import Modal, {Props as modalProps} from '../Modal'
 import ValveLineModal from '../Modal/ValveLineModal'
 import NewValveLineModal from '../Modal/NewValveLineModal'
 import RMPModal from '../Modal/RMPModal'
@@ -16,12 +22,13 @@ import NewTempModal from '../Modal/NewTempModal'
 import TempModal from '../Modal/TempModal'
 import {InsertSpaceModal} from '../Modal/InsertSpaceModal/InsertSpaceModal'
 
-import socketConfig, { startSignal } from '../../../config/socket.config'
-import { withCondition } from '../HOC'
+import socketConfig, {startSignal} from '../../../config/socket.config'
+import {withCondition} from '../HOC'
 import {convertFromRaw, convertToRaw, EditorState, RawDraftContentState} from 'draft-js';
 import SearchingBoardModal from '../Modal/SearchingBoardModal/SearchingBoardModal';
-import { RemoveSpaceModal } from '../Modal/RemoveSpaceModal/RemoveSpaceModal'
-import { ManualControlModal } from '../Modal/ManualControlModal/ManulaControlModal'
+import {RemoveSpaceModal} from '../Modal/RemoveSpaceModal/RemoveSpaceModal'
+import {ManualControlModal} from '../Modal/ManualControlModal/ManulaControlModal'
+import {RemoveSpaceOption} from '../CommonTypes';
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
@@ -40,7 +47,7 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   componentDidMount() {
-    const { lineFormer, allTime } = this.state
+    const {lineFormer, allTime} = this.state
     // const StartSignal: startSignal = {
     //   lineFormer,
     //   allTime,
@@ -63,7 +70,7 @@ class MainForm extends Component<Props, MainFormState> {
       // console.log(data)
       console.log('--------start---------', new Date())
       // console.log('ssssss', s)
-      const { distance, time } = data
+      const {distance, time} = data
       // console.log('start time, distance', time, distance)
       this.setState({
         distance,
@@ -74,7 +81,7 @@ class MainForm extends Component<Props, MainFormState> {
       console.log('--------pause---------', new Date())
       console.log(Date.now())
       // console.log('data', data)
-      const { time, distance, allTime } = this.state
+      const {time, distance, allTime} = this.state
       // console.log('time distance', time, distance)
       // console.log('distance', 100 * data.currentTime / time)
       this.setState({
@@ -84,7 +91,7 @@ class MainForm extends Component<Props, MainFormState> {
     })
 
     this.props.socket.on(socketConfig.stop, (data) => {
-      const { distance, time } = data
+      const {distance, time} = data
       this.setState({
         distance,
         time,
@@ -119,22 +126,25 @@ class MainForm extends Component<Props, MainFormState> {
       const {protocol, temporaryButtons} = data
 
       window.localStorage.setItem(temporaryButtons.buttonPosition, JSON.stringify({
-          temporaryButtons: {
-            buttonPosition: temporaryButtons.buttonPosition,
-            name: temporaryButtons.name
-          },
-          protocol:{
-            lineFormer: protocol.lineFormer,
-            allTime: protocol.allTime,
-            textEditorState: protocol.editorState
-          },
+        temporaryButtons: {
+          buttonPosition: temporaryButtons.buttonPosition,
+          name: temporaryButtons.name
+        },
+        protocol: {
+          lineFormer: protocol.lineFormer,
+          allTime: protocol.allTime,
+          textEditorState: protocol.editorState
+        },
       }))
 
       this.setState({
         lineFormer: protocol.lineFormer,
         allTime: protocol.allTime,
         textEditorState: EditorState.createWithContent(convertFromRaw(protocol.editorState)),
-        temporaryButtonNames: {...this.state.temporaryButtonNames, [temporaryButtons.buttonPosition]: temporaryButtons.name}
+        temporaryButtonNames: {
+          ...this.state.temporaryButtonNames,
+          [temporaryButtons.buttonPosition]: temporaryButtons.name
+        }
       })
     })
 
@@ -157,7 +167,7 @@ class MainForm extends Component<Props, MainFormState> {
     const sixthTemporaryButtonData = JSON.parse(window.localStorage.getItem('sixthTemporaryButton'))
     const seventhTemporaryButtonData = JSON.parse(window.localStorage.getItem('seventhTemporaryButton'))
     const eigthTemporaryButtonData = JSON.parse(window.localStorage.getItem('eigthTemporaryButton'))
-  
+
     this.setLocalStorageData(firstTemporaryButtonData)
     this.setLocalStorageData(secondTemporaryButtonData)
     this.setLocalStorageData(thirdTemporaryButtonData)
@@ -201,7 +211,7 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   start = () => {
-    const { lineFormer, allTime } = this.state
+    const {lineFormer, allTime} = this.state
     const StartSignal: startSignal = {
       lineFormer,
       allTime,
@@ -271,8 +281,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   removeValveTime = () => {
-    const { chosenElement, lineFormer } = this.state
-    const { chosenLine, changeId } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {chosenLine, changeId} = chosenElement
 
     const changes = chosenLine.changes.filter(change => change.changeId !== changeId)
     const newChosenElement = {
@@ -292,7 +302,7 @@ class MainForm extends Component<Props, MainFormState> {
       chosenElement: newChosenElement,
     }
     // this.props.socket.emit(socketConfig.makeChange, newState)
-    this.setState({ ...newState })
+    this.setState({...newState})
   }
 
   closeModal = () => {
@@ -306,8 +316,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeEndTime = (value: number): void => {
-    const { chosenElement, lineFormer } = this.state
-    const { changeId, chosenLine, previousChanges } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {changeId, chosenLine, previousChanges} = chosenElement
 
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
     const startTime = lineFormer[chosenLine.id].changes[index].startTime
@@ -363,8 +373,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeStartTime = (value: number): void => {
-    const { chosenElement, lineFormer } = this.state
-    const { changeId, chosenLine } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {changeId, chosenLine} = chosenElement
 
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
     const endTime = lineFormer[chosenLine.id].changes[index].endTime
@@ -409,8 +419,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeTime = (startTime: number, endTime: number): void => {
-    const { chosenElement, lineFormer } = this.state
-    const { changeId, chosenLine } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {changeId, chosenLine} = chosenElement
 
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
 
@@ -432,8 +442,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   resetToPreviousChanges = () => {
-    const { chosenElement, lineFormer } = this.state
-    const { chosenLine } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {chosenLine} = chosenElement
 
     const newlineFormer: Array<ValveLineType> = cloneDeep(lineFormer)
     newlineFormer[chosenLine.id].changes = [...chosenElement.previousChanges]
@@ -464,9 +474,9 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeNewStartTime = (newStartTime: number): void => {
-    const { chosenElement, lineFormer } = this.state
-    const { chosenLine, previousChanges, newEndTime, changeId } = chosenElement
-    const { changes } = chosenLine
+    const {chosenElement, lineFormer} = this.state
+    const {chosenLine, previousChanges, newEndTime, changeId} = chosenElement
+    const {changes} = chosenLine
     if (!previousChanges.length) {
       const currentItemIndex = 0
       const filteredChange = changes.filter(change => change.changeId !== changeId)
@@ -552,9 +562,9 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeNewEndTime = (newEndTime: number): void => {
-    const { chosenElement, lineFormer } = this.state
-    const { chosenLine, previousChanges, newStartTime, changeId } = chosenElement
-    const { changes } = chosenLine
+    const {chosenElement, lineFormer} = this.state
+    const {chosenLine, previousChanges, newStartTime, changeId} = chosenElement
+    const {changes} = chosenLine
     if (!previousChanges.length) {
       const currentItemIndex = 0
       const filteredChange = changes.filter(change => change.changeId !== changeId)
@@ -696,8 +706,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeRPMValue = (RPMValue: number) => {
-    const { chosenElement, lineFormer } = this.state
-    const { changeId, chosenLine } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {changeId, chosenLine} = chosenElement
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
 
     if (RPMValue >= 0) {
@@ -717,8 +727,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeTempValue = (TempValue: number) => {
-    const { chosenElement, lineFormer } = this.state
-    const { changeId, chosenLine } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {changeId, chosenLine} = chosenElement
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
 
     if (TempValue >= 0) {
@@ -738,8 +748,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeNewRPMValue = (RPMValue: number) => {
-    const { chosenElement, lineFormer } = this.state
-    const { changeId, chosenLine } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {changeId, chosenLine} = chosenElement
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
     if (RPMValue >= 0) {
       const newlineFormer = cloneDeep(lineFormer)
@@ -759,8 +769,8 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeNewTempValue = (TempValue: number) => {
-    const { chosenElement, lineFormer } = this.state
-    const { changeId, chosenLine } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {changeId, chosenLine} = chosenElement
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
     if (TempValue >= 0) {
       const newlineFormer = cloneDeep(lineFormer)
@@ -780,11 +790,11 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeWaitForValue = () => {
-    const { chosenElement, lineFormer } = this.state
-    const { changeId, chosenLine } = chosenElement
+    const {chosenElement, lineFormer} = this.state
+    const {changeId, chosenLine} = chosenElement
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
     const newlineFormer = cloneDeep(lineFormer)
-    const { waitForValue } = newlineFormer[chosenLine.id].changes[index]
+    const {waitForValue} = newlineFormer[chosenLine.id].changes[index]
     newlineFormer[chosenLine.id].changes[index].waitForValue = !waitForValue
     const newChosenLine: ValveLineType = cloneDeep(chosenLine)
     newChosenLine.changes[index].waitForValue = !waitForValue
@@ -910,56 +920,205 @@ class MainForm extends Component<Props, MainFormState> {
   getRemoveLineFormer = (
     startTime: number,
     endTime: number,
-    lineFormer: Array<ValveLineType>
-  ):Array<ValveLineType> => {
-    const period = endTime - startTime
+    lineFormer: Array<ValveLineType>,
+    mode: RemoveSpaceOption
+  ): Array<ValveLineType> => {
+    let endTimeDiff = 0
+    if (mode === 'remove_changes') {
+      const period = endTime - startTime
 
-    const insertedLineFormer = lineFormer.map(lf => {
-      const insertedChange = lf.changes.map(change => {
-        if (startTime <= change.startTime && endTime >= change.endTime) {
-          return {
-            ...change,
-            changeId: undefined
+      const insertedLineFormer = lineFormer.map(lf => {
+        const insertedChange = lf.changes.map(change => {
+          // if (change.changeId === 4 && change.value === 600) {
+          //   debugger
+          //   console.log('change', change)
+          // }
+
+          if (startTime <= change.startTime && endTime >= change.endTime) {
+            if (change.value === 300) {
+              console.log('CASE1')
+            }
+            return {
+              ...change,
+              changeId: undefined // should filter -> remove
+            }
+          } else if (startTime <= change.startTime && endTime < change.endTime && endTime > change.startTime) {
+            if (change.value === 300) {
+              console.log('CASE2')
+            }
+            return {
+              ...change,
+              startTime: endTime,
+            }
+          } else if (startTime > change.startTime && endTime < change.endTime && endTime > change.startTime) {
+            if (change.value === 300) {
+              console.log('CASE4')
+            }
+            return {
+              ...change,
+              // startTime: change.startTime + period, //  startTime,
+              endTime: change.endTime - period,
+            }
+          } else if (startTime > change.startTime && startTime < change.endTime && endTime >= change.endTime) {
+            if (change.value === 300) {
+              console.log('CASE5')
+            }
+            return {
+              ...change,
+              endTime: startTime,
+            }
           }
-        } else if (change.endTime <= startTime) {
+
           return change
-        } else if (startTime <= change.startTime) {
-          const newStartTime = change.startTime - period
-          return {
-            ...change,
-            startTime: newStartTime >= 0 ? newStartTime : 0,
-            endTime: change.endTime - period
-          }
-        } else if (startTime > change.startTime && startTime < change.endTime) {
-          return {
-            ...change,
-            endTime: startTime
-          }
-        } else if (endTime > change.startTime && endTime < change.endTime) {
-          return {
-            ...change,
-            endTime: endTime
-          }
-        } 
+        })
 
-        return change
+
+        return {
+          ...lf,
+          changes: insertedChange.filter(fchange => fchange.changeId !== undefined)
+        }
       })
-    
 
-      return {
-        ...lf,
-        changes: insertedChange.filter(fchange => fchange.changeId !== undefined)
-      }
-    })
+      return insertedLineFormer as Array<ValveLineType>
 
-    return insertedLineFormer as Array<ValveLineType>
+    } else if (mode === 'remove_all') {
+      const period = endTime - startTime
+
+      const insertedLineFormer = lineFormer.map(lf => {
+        const insertedChange = lf.changes.map(change => {
+          // if (change.changeId === 4 && change.value === 600) {
+          //   debugger
+          //   console.log('change', change)
+          // }
+
+          if (startTime <= change.startTime && endTime >= change.endTime) {
+            if (change.value === 300) {
+              console.log('CASE_A1')
+            }
+            return {
+              ...change,
+              changeId: undefined // should filter -> remove
+            }
+          } else if (startTime <= change.startTime && endTime < change.endTime && endTime > change.startTime) {
+            if (change.value === 300) {
+              console.log('CASE_A2', endTime - period, change.endTime - period)
+            }
+            return {
+              ...change,
+              startTime: startTime,
+              endTime: change.endTime - period
+            }
+          } else if (startTime > change.startTime && endTime < change.endTime && endTime > change.startTime) {
+            if (change.value === 300) {
+              console.log('CASE_A4')
+            }
+            return {
+              ...change,
+              // startTime: change.startTime + period, //  startTime,
+              endTime: change.endTime - period,
+            }
+          } else if (startTime > change.startTime && startTime < change.endTime && endTime >= change.endTime) {
+            if (change.value === 300) {
+              console.log('CASE_A5')
+            }
+            return {
+              ...change,
+              endTime: startTime,
+            }
+          } else if (startTime < change.startTime && endTime < change.startTime) {
+            return {
+              ...change,
+              startTime: change.startTime - period,
+              endTime: change.endTime - period
+            }
+          }
+
+          return change
+        })
+
+
+        return {
+          ...lf,
+          changes: insertedChange.filter(fchange => fchange.changeId !== undefined)
+        }
+      })
+
+      return insertedLineFormer as Array<ValveLineType>
+
+    } else if (mode === 'insert_space') {
+      const period = endTime - startTime
+
+      const insertedLineFormer = lineFormer.map(lf => {
+        const insertedChange = lf.changes.map(change => {
+          // if (change.changeId === 4 && change.value === 600) {
+          //   debugger
+          //   console.log('change', change)
+          // }
+
+          if (startTime <= change.startTime && endTime >= change.endTime) {
+            if (change.value === 300) {
+              console.log('CASE_I1')
+            }
+            return {
+              ...change,
+              startTime: change.startTime + period,
+              endTime: change.endTime + period,
+            }
+          } else if (startTime <= change.startTime && endTime < change.endTime && endTime > change.startTime) {
+            if (change.value === 300) {
+              console.log('CASE_I2', endTime - period, change.endTime - period)
+            }
+            return {
+              ...change,
+              startTime: change.startTime + period,
+              endTime: change.endTime + period,
+            }
+          } else if (startTime > change.startTime && endTime < change.endTime && endTime > change.startTime) {
+            if (change.value === 300) {
+              console.log('CASE_I4')
+            }
+            return {
+              ...change,
+              // startTime: change.startTime + period, //  startTime,
+              endTime: change.endTime + period,
+            }
+          } else if (startTime > change.startTime && startTime < change.endTime && endTime >= change.endTime) {
+            if (change.value === 300) {
+              console.log('CASE_I5')
+            }
+            return {
+              ...change,
+              endTime: change.endTime + period,
+            }
+          } else if (startTime < change.startTime && endTime < change.startTime) {
+            return {
+              ...change,
+              startTime: change.startTime + period,
+              endTime: change.endTime + period
+            }
+          }
+
+          return change
+        })
+
+
+        return {
+          ...lf,
+          changes: insertedChange.filter(fchange => fchange.changeId !== undefined)
+        }
+      })
+
+      return insertedLineFormer as Array<ValveLineType>
+    }
+
+    return lineFormer
 
   }
-  
+
   changeInsertSpaceStartTime = (value: number) => {
     const additionalTime = this.state.inserModalChanges.additionalTimeValue
     const prevLineFormer = this.state.savedLineFormer
-    
+
     const insertedLineFormer = this.getInsertedLineFormer(value, additionalTime, prevLineFormer)
 
     const maxTime = Math.max(...prevLineFormer.map(lines => {
@@ -983,8 +1142,8 @@ class MainForm extends Component<Props, MainFormState> {
   changeInsertSpaceAddtitionalTime = (value: number) => {
     const insertSpaceStartTime = this.state.inserModalChanges.startTimeValue
     const prevLineFormer = this.state.savedLineFormer
-      
-    const insertedLineFormer = this.getInsertedLineFormer(insertSpaceStartTime, value,prevLineFormer)
+
+    const insertedLineFormer = this.getInsertedLineFormer(insertSpaceStartTime, value, prevLineFormer)
 
     const maxTime = Math.max(...prevLineFormer.map(lines => {
       if (lines.changes.length) {
@@ -1002,7 +1161,7 @@ class MainForm extends Component<Props, MainFormState> {
         additionalTimeValue: value
       }
     })
-    
+
   }
 
   resetInsertModalChanges = () => {
@@ -1047,7 +1206,7 @@ class MainForm extends Component<Props, MainFormState> {
 
     if (endTime === 0) {
       console.log('value', value);
-      
+
       this.setState({
         ...this.state,
         removeModalChanges: {
@@ -1119,6 +1278,37 @@ class MainForm extends Component<Props, MainFormState> {
     }
   }
 
+  removeSelectedTimeElements = (startTime: number, endTime: number, mode: RemoveSpaceOption) => {
+    if (isNaN(startTime) || isNaN(endTime) || !mode) {
+      return
+    }
+
+    const newlineFormer = cloneDeep(this.state.lineFormer)
+    const period = endTime - startTime
+
+    const insertedLineFormer = this.getRemoveLineFormer(startTime, endTime, newlineFormer, mode)
+
+    const maxTime = Math.max(...newlineFormer.map(lines => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+
+    let allTime = maxTime
+    if (mode === 'remove_all') {
+      allTime = maxTime - period
+    } else if (mode === 'insert_space') {
+      allTime += period
+    }
+
+    this.setState({
+      ...this.state,
+      lineFormer: insertedLineFormer,
+      allTime: allTime,
+    })
+  }
+
   resetRemoveModalChanges = () => {
     const prevLineFormer = this.state.savedLineFormer
     const maxTime = Math.max(...prevLineFormer.map(lines => {
@@ -1147,7 +1337,7 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   sendRPMValueToController = (rpmValue: number) => {
-    
+
     this.props.socket.emit(socketConfig.setRPMValue, rpmValue)
   }
 
@@ -1156,7 +1346,7 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   render() {
-    const { showEditModal, chosenElement } = this.state
+    const {showEditModal, chosenElement} = this.state
     return (
       <div
         id="form-Manupalation"
@@ -1183,6 +1373,7 @@ class MainForm extends Component<Props, MainFormState> {
           openInsertSpaceModal={this.openInsertSpaceModal}
           openRemoveSpaceModal={this.openRemoveSpaceModal}
           openManualControlModal={this.openManualControlModal}
+          removeSelectedTimeElements={this.removeSelectedTimeElements}
           {...this.state}
         />
         <ModalWithCondition
@@ -1253,12 +1444,12 @@ class MainForm extends Component<Props, MainFormState> {
                 />)
               case 'AUX':
                 return (<ValveLineModal
-                    removeValveTime={this.removeValveTime}
-                    chosenElement={chosenElement}
-                    closeModal={this.closeModal}
-                    resetToPreviousChanges={this.resetToPreviousChanges}
-                    changeStartTime={this.changeStartTime}
-                    changeEndTime={this.changeEndTime}
+                  removeValveTime={this.removeValveTime}
+                  chosenElement={chosenElement}
+                  closeModal={this.closeModal}
+                  resetToPreviousChanges={this.resetToPreviousChanges}
+                  changeStartTime={this.changeStartTime}
+                  changeEndTime={this.changeEndTime}
                 />)
               case 'NewAUX':
                 return (<NewValveLineModal
@@ -1268,20 +1459,21 @@ class MainForm extends Component<Props, MainFormState> {
                   resetToPreviousChanges={this.resetToPreviousChanges}
                   changeStartTime={this.changeNewStartTime}
                   changeEndTime={this.changeNewEndTime}
-              />)
-              default: return <div>NOTHING TO SHOW</div>
+                />)
+              default:
+                return <div>NOTHING TO SHOW</div>
             }
           }}
         />
         <ModalWithCondition
-            condition={this.state.searchingSerial}
-            render={() => <SearchingBoardModal />}
+          condition={this.state.searchingSerial}
+          render={() => <SearchingBoardModal/>}
         />
         <ModalWithCondition
           closeModal={this.closeInsertSpaceModal}
           condition={this.state.inserModalChanges.isOpen}
           resetToPreviousChanges={this.resetInsertModalChanges}
-          render={() => 
+          render={() =>
             <InsertSpaceModal
               closeModal={this.closeInsertSpaceModal}
               changeStartTime={this.changeInsertSpaceStartTime}
@@ -1295,7 +1487,7 @@ class MainForm extends Component<Props, MainFormState> {
           closeModal={this.closeRemoveSpaceModal}
           condition={this.state.removeModalChanges.isOpen}
           resetToPreviousChanges={this.resetRemoveModalChanges}
-          render={() => 
+          render={() =>
             <RemoveSpaceModal
               closeModal={this.closeRemoveSpaceModal}
               changeStartTime={this.changeRemoveSpaceStartTime}
@@ -1305,19 +1497,19 @@ class MainForm extends Component<Props, MainFormState> {
             />
           }
         />
-          <ModalWithCondition
-            closeModal={this.closeManualControlModal}
-            condition={this.state.isManualControlModalOpen}
-            containerMargin={30}
-            render={() => 
-              <ManualControlModal
-                sendRPMValue={this.sendRPMValueToController}
-                closeModal={this.closeManualControlModal}
-                toggleValve={this.toggleManualControlValves}
-              />
-            }
-          />
-        
+        <ModalWithCondition
+          closeModal={this.closeManualControlModal}
+          condition={this.state.isManualControlModalOpen}
+          containerMargin={30}
+          render={() =>
+            <ManualControlModal
+              sendRPMValue={this.sendRPMValueToController}
+              closeModal={this.closeManualControlModal}
+              toggleValve={this.toggleManualControlValves}
+            />
+          }
+        />
+
       </div>
     )
   }

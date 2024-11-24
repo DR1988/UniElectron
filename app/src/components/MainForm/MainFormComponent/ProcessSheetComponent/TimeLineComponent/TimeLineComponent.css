@@ -1,3 +1,10 @@
+*, *::after, *::before {
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-app-region: no-drag;
+  cursor: default;
+}
+
 .time-line_wraper{
   box-sizing: border-box;
   position: relative;
@@ -20,18 +27,22 @@
   justify-content: space-between;
 }
 .time-show .time-former{
-    position: relative;
+  position: relative;
+  pointer-events: none;
+  user-select: none;
 }
 
 .time-line_wraper .time-line .time-show .time-former .divider{
   width: 2px;
   height: 100%;
   background-color: #648591;
+  pointer-events: none;
 }
 
 .time-line_wraper .time-line .time-show .time-former .time-count{
   position: absolute;
   top: 0;
+  user-select: none;
 }
 
 .time-line_wraper .time-line .time-show .time-former:last-child .time-count{
@@ -49,15 +60,32 @@
     align-items: center;
     bottom: 0;
     width: 0;
+    pointer-events: none;
 }
-.time-line_wraper .time-presenter .line {
-        position: relative;
-        width: 3px;
-        background-color: #648591;
-      }
-      .time-line_wraper .time-presenter .arrow-up {
-        border-bottom: 16px solid #648591;
-        border-left: 13px solid transparent;
-        border-right: 13px solid transparent;
-        width: 3px;
-      }
+
+.line {
+  position: relative;
+  width: 3px;
+  background-color: #648591;
+}
+.arrow-up {
+  border-bottom: 16px solid #648591;
+  border-left: 13px solid transparent;
+  border-right: 13px solid transparent;
+  width: 3px;
+}
+
+.removablePart {
+  /*cursor:hand;*/
+  cursor: grab;
+  position: absolute;
+  background-color: rgba(0,0,0, 0.5);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  /*overflow: hidden;*/
+}
+
+.removablePart:active:hover {
+  cursor: grabbing;
+}
