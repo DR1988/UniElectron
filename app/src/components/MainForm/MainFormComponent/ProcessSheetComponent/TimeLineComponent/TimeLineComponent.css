@@ -24,7 +24,7 @@
 .time-line_wraper .time-line .time-show{
   display: flex;
   height: 100%;
-  justify-content: space-between;
+  /*justify-content: space-between;*/
 }
 .time-show .time-former{
   position: relative;
@@ -88,4 +88,33 @@
 
 .removablePart:active:hover {
   cursor: grabbing;
+}
+
+.timeContainer {
+  position: relative;
+  display: flex;
+  /*flex-direction: column;*/
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.timeLine {
+  position: relative;
+  width: 2px;
+  height: 50%;
+  background-color: #648591;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.timeContainer:last-child .timeSpan{
+  color: red;
+  right: 0;
+}
+
+.timeSpan {
+  position: absolute;
+  bottom: 100%;
+  font-size: 11px;
 }

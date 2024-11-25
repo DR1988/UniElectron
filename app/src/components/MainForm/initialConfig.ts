@@ -169,7 +169,7 @@ export const initialState: MainFormState = {
       shortName: 'RPM',
       changes: [{
         startTime: 300,
-        endTime: 350,
+        endTime: 7355,
         value: 1000,
         changeId: 0,
         duration: 50,
@@ -189,7 +189,7 @@ export const initialState: MainFormState = {
   distance: 0,
   time: 0,
   showEditModal: false,
-  allTime: 350,
+  allTime: 7355,
   HVOpen: false,
   serialConnected: false,
   lineFormer: [
@@ -332,7 +332,7 @@ export const initialState: MainFormState = {
         },
         {
           startTime: 300,
-          endTime: 350,
+          endTime: 7355,
           value: 600,
           changeId: 4,
           duration: 50,

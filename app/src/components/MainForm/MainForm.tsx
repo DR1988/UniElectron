@@ -295,10 +295,19 @@ class MainForm extends Component<Props, MainFormState> {
 
     const newlineFormer = cloneDeep(lineFormer)
     newlineFormer[chosenLine.id].changes = changes
+
+    const maxTime = Math.max(...newlineFormer.map(lines => {
+      if (lines.changes.length) {
+        return lines.changes[lines.changes.length - 1].endTime
+      }
+      return 0
+    }))
+
     const newState = {
       ...this.state,
       lineFormer: newlineFormer,
       showEditModal: false,
+      allTime: maxTime || this.state.allTime,
       chosenElement: newChosenElement,
     }
     // this.props.socket.emit(socketConfig.makeChange, newState)
