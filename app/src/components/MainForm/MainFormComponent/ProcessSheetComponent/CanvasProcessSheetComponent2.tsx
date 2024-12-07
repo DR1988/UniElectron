@@ -13,7 +13,7 @@ import {
   drawRect,
   drawRectChange,
   ELEMENT_TYPES,
-  Line
+  Line, SideCover
 } from './CanvasElements';
 import throttle from 'lodash/throttle';
 
@@ -81,7 +81,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       screenSpaceRef.current.canvas.height = canvasHeight;
       screenSpaceRef.current.canvas.style.width = `${containerRect.width}px`;
       screenSpaceRef.current.canvas.style.height = `${canvasHeight}px`;
-      console.log('screenSpaceRef.current.canvas.width', screenSpaceRef.current.canvas.width)
       // offsetXRef.current = -screenSpaceRef.current.canvas.width / 2
 
     }
@@ -161,37 +160,38 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       })
 
 
-      const coverLeft = new Cover({
+      const sideCoverLeft = new SideCover({
           ctx: screenSpaceRef.current,
           sizeOpt: {
-            width: 0,
+            width: containerRect.width,
             xPosition: 0,
             yPosition: canvasHeight - LEGEND_HEIGHT + 2,
             height: LEGEND_HEIGHT
           },
           drawOpt: {
             // shouldSkipSizing: true,
-            color: 'red',
-            selectable: false
+            // selectable: true
           }
-        }
+        },
+        'sideCoverLeft'
       )
 
-      const coverRight = new Cover({
+      const sideCoverRight = new SideCover({
           ctx: screenSpaceRef.current,
           sizeOpt: {
-            width: 0,
+            width: containerRect.width,
             xPosition: 0,
             yPosition: canvasHeight - LEGEND_HEIGHT + 2,
             height: LEGEND_HEIGHT
           },
           drawOpt: {
             // shouldSkipSizing: true,
-            color: 'green',
-            selectable: false
+            // selectable: true
           }
-        }
+        },
+        'sideCoverRight'
       )
+
       const cover = new Cover({
           ctx: screenSpaceRef.current,
           sizeOpt: {
@@ -207,7 +207,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         }
       )
 
-      elements.current.push(cover, coverLeft, coverRight)
+      elements.current.push(sideCoverLeft, cover, sideCoverRight)
 
     }
 
@@ -228,8 +228,27 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         return
       }
 
-      if (element.type === 'COVER') {
+      if (element instanceof SideCover && element.name === 'sideCoverLeft') {
+        screenSpaceRef.current.save()
+        screenSpaceRef.current.translate(-screenSpaceRef.current.canvas.width + offsetXRef.current, 0)
+        // screenSpaceRef.current.scale(1 / scaleRef.current, 1)
 
+        element.drawElement()
+        screenSpaceRef.current.restore()
+        return
+      }
+
+      if (element instanceof SideCover && element.name === 'sideCoverRight') {
+        screenSpaceRef.current.save()
+        screenSpaceRef.current.translate(screenSpaceRef.current.canvas.width / scaleRef.current + offsetXRef.current, 0)
+        // screenSpaceRef.current.scale(1 / scaleRef.current, 1)
+
+        element.drawElement()
+        screenSpaceRef.current.restore()
+        return
+      }
+
+      if (element.type === 'COVER') {
 
         screenSpaceRef.current.save()
         screenSpaceRef.current.translate(offsetXRef.current, 0)
@@ -274,18 +293,18 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   const onCoverMove = (event: React.MouseEvent) => {
     if (selectedElementRef.current instanceof Cover && selectedElementRef.current.isDragging) {
-      const { width} = selectedElementRef.current.sizeOpt
+      const {width} = selectedElementRef.current.sizeOpt
 
       const newOffsetX = offsetXRef.current + event.movementX
 
-      offsetXRef.current = Math.min(Math.max(0, newOffsetX), screenSpaceRef.current.canvas.width -  width / scaleRef.current)
+      offsetXRef.current = Math.min(Math.max(0, newOffsetX), screenSpaceRef.current.canvas.width - width / scaleRef.current)
 
       // can be optimized - check for change coordinate
       draw()
     }
   }
 
-  const getSelectedElement = (point: Point) => {
+  const getSelectedElement = (point: Point): DrawingElement<ELEMENT_TYPES> | undefined => {
     const selectedElement = elements.current.find((element, index) => {
       const {sizeOpt: {yPosition, xPosition, width, height}, drawOpt} = element
       const {worldX} = screenToWorld(point.x, 0)
@@ -311,19 +330,23 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     })
 
-    if (selectedElement) {
-      if (selectedElement.type === 'COVER') {
-        selectedElementRef.current?.returnDefaultColor()
-        selectedElementRef.current = selectedElement
-        selectedElementRef.current.drawOpt.color = 'rgba(0, 0, 0, 0.3)'
-      } else {
-        selectedElementRef.current?.returnDefaultColor()
-        selectedElementRef.current = selectedElement
-        selectedElementRef.current.drawOpt.color = 'red'
-      }
+    // if (selectedElement) {
+    //   selectedElementRef.current = selectedElement
+    // }
 
-      draw()
-    }
+    // if (selectedElement) {
+    //   if (selectedElement.type === 'COVER') {
+    //     selectedElementRef.current?.returnDefaultColor()
+    //     selectedElementRef.current = selectedElement
+    //     selectedElementRef.current.drawOpt.color = 'rgba(0, 0, 0, 0.1)'
+    //   } else {
+    //     selectedElementRef.current?.returnDefaultColor()
+    //     selectedElementRef.current = selectedElement
+    //     selectedElementRef.current.drawOpt.color = 'red'
+    //   }
+    //
+    //   draw()
+    // }
 
     return selectedElement
   }
@@ -332,6 +355,17 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     moving.current = event.nativeEvent.offsetY < canvasHeight - LEGEND_HEIGHT;
 
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    if (selectedElement instanceof ChangeElement) {
+      selectedElementRef.current?.returnDefaultColor()
+      selectedElementRef.current = selectedElement
+      selectedElementRef.current.drawOpt.color = 'red'
+      draw()
+    } else if (selectedElement instanceof Cover) {
+      selectedElementRef.current?.returnDefaultColor()
+      selectedElementRef.current = selectedElement
+      selectedElementRef.current.drawOpt.color = 'rgba(0, 0, 0, 0.1)'
+      draw()
+    }
 
     if (selectedElement instanceof Cover) {
       selectedElement.setDragging(true)
@@ -350,9 +384,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
-    console.log('selectedElement', selectedElement)
     if (selectedElement instanceof Cover) {
-      console.log('UP')
       selectedElement.setDragging(false)
     }
 
