@@ -4,18 +4,24 @@ import {ValveLineType} from '../../MainFormInterfaces';
 import {RemoveSpaceOption} from '../../../CommonTypes';
 import {Canvas} from '../../../Canvas/Canvas';
 import {DRAW_RECT, Point, TEXT_DRAW_OPT} from './CanvasTypes';
-import {LEGEND_HEIGHT, LINE_GAP, LINE_HEIGHT, MAX_SCALE_FACTOR, RECT_HEIGHT, STEP} from './CanvasConstants';
+import {
+  LEGEND_HEIGHT,
+  LINE_GAP,
+  LINE_HEIGHT,
+  MAX_SCALE_FACTOR,
+  RECT_HEIGHT,
+  STEP,
+  TIME_LINE_HEIGHT
+} from './CanvasConstants';
 import {
   ChangeElement,
   Cover,
-  drawCover,
   DrawingElement,
-  drawRect,
-  drawRectChange,
   ELEMENT_TYPES,
-  Line, SideCover
+  Line, SideCover, TimeLine
 } from './CanvasElements';
 import throttle from 'lodash/throttle';
+import {useElements} from './useElements';
 
 export type Props = {
   distance: number,
@@ -41,7 +47,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     allTime
   }
 ) => {
-  const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + LEGEND_HEIGHT
+  const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT
 
 
   const screenSpaceRef = useRef<CanvasRenderingContext2D | null>(null)
@@ -87,132 +93,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }, [container])
 
 
-  useLayoutEffect(() => {
-    const containerRect = container?.getBoundingClientRect()
-    if (screenSpaceRef.current && containerRect) {
-
-      lineFormer.forEach((lf, index) => {
-        elements.current.push(new Line({
-            ctx: screenSpaceRef.current,
-            sizeOpt: {
-              width: containerRect.width,
-              xPosition: 0,
-              yPosition: 5 * (index + 1) + 30 * index,
-              height: RECT_HEIGHT
-            },
-            drawOpt: {
-              color: `rgba(209, 216, 209, 0.5)`,
-              shouldSkipSizing: true,
-            },
-
-          }),
-          new Line({
-            ctx: screenSpaceRef.current,
-            sizeOpt: {
-              width: containerRect.width,
-              xPosition: 0,
-              yPosition: canvasHeight - LEGEND_HEIGHT + 2 * (index + 1) + 5 * index,
-              height: 5
-            },
-            drawOpt: {
-              color: `rgba(209, 216, 209, 0.5)`,
-              shouldSkipSizing: true
-            }
-          }))
-      })
-
-      lineFormer.forEach((lf, index) => {
-        lf.changes.forEach(change => {
-          const {startTime, endTime, value, crossingValueEnd, crossingValueStart} = change
-          const duration = endTime - startTime
-          const width = containerRect.width * duration / allTime
-          const xPosition = containerRect.width * startTime / allTime
-
-          elements.current.push(new ChangeElement({
-              ctx: screenSpaceRef.current,
-              sizeOpt: {
-                width: width,
-                xPosition: xPosition,
-                yPosition: 5 * (index + 1) + 30 * index,
-                height: RECT_HEIGHT
-              },
-              drawOpt: {
-                color: 'rgba(171, 193, 197, 1)',
-                text: value || duration,
-                selectable: true
-              }
-            }),
-            new ChangeElement({
-              ctx: screenSpaceRef.current,
-              sizeOpt: {
-                width: width,
-                xPosition: xPosition,
-                yPosition: canvasHeight - LEGEND_HEIGHT + 2 * (index + 1) + 5 * index,
-                height: 5
-              },
-              drawOpt: {
-                color: 'rgba(171, 193, 197, 1)',
-                shouldSkipSizing: true
-              },
-            })
-          )
-        })
-      })
-
-
-      const sideCoverLeft = new SideCover({
-          ctx: screenSpaceRef.current,
-          sizeOpt: {
-            width: containerRect.width,
-            xPosition: 0,
-            yPosition: canvasHeight - LEGEND_HEIGHT + 2,
-            height: LEGEND_HEIGHT
-          },
-          drawOpt: {
-            // shouldSkipSizing: true,
-            // selectable: true
-          }
-        },
-        'sideCoverLeft'
-      )
-
-      const sideCoverRight = new SideCover({
-          ctx: screenSpaceRef.current,
-          sizeOpt: {
-            width: containerRect.width,
-            xPosition: 0,
-            yPosition: canvasHeight - LEGEND_HEIGHT + 2,
-            height: LEGEND_HEIGHT
-          },
-          drawOpt: {
-            // shouldSkipSizing: true,
-            // selectable: true
-          }
-        },
-        'sideCoverRight'
-      )
-
-      const cover = new Cover({
-          ctx: screenSpaceRef.current,
-          sizeOpt: {
-            width: containerRect.width,
-            xPosition: 0,
-            yPosition: canvasHeight - LEGEND_HEIGHT + 2,
-            height: LEGEND_HEIGHT
-          },
-          drawOpt: {
-            // shouldSkipSizing: true,
-            selectable: true
-          }
-        }
-      )
-
-      elements.current.push(sideCoverLeft, cover, sideCoverRight)
-
-    }
-
-  }, [container])
-
+  useElements(container, screenSpaceRef.current, lineFormer, allTime, elements.current)
 
   const draw = useCallback(() => {
     if (!screenSpaceRef.current || !container) {
@@ -224,7 +105,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     elements.current.forEach(element => {
 
       if (element.shouldSkipSizing) {
-        element.drawElement(scaleRef.current)
+        element.drawElement()
         return
       }
 
@@ -249,24 +130,34 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       }
 
       if (element.type === 'COVER') {
-
         screenSpaceRef.current.save()
         screenSpaceRef.current.translate(offsetXRef.current, 0)
         screenSpaceRef.current.scale(1 / scaleRef.current, 1)
 
-        element.drawElement(scaleRef.current)
+        element.drawElement()
         screenSpaceRef.current.restore()
 
         return
       }
 
-      screenSpaceRef.current.save()
-      screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
-      screenSpaceRef.current.scale(scaleRef.current, 1)
+      if (element instanceof ChangeElement) {
+        screenSpaceRef.current.save()
+        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.current.scale(scaleRef.current, 1)
 
-      element.drawElement(scaleRef.current)
+        element.drawElement(scaleRef.current)
 
-      screenSpaceRef.current.restore()
+        screenSpaceRef.current.restore()
+      }
+
+      if (element instanceof TimeLine) {
+        screenSpaceRef.current.save()
+        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.current.scale(scaleRef.current, 1)
+        element.drawElement(scaleRef.current)
+        screenSpaceRef.current.restore()
+
+      }
     })
 
 
@@ -297,7 +188,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
       const newOffsetX = offsetXRef.current + event.movementX
 
-      offsetXRef.current = Math.min(Math.max(0, newOffsetX), screenSpaceRef.current.canvas.width - width / scaleRef.current)
+      log2('newOffsetX', newOffsetX)
+      log('screenSpaceRef.current.canvas.width - width / scaleRef.current', screenSpaceRef.current.canvas.width, screenSpaceRef.current.canvas.width - width / scaleRef.current)
+      log3('widthwidthwidth', width)
+
+      offsetXRef.current = Math.min(Math.max(0, newOffsetX), width - width / scaleRef.current)
 
       // can be optimized - check for change coordinate
       draw()
@@ -386,6 +281,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     if (selectedElement instanceof Cover) {
       selectedElement.setDragging(false)
+    } else if (selectedElementRef.current instanceof Cover) {
+      selectedElementRef.current.setDragging(false)
     }
 
     if (selectedElement !== selectedElementRef.current) {
@@ -427,6 +324,10 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
     if (event.nativeEvent.offsetY > canvasHeight - LEGEND_HEIGHT && !(selectedElement instanceof Cover)) {
+      return
+    }
+
+    if (selectedElement instanceof Cover && selectedElement.isDragging) {
       return
     }
 
