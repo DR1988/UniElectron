@@ -1,7 +1,9 @@
 import {DRAW_RECT, DRAW_RECT_OPT, DRAW_RECT_PARAMS, Point, SIZE_OPT, TEXT_DRAW_OPT} from './CanvasTypes';
 import {RECT_HEIGHT} from './CanvasConstants';
 import React, {useMemo} from 'react';
-import {convertSecToDay} from '../../../../utils';
+import {convertSecToDay, getIntervalsFromSeconds} from '../../../../utils';
+import throttle from 'lodash/throttle';
+import moment from 'moment'
 
 export type PositionSize = {
   xPosition,
@@ -9,6 +11,11 @@ export type PositionSize = {
   width,
   height,
 }
+
+const log = throttle(console.log, 500)
+const log2 = throttle(console.log, 500)
+const log3 = throttle(console.log, 500)
+
 
 export type ELEMENT_TYPES = 'COVER' | 'LINE' | 'CHANGE_ELEMENT' | 'SIDE_COVER' | 'TIME_LINE'
 
@@ -186,37 +193,87 @@ export class TimeLine extends DrawingElement<'TIME_LINE'> {
 
   drawElement = (zoom: number = 1) => {
     const {xPosition, yPosition, width, height} = this.sizeOpt
-    // console.log('widthwidthwidth', width/zoom)
-    if (this.allTime > 0) {
-      const elements = []
-      // console.log('this.allTime', this.allTime)
-      const interval = this.allTime / this.MAX_INTERVALS
-      const result = convertSecToDay(interval)
-      const largestInterval = result['largest']
-      // console.log('largestInterval', largestInterval)
-      const {value, sec, getStringValue, largest} = result[largestInterval]
-      // console.log('value, sec, getStringValue, largest', value, sec, getStringValue, largest)
-      const commonSize = sec / this.allTime * 100
-      // console.log('commonSize', commonSize)
-      const lastSize = largestInterval !== 'seconds' ? result.seconds.sec / this.allTime * 100 * this.MAX_INTERVALS : 0 // секунд может быть ноль - надо вроверять и стаивить другой интервал - например самый большрй интервал будет часы, а самый маленький - минуты
+    //just ten frames for a time line
+    // if (this.allTime > 0) {
+    //   const elements = []
+    //   const interval = this.allTime / this.MAX_INTERVALS
+    //   const result = convertSecToDay(interval)
+    //   const largestInterval = result['largest']
+    //   const {value, sec, getStringValue, largest} = result[largestInterval]
+    //   const commonSize = sec / this.allTime * 100
+    //   const lastSize = largestInterval !== 'seconds' ? result.seconds.sec / this.allTime * 100 * this.MAX_INTERVALS : 0 // секунд может быть ноль - надо вроверять и стаивить другой интервал - например самый большрй интервал будет часы, а самый маленький - минуты
+    //
+    //
+    //   this.ctx.save()
+    //
+    //   this.ctx.scale(1 / zoom, 1)
+    //   this.ctx.beginPath();
+    //   this.ctx.moveTo(xPosition* zoom, yPosition + (height || RECT_HEIGHT));
+    //   this.ctx.lineTo((xPosition + width)*zoom, yPosition + (height || RECT_HEIGHT));
+    //   this.ctx.lineWidth = 3;
+    //   this.ctx.stroke();
+    //
+    //   this.ctx.lineWidth = 3;
+    //   this.ctx.fillStyle = 'black';
+    //   this.ctx.font = "bold 13px Arial, Helvetica, sans-serif"
+    //
+    //   for (let i = 0; i < this.MAX_INTERVALS; i++) {
+    //     const text = getStringValue(value * (i))
+    //     const xPosStart = i === 0 ? width*zoom / this.MAX_INTERVALS * i + 1 : width*zoom / this.MAX_INTERVALS * i
+    //
+    //     this.ctx.beginPath();
+    //     this.ctx.moveTo(xPosStart, yPosition + (height || RECT_HEIGHT) / 2);
+    //     this.ctx.lineTo(xPosStart, yPosition + (height || RECT_HEIGHT));
+    //     this.ctx.lineWidth = 2;
+    //     this.ctx.stroke();
+    //
+    //     if (i === 0) {
+    //       this.ctx.fillStyle = 'red';
+    //       this.ctx.textAlign = "start";
+    //       this.ctx.fillText('00:00', xPosStart  - 1, yPosition + (height || RECT_HEIGHT) / 2 - 1);
+    //     } else {
+    //       this.ctx.fillStyle = 'black';
+    //       this.ctx.textAlign = "center";
+    //       this.ctx.fillText(text, xPosStart, yPosition + (height || RECT_HEIGHT) / 2 - 1);
+    //     }
+    //
+    //   }
+    //   const text = getStringValue(value * (this.MAX_INTERVALS))
+    //
+    //   console.log('------------')
+    //   console.log('width*zoom-2', width*zoom)
+    //   this.ctx.textAlign = "end";
+    //   this.ctx.fillStyle = 'red';
+    //   this.ctx.strokeStyle = "red";
+    //   this.ctx.beginPath();
+    //   this.ctx.moveTo(width*zoom-2 , yPosition + (height || RECT_HEIGHT) / 2);
+    //   this.ctx.lineTo(width*zoom-2 , yPosition + (height || RECT_HEIGHT));
+    //   this.ctx.lineWidth = 2;
+    //   this.ctx.stroke();
+    //   this.ctx.fillText(text, width*zoom - 2, yPosition + (height || RECT_HEIGHT) / 2 - 1);
+    //
+    //   this.ctx.restore()
+    //
+    // }
 
+    if (this.allTime > 0) {
 
       this.ctx.save()
 
       this.ctx.scale(1 / zoom, 1)
       this.ctx.beginPath();
-      this.ctx.moveTo(xPosition* zoom, yPosition + (height || RECT_HEIGHT));
-      this.ctx.lineTo((xPosition + width)*zoom, yPosition + (height || RECT_HEIGHT));
-      this.ctx.lineWidth = 3;
+      this.ctx.moveTo(xPosition * zoom, yPosition + (height || RECT_HEIGHT));
+      this.ctx.lineTo((xPosition + width) * zoom, yPosition + (height || RECT_HEIGHT));
+      this.ctx.lineWidth = 2;
       this.ctx.stroke();
 
-      this.ctx.lineWidth = 3;
       this.ctx.fillStyle = 'black';
-      this.ctx.font = "bold 13px Arial, Helvetica, sans-serif"
+      this.ctx.font = "bold 12px Arial, Helvetica, sans-serif"
 
-      for (let i = 0; i < this.MAX_INTERVALS; i++) {
-        const text = getStringValue(value * (i))
-        const xPosStart = i === 0 ? width*zoom / this.MAX_INTERVALS * i + 1 : width*zoom / this.MAX_INTERVALS * i
+      for (let i = 0; i <= this.MAX_INTERVALS * zoom; i++) {
+        const text = getIntervalsFromSeconds(this.allTime / this.MAX_INTERVALS * (i) / zoom)
+        const xPosStart = i === 0 ? width / this.MAX_INTERVALS * i + 1 : width / this.MAX_INTERVALS * i
+        this.ctx.strokeStyle = 'black';
 
         this.ctx.beginPath();
         this.ctx.moveTo(xPosStart, yPosition + (height || RECT_HEIGHT) / 2);
@@ -224,46 +281,43 @@ export class TimeLine extends DrawingElement<'TIME_LINE'> {
         this.ctx.lineWidth = 2;
         this.ctx.stroke();
 
+        for (let j = 1; j < 5; j++) {
+          const xSmallPosStart = xPosStart + width / 5 / this.MAX_INTERVALS * j //* (i + 1)
+          this.ctx.beginPath();
+
+          this.ctx.strokeStyle = 'rgba(128, 128, 128, 1)';
+          this.ctx.moveTo(xSmallPosStart, yPosition + 2 * (height || RECT_HEIGHT) / 3);
+          this.ctx.lineTo(xSmallPosStart, yPosition + (height || RECT_HEIGHT) - 1);
+          this.ctx.lineWidth = 2;
+          this.ctx.stroke();
+        }
+
+
         if (i === 0) {
-          this.ctx.fillStyle = 'red';
+          this.ctx.fillStyle = 'black';
           this.ctx.textAlign = "start";
-          this.ctx.fillText('00:00', xPosStart  - 1, yPosition + (height || RECT_HEIGHT) / 2 - 1);
+          this.ctx.fillText('00:00', xPosStart - 1, yPosition + (height || RECT_HEIGHT) / 2 - 2);
+        } else if (i === this.MAX_INTERVALS * zoom) {
+          this.ctx.textAlign = "end";
+          this.ctx.fillStyle = 'black';
+          this.ctx.strokeStyle = "black";
+          this.ctx.beginPath();
+          this.ctx.moveTo(width * zoom - 2, yPosition + (height || RECT_HEIGHT) / 2);
+          this.ctx.lineTo(width * zoom - 2, yPosition + (height || RECT_HEIGHT));
+          this.ctx.lineWidth = 2;
+          this.ctx.stroke();
+          this.ctx.fillText(text, width * zoom - 1, yPosition + (height || RECT_HEIGHT) / 2 - 2);
         } else {
           this.ctx.fillStyle = 'black';
           this.ctx.textAlign = "center";
-          this.ctx.fillText(text, xPosStart, yPosition + (height || RECT_HEIGHT) / 2 - 1);
+          this.ctx.fillText(text, xPosStart, yPosition + (height || RECT_HEIGHT) / 2 - 2);
         }
 
       }
-      const text = getStringValue(value * (this.MAX_INTERVALS))
-
-      // console.log('aasdasd', width - width/zoom)
-      // console.log('zoom', width, zoom)
-      console.log('------------')
-      console.log('width*zoom-2', width*zoom)
-      this.ctx.textAlign = "end";
-      this.ctx.fillStyle = 'red';
-      this.ctx.strokeStyle = "red";
-      this.ctx.beginPath();
-      this.ctx.moveTo(width*zoom-2 , yPosition + (height || RECT_HEIGHT) / 2);
-      this.ctx.lineTo(width*zoom-2 , yPosition + (height || RECT_HEIGHT));
-      this.ctx.lineWidth = 2;
-      this.ctx.stroke();
-      this.ctx.fillText(text, width*zoom - 2, yPosition + (height || RECT_HEIGHT) / 2 - 1);
 
       this.ctx.restore()
 
     }
-
-
-    // const {xPosition, yPosition, width, height} = this.sizeOpt
-    // const {color, text} = this.drawOpt || {}
-    //
-    // this.ctx.beginPath()
-    // this.ctx.fillStyle = color || 'red'
-    //
-    // this.ctx.fillRect(xPosition, yPosition, width, height || RECT_HEIGHT)
-    // this.ctx.fill()
 
   }
 }

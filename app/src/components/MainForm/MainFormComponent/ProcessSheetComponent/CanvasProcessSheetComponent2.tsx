@@ -85,9 +85,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     if (screenSpaceRef.current && containerRect) {
       screenSpaceRef.current.canvas.width = containerRect.width;
       screenSpaceRef.current.canvas.height = canvasHeight;
-      screenSpaceRef.current.canvas.style.width = `${containerRect.width}px`;
-      screenSpaceRef.current.canvas.style.height = `${canvasHeight}px`;
-      // offsetXRef.current = -screenSpaceRef.current.canvas.width / 2
+      // screenSpaceRef.current.canvas.style.width = `${containerRect.width}px`;
+      // screenSpaceRef.current.canvas.style.height = `${canvasHeight}px`;
 
     }
   }, [container])
@@ -188,9 +187,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
       const newOffsetX = offsetXRef.current + event.movementX
 
-      log2('newOffsetX', newOffsetX)
-      log('screenSpaceRef.current.canvas.width - width / scaleRef.current', screenSpaceRef.current.canvas.width, screenSpaceRef.current.canvas.width - width / scaleRef.current)
-      log3('widthwidthwidth', width)
 
       offsetXRef.current = Math.min(Math.max(0, newOffsetX), width - width / scaleRef.current)
 
@@ -206,18 +202,13 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
       if (element.type === 'CHANGE_ELEMENT') {
 
-        // if (element.drawOpt.text?.toString() === '36') {
-        //   // const {screenX} = worldToScreen(point.x, 0)
-        //   console.log('worldX', worldX,  xPosition)
-        //   console.log('point.x', worldX,  xPosition + width)
-        // }
+
         return point.y >= yPosition && point.y <= yPosition + height &&
           worldX >= xPosition && worldX <= xPosition + width
           && element.selectable
       }
 
       if (element.type === 'COVER') {
-        // console.log('point.x', point.x, xPosition, offsetXRef.current)
         return point.y >= yPosition && point.y <= yPosition + height &&
           point.x >= xPosition + offsetXRef.current && point.x <= xPosition + offsetXRef.current + width / scaleRef.current
           && element.selectable
@@ -323,15 +314,17 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const changeScale = (event: React.WheelEvent) => {
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
+
     if (event.nativeEvent.offsetY > canvasHeight - LEGEND_HEIGHT && !(selectedElement instanceof Cover)) {
+
       return
     }
 
     if (selectedElement instanceof Cover && selectedElement.isDragging) {
+
       return
     }
 
-    console.log('---------------------------')
     scaleOnScreenSpace(event)
   }
 
