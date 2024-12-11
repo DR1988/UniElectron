@@ -1,3 +1,5 @@
+import moment from 'moment';
+
 export type TIME_INTERVALS = 'day' | 'hour' | 'minutes' | 'seconds'
 
 export type TIME_INTERVAL = {
@@ -57,23 +59,53 @@ export const convertSecToDay = (_seconds: number): TIME_LINE => {
       sec: minutes * 60,
       largest: minutes > 0 && hour <= 0,
       getStringValue: (value) => {
-        if (value >= 60) {
-          let _hours = Math.floor(value / 60)
-          const _minutes = Math.floor(value % 60)
-          const minutesConverted = _minutes / 10 > 1 ? _minutes.toString() : `0${_minutes}`
-          return `${_hours}:${minutesConverted}:00`
+        let _hours = Math.floor(value / 60)
+        const _minutes = Math.floor(value % 60)
+        const _minutesPart = value - _minutes
+        const minutesConverted = _minutes / 10 >= 1 ? _minutes.toString() : `0${_minutes}`
+
+        if (_hours) {
+          return `${_hours}:${minutesConverted}:${_minutesPart === 0 ? '00' : _minutesPart * 60}`
         }
-        return `${value}:00`
+        return `${minutesConverted}:${_minutesPart === 0 ? '00' : _minutesPart * 60}`
+
       },
     },
     seconds: {
       value: seconds,
       sec: seconds,
       largest: minutes <= 0,
-      getStirngValue: (value) => {
+      getStringValue: (value) => {
         return `${value}`
       },
     },
     largest
   }
+}
+
+
+export const getIntervalsFromSeconds = (_seconds: number) => {
+  const day = Math.floor(_seconds / (24 * 3600));
+
+  if (day > 0) {
+    return `${day > 9 ? day : `0${day}`}:${moment.utc(_seconds*1000 ).format('HH:mm')}`
+  }
+
+  _seconds = _seconds % (24 * 3600);
+
+  const hour = Math.floor(_seconds / 3600);
+
+  if (hour>0) {
+    return moment.utc(_seconds*1000 ).format('HH:mm:ss')
+  }
+  _seconds %= 3600;
+  const minutes = Math.floor(_seconds / 60);
+
+
+  if (minutes>0) {
+    return moment.utc(_seconds*1000 ).format('mm:ss')
+  }
+  _seconds %= 60;
+
+  return moment.utc(_seconds*1000 ).format('mm:ss')
 }

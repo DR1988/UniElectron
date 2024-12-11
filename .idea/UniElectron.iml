@@ -6,6 +6,9 @@
       <excludeFolder url="file://$MODULE_DIR$/temp" />
       <excludeFolder url="file://$MODULE_DIR$/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/app/build" />
+      <excludePattern pattern="*.preprod.ts" />
+      <excludePattern pattern=" *.prod.js" />
+      <excludePattern pattern=" *.prod.js.map" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

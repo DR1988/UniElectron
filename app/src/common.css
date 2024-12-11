@@ -1,5 +1,12 @@
 @import '~react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 
+*, *::after, *::before {
+    -webkit-user-select: none;
+    -webkit-user-drag: none;
+    -webkit-app-region: no-drag;
+    cursor: default;
+}
+
 * {
     box-sizing: border-box;
 }

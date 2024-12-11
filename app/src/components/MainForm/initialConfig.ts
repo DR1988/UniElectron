@@ -169,7 +169,7 @@ export const initialState: MainFormState = {
       shortName: 'RPM',
       changes: [{
         startTime: 300,
-        endTime: 7355,
+        endTime: 350,
         value: 1000,
         changeId: 0,
         duration: 50,
@@ -189,7 +189,7 @@ export const initialState: MainFormState = {
   distance: 0,
   time: 0,
   showEditModal: false,
-  allTime: 7355,
+  allTime: 350,
   HVOpen: false,
   serialConnected: false,
   lineFormer: [
@@ -198,7 +198,7 @@ export const initialState: MainFormState = {
       id: 0,
       shortName: 'GV1',
       changes: [
-        { startTime: 20, endTime: 40, changeId: 0, duration: 20, crossingValueEnd: NaN, crossingValueStart: NaN },
+        { startTime: 20, endTime: 39, changeId: 0, duration: 19, crossingValueEnd: NaN, crossingValueStart: NaN },
       ],
       description: 'Reactor gas inlet'
     },
@@ -332,7 +332,7 @@ export const initialState: MainFormState = {
         },
         {
           startTime: 300,
-          endTime: 7355,
+          endTime: 350,
           value: 600,
           changeId: 4,
           duration: 50,

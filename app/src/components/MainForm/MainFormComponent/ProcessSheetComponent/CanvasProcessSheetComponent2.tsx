@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Props} from './ProcessSheetComponent';
 import {ValveLineType} from '../../MainFormInterfaces';
 import {RemoveSpaceOption} from '../../../CommonTypes';
@@ -18,7 +18,7 @@ import {
   Cover,
   DrawingElement,
   ELEMENT_TYPES,
-  Line, SideCover, TimeLine
+  Line, SideCover, TimeLine, TimeView
 } from './CanvasElements';
 import throttle from 'lodash/throttle';
 import {useElements} from './useElements';
@@ -35,6 +35,7 @@ export type Props = {
   removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
   container: HTMLDivElement | null
 }
+
 
 const log = throttle(console.log, 500)
 const log2 = throttle(console.log, 500)
@@ -60,6 +61,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const offsetXRef = useRef(0)
   const scaleRef = useRef(1)
 
+  const [containerWidth, setContainerWidth] = useState(0)
+
   const worldToScreen = (worldX: number, width: number): {
     screenX: number
     screenWidthX: number
@@ -80,9 +83,45 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }
 
+  // const mutationObserver = useMemo(() => {
+  //   const observer = new MutationObserver(mutationRecords => {
+  //     console.log('mutationRecords', mutationRecords)
+  //   });
+  //
+  //   return observer
+  // }, [])
+
+  // useEffect(() => {
+  //   container?.addEventListener('resize', (event) => {
+  //     console.log('SIZE changes', event)
+  //   })
+  // }, [container])
+
+  useEffect(() => {
+    let observer
+    if (container && screenSpaceRef.current) {
+       observer = new ResizeObserver(entries => {
+         for (const entry of entries) {
+           // console.log('entry.target.clientWidth', entry.target.clientWidth)
+           screenSpaceRef.current.canvas.width = entry.target.clientWidth
+           setContainerWidth(entry.target.clientWidth)
+         }
+      });
+      console.log('observer', observer)
+      observer.observe(container)
+    }
+
+    return () => {
+      console.log('DISCONNECT')
+      observer?.disconnect()
+    }
+  }, [container])
+
   useLayoutEffect(() => {
     const containerRect = container?.getBoundingClientRect()
+
     if (screenSpaceRef.current && containerRect) {
+      setContainerWidth(containerRect.width)
       screenSpaceRef.current.canvas.width = containerRect.width;
       screenSpaceRef.current.canvas.height = canvasHeight;
       // screenSpaceRef.current.canvas.style.width = `${containerRect.width}px`;
@@ -92,14 +131,14 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }, [container])
 
 
-  useElements(container, screenSpaceRef.current, lineFormer, allTime, elements.current)
+  elements.current = useElements(containerWidth, screenSpaceRef.current, lineFormer, allTime)
 
   const draw = useCallback(() => {
     if (!screenSpaceRef.current || !container) {
       return
     }
-    screenSpaceRef.current.clearRect(0, 0, screenSpaceRef.current.canvas.width, screenSpaceRef.current.canvas.height)
 
+    screenSpaceRef.current.clearRect(0, 0, screenSpaceRef.current.canvas.width, screenSpaceRef.current.canvas.height)
 
     elements.current.forEach(element => {
 
@@ -157,10 +196,22 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         screenSpaceRef.current.restore()
 
       }
+
+
+      if (element instanceof TimeView) {
+        screenSpaceRef.current.save()
+        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.current.scale(scaleRef.current, 1)
+
+        element.drawElement(scaleRef.current)
+        screenSpaceRef.current.restore()
+
+        return
+      }
     })
 
 
-  }, [container, lineFormer])
+  }, [container, lineFormer, elements])
 
   useLayoutEffect(() => {
     draw()
@@ -343,7 +394,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     onMouseUp={handleMouseUp}
     onMouseLeave={handleLeave}
     changeScale={changeScale}
-    // draw={draw}
+    draw={draw}
   />
     <span style={{display: 'block'}}>zoom: {1}</span>
     <span style={{display: 'block'}}>mouseWheelCoordinateRef.current: {mouseWheelCoordinateRef.current}</span>

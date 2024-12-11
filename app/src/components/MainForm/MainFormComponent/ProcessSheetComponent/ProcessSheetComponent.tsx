@@ -13,13 +13,15 @@ import cn from 'classnames'
 import TimeLine from './TimeLineComponent'
 import ValveLineComponent from './ValveLineComponent'
 
-import { ValveLineType } from './../../MainFormInterfaces'
+import {ValveLineType} from './../../MainFormInterfaces'
 
 import s from './ProcessSheetComponent.css'
-import { render } from 'react-dom'
+import {render} from 'react-dom'
 import ValveTimeComponentAdder from '../ValveTimeComponentAdder/ValveTimeComponentAdder'
 import throttle from 'lodash/throttle';
 import {RemoveSpaceOption} from '../../../CommonTypes';
+import {CanvasProcessSheetComponent} from './CanvasProcessSheetComponent';
+import {CanvasProcessSheetComponent2} from './CanvasProcessSheetComponent2';
 
 export interface Props {
   distance: number,
@@ -38,7 +40,8 @@ interface State {
   translateX: number,
   isMoving: boolean,
 }
-const ProcessSheetComponent:React.FC<Props> = (props) => {
+
+const ProcessSheetComponent: React.FC<Props> = (props) => {
 
   let currentX: number = 0
   let sheetWidth: number
@@ -51,6 +54,8 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
 
   const formRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mainContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (formRef.current?.offsetHeight) {
@@ -63,7 +68,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
   useEffect(() => {
     const listener = (e) => {
       const sectionWidth = sectionRef.current?.getBoundingClientRect().width
-      setTranslateX(sectionWidth/2 - sectionWidth/2 / (scale))
+      setTranslateX(sectionWidth / 2 - sectionWidth / 2 / (scale))
     }
     window.addEventListener('resize', listener)
     return () => window.removeEventListener('resize', listener)
@@ -90,7 +95,7 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
   const decreaseScale = () => {
     if (scale > 1) {
       const sectionWidth = sectionRef.current.getBoundingClientRect().width
-      setTranslateX(sectionWidth/2 - sectionWidth/2 / (scale - 0.5))
+      setTranslateX(sectionWidth / 2 - sectionWidth / 2 / (scale - 0.5))
       setScale(scale - 0.5)
     } else if (translateX !== 0) {
       setTranslateX(0)
@@ -137,12 +142,14 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
     mousePosition.current = position
   }, 30));
 
-  const handleMouseMove =  (event: React.MouseEvent) => {
+  const handleMouseMove = (event: React.MouseEvent) => {
     throttleStartPositionRef.current(event.clientX - event.currentTarget.getBoundingClientRect().left)
   }
 
+
+
   return (
-    <section className={s.container}>
+    <section className={s.container} ref={mainContainerRef}>
       <div className={s.valveAdderAndLineNamesContainer}>
         <div className={s.lineNamesContainer}>
           {lineFormer.map(line => (
@@ -154,52 +161,68 @@ const ProcessSheetComponent:React.FC<Props> = (props) => {
         </div>
         <div className={s.valveAdderContainer}>
           <ValveTimeComponentAdder
-              lines={lineFormer}
-              showModal={showModal}
-              addNewValveTime={addNewValveTime}
-            />
+            lines={lineFormer}
+            showModal={showModal}
+            addNewValveTime={addNewValveTime}
+          />
         </div>
       </div>
-      <section
-        // onMouseMove={handleMouseMove}
-        id="processSheet"
-        className={cn(s['lines-keeper'], { [s.crossed]: crossCursor })}
-        onWheel={changScale}
-        onMouseDown={lockOnForm}
-        onMouseUp={lockOnForm}
-        onMouseMove={isMoving ? moveForm : f => f}
-        onMouseLeave={unlockForm}
-        ref={sectionRef}
-      >
         <div
-          ref={formRef}
-          style={{
-            transform: `scaleX(${scale}) translateX(${translateX}px)`
-          }}
-          className={s.lineKeeperContent}
-        >
-          {lineFormer.map(elem => <ValveLineComponent
-            key={elem.name + elem.id}
-            line={elem}
-            allTime={allTime}
-            showModal={showModal}
-            setChosenValveTime={setChosenValveTime}
-            scale={scale}
-            changeTime={props.changeTime}
-            formRef={formRef.current}
-          />,
-          )}
-          <TimeLine
-            formRef={formRef.current}
-            timeLineHeight={formHeight}
-            scale={scale}
+          ref={containerRef}
+          style={{display: 'flex', minWidth: 500,  width: '100%',flexDirection: 'column', overflow: 'hidden'}}>
+
+          <CanvasProcessSheetComponent2
             distance={distance}
             time={time}
             allTime={allTime}
+            showModal={showModal}
+            setChosenValveTime={setChosenValveTime}
+            addNewValveTime={addNewValveTime}
             removeSelectedTimeElements={removeSelectedTimeElements}
-          />
-        </div>
-      </section>
+            lineFormer={lineFormer}
+            container={containerRef.current}/>
+
+          {/*<section*/}
+          {/*  // onMouseMove={handleMouseMove}*/}
+          {/*  id="processSheet"*/}
+          {/*  className={cn(s['lines-keeper'], {[s.crossed]: crossCursor})}*/}
+          {/*  onWheel={changScale}*/}
+          {/*  onMouseDown={lockOnForm}*/}
+          {/*  onMouseUp={lockOnForm}*/}
+          {/*  onMouseMove={isMoving ? moveForm : f => f}*/}
+          {/*  onMouseLeave={unlockForm}*/}
+          {/*  ref={sectionRef}*/}
+          {/*>*/}
+          {/*  <div*/}
+          {/*    ref={formRef}*/}
+          {/*    style={{*/}
+          {/*      transform: `scaleX(${scale}) translateX(${translateX}px)`*/}
+          {/*    }}*/}
+          {/*    className={s.lineKeeperContent}*/}
+          {/*  >*/}
+          {/*    {lineFormer.map(elem => <ValveLineComponent*/}
+          {/*        key={elem.name + elem.id}*/}
+          {/*        line={elem}*/}
+          {/*        allTime={allTime}*/}
+          {/*        showModal={showModal}*/}
+          {/*        setChosenValveTime={setChosenValveTime}*/}
+          {/*        scale={scale}*/}
+          {/*        changeTime={props.changeTime}*/}
+          {/*        formRef={formRef.current}*/}
+          {/*      />,*/}
+          {/*    )}*/}
+          {/*    <TimeLine*/}
+          {/*      formRef={formRef.current}*/}
+          {/*      timeLineHeight={formHeight}*/}
+          {/*      scale={scale}*/}
+          {/*      distance={distance}*/}
+          {/*      time={time}*/}
+          {/*      allTime={allTime}*/}
+          {/*      removeSelectedTimeElements={removeSelectedTimeElements}*/}
+          {/*    />*/}
+          {/*  </div>*/}
+          {/*</section>*/}
+      </div>
     </section>
   )
 }

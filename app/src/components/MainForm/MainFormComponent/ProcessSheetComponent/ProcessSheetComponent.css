@@ -1,6 +1,8 @@
 .container {
   display: flex;
-  flex: 1;
+  /*flex: 1;*/
+  min-width: 550px;
+  width: 100%;
 }
 
 .lineNamesContainer {
