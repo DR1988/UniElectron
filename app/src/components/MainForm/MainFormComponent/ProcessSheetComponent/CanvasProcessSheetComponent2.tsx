@@ -433,6 +433,17 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }
 
+  const handleDoubleClick = (event: React.MouseEvent) => {
+    const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+
+    if (selectedElement instanceof TimeLine) {
+      const processSelectionElement = elements.current.find(element => {
+        return element instanceof ProcessSelection
+      }) as ProcessSelection
+      processSelectionElement?.resetToDefault()
+    }
+  }
+
   const scaleOnScreenSpace = (event: React.WheelEvent) => {
     const {worldX: worldXBeforeZoom} = screenToWorld(event.nativeEvent.offsetX, 0)
     const dir = Math.sign(-event.deltaY)
@@ -498,6 +509,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     onMouseUp={handleMouseUp}
     onMouseLeave={handleLeave}
     changeScale={changeScale}
+    onDoubleClick={handleDoubleClick}
     draw={draw}
     useAnimationFrame={useAnimationFrame}
   />

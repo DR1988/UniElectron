@@ -424,6 +424,17 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   setIsMoving = (value:boolean) => {
     this.isMoving = value
   }
+
+  resetToDefault = () => {
+    if (this.drawOpt) {
+      this.drawOpt.color = this.defaultColor
+    }
+
+    this.sizeOpt.width = this.initialWidth
+    this.sizeOpt.xPosition = this.initialXPosition
+    this.isMoving = false
+    this.widthSetIsComplete = false
+  }
 }
 
 export const drawText = (ctx: CanvasRenderingContext2D, text: string | number, textDraw: TEXT_DRAW_OPT) => {
