@@ -2,7 +2,7 @@ import {useMemo} from 'react';
 import {
   ChangeElement,
   Cover,
-  Line,
+  Line, ProcessSelection,
   SideCover,
   TimeLine,
   TimeView
@@ -142,10 +142,10 @@ export const useElements = (
           height: TIME_LINE_HEIGHT
         },
         drawOpt: {
-          // selectable: true
+          selectable: true
         }
-      }, 4763)
-      // }, allTime)
+      // }, 4763)
+      }, allTime)
 
       elementsArray.push(timeLine)
 
@@ -162,10 +162,27 @@ export const useElements = (
             color: 'blue',
             selectable: true
           }
-        }, 4763
-        // }, allTime)
-      )
+        // }, 4763
+        }, allTime)
+
       elementsArray.push(timeView)
+
+
+      const processSelection = new ProcessSelection({
+        ctx: screenSpace,
+        sizeOpt: {
+          width: 0,
+          xPosition: 0,
+          yPosition: 5, //canvasHeight - LEGEND_HEIGHT,
+          height: canvasHeight - LEGEND_HEIGHT - 5
+        },
+        drawOpt: {
+          selectable: true,
+          color: 'rgba(0, 0, 0, 0.3)'
+        }
+      })
+
+      elementsArray.push(processSelection)
 
     }
 

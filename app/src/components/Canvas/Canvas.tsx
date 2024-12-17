@@ -10,15 +10,46 @@ export type  CanvasProp = {
   onMouseDown: (event: React.MouseEvent) => void
   onMouseLeave: (event: React.MouseEvent) => void
   screenSpaceRef: React.MutableRefObject<CanvasRenderingContext2D>
+  useAnimationFrame: boolean
 }
 
+const requestAnimationFramePoly = () => {
+  let lastTime = 0;
+
+  return {
+    requestAnimationFrameInternal: function (callback) {
+      let currTime = new Date().getTime();
+      let timeToCall = Math.max(0, 16 - (currTime - lastTime));
+      let id = window.setTimeout(function () {
+          callback(currTime + timeToCall);
+        },
+        timeToCall);
+      lastTime = currTime + timeToCall;
+      return id;
+    },
+    cancelAnimationFrameInternal: function (id) {
+      clearTimeout(id);
+    }
+  };
+}
 
 // export const Canvas = forwardRef< CanvasRenderingContext2D, CanvasProp>((props, ref) => {
 export const Canvas: FunctionComponent<CanvasProp> = (props) => {
-  const {draw, changeScale, onMouseMove, onMouseDown, onMouseLeave, screenSpaceRef, onMouseUp, ...rest} = props
+  const {
+    draw,
+    changeScale,
+    onMouseMove,
+    onMouseDown,
+    onMouseLeave,
+    screenSpaceRef,
+    onMouseUp,
+    useAnimationFrame,
+    ...rest
+  } = props
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const canvas = canvasRef.current
+  const rafPRef = useRef(requestAnimationFramePoly())
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -32,19 +63,26 @@ export const Canvas: FunctionComponent<CanvasProp> = (props) => {
     const renderer = () => {
       draw(canvas)
 
-      animationId = window.requestAnimationFrame(renderer)
+      if (useAnimationFrame) {
+        animationId = rafPRef.current.requestAnimationFrameInternal(renderer)
+        // animationId = window.requestAnimationFrame(renderer)
+      }
     }
 
-    renderer()
+    if (useAnimationFrame) {
+      renderer()
+    }
 
     return () => {
-      window.cancelAnimationFrame(animationId)
+      // window.cancelAnimationFrame(animationId)
+      rafPRef.current.cancelAnimationFrameInternal(animationId)
     }
     // draw(context, canvas)
     // draw(canvas)
   }, [draw])
 
   return <canvas
+    // style={{width:'100%', maxWidth: 600}}
     onMouseDown={onMouseDown}
     onMouseUp={onMouseUp}
     onMouseMove={onMouseMove}

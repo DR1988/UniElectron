@@ -16,7 +16,7 @@ const log2 = throttle(console.log, 500)
 const log3 = throttle(console.log, 500)
 
 
-export type ELEMENT_TYPES = 'COVER' | 'LINE' | 'CHANGE_ELEMENT' | 'SIDE_COVER' | 'TIME_LINE' | 'TIME_VIEW'
+export type ELEMENT_TYPES = 'COVER' | 'LINE' | 'CHANGE_ELEMENT' | 'SIDE_COVER' | 'TIME_LINE' | 'TIME_VIEW' | 'PROCESS_SELECTION'
 
 export abstract class DrawingElement<Type extends ELEMENT_TYPES> {
   ctx: CanvasRenderingContext2D
@@ -28,19 +28,31 @@ export abstract class DrawingElement<Type extends ELEMENT_TYPES> {
   public initialWidth: number
   public initialXPosition: number
   public defaultColor: string
+  public order: number
 
   protected constructor(type: Type, shouldSkipSizing: boolean, selectable: boolean) {
     this.type = type
     this.shouldSkipSizing = shouldSkipSizing
     this.selectable = selectable
+    this.order = 1
   }
 
   abstract drawElement(): void
 
+  setWidth = (width: number) => {
+    this.sizeOpt.width = width
+  }
 
   returnDefaultColor = () => {
-    this.drawOpt.color = this.defaultColor
+    if (this.drawOpt) {
+      this.drawOpt.color = this.defaultColor
+    }
   }
+
+  setOrder = (order: number) => {
+    this.order = order
+  }
+
 }
 
 export interface Draggable {
@@ -343,6 +355,7 @@ export class TimeView extends DrawingElement<'TIME_VIEW'> {
     this.ctx.beginPath();
     this.ctx.fillStyle = this.drawOpt.color
 
+    // const xInitialOffset = -7.3* ( width / 2) *zoom
     const xInitialOffset = ( width / 2) *zoom
 
 
@@ -363,6 +376,53 @@ export class TimeView extends DrawingElement<'TIME_VIEW'> {
 
     // this.ctx.lineTo((xPosition + width)/2, 0);
     // this.ctx.
+  }
+}
+
+export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
+  widthSetIsComplete: boolean
+  isMoving: boolean
+
+  constructor(params: DRAW_RECT_PARAMS) {
+    super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
+
+    const {ctx, sizeOpt, drawOpt} = params
+    this.ctx = ctx
+    this.sizeOpt = sizeOpt
+    this.drawOpt = drawOpt
+    this.initialWidth = sizeOpt.width
+    this.initialXPosition = sizeOpt.xPosition
+    this.defaultColor = this.drawOpt?.color || 'red'
+    this.order = 2
+    this.widthSetIsComplete = false
+    this.isMoving = false
+  }
+
+  drawElement = () => {
+    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const {color} = this.drawOpt || {}
+
+    this.ctx.beginPath()
+    this.ctx.fillStyle = color || 'rgba(0, 0, 0, 0.3)'
+    this.ctx.fillRect(xPosition, yPosition, width, height)
+
+    this.ctx.fill()
+  }
+
+  setStartPoint = (startPoint: number) => {
+    this.sizeOpt.xPosition = startPoint
+  }
+
+  setWidth = (width: number) => {
+    this.sizeOpt.width = width
+  }
+
+  setWidthSetIsComplete = (value: boolean) => {
+    this.widthSetIsComplete = value
+  }
+
+  setIsMoving = (value:boolean) => {
+    this.isMoving = value
   }
 }
 

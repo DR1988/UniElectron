@@ -215,8 +215,8 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
           {/*      formRef={formRef.current}*/}
           {/*      timeLineHeight={formHeight}*/}
           {/*      scale={scale}*/}
-          {/*      distance={distance}*/}
-          {/*      time={time}*/}
+          {/*      distance={100}*/}
+          {/*      time={100}*/}
           {/*      allTime={allTime}*/}
           {/*      removeSelectedTimeElements={removeSelectedTimeElements}*/}
           {/*    />*/}
