@@ -382,6 +382,8 @@ export class TimeView extends DrawingElement<'TIME_VIEW'> {
 export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   widthSetIsComplete: boolean
   isMoving: boolean
+  changingLeftBorder: boolean
+  changingRightBorder: boolean
 
   constructor(params: DRAW_RECT_PARAMS) {
     super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
@@ -396,17 +398,29 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.order = 2
     this.widthSetIsComplete = false
     this.isMoving = false
+    this.changingLeftBorder = false
+    this.changingRightBorder = false
   }
 
-  drawElement = () => {
+  drawElement = (zoom: number = 1) => {
     const {xPosition, yPosition, width, height} = this.sizeOpt
     const {color} = this.drawOpt || {}
 
     this.ctx.beginPath()
-    this.ctx.fillStyle = color || 'rgba(0, 0, 0, 0.3)'
+    this.ctx.fillStyle = color || 'rgba(0, 0, 0, 0.2)'
     this.ctx.fillRect(xPosition, yPosition, width, height)
-
     this.ctx.fill()
+
+    this.ctx.beginPath()
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)' //color || 'rgba(0, 0, 0, 0.4)'
+    this.ctx.fillRect(xPosition, yPosition, (width ? 3 : 0)/zoom, height)
+    this.ctx.fill()
+
+    this.ctx.beginPath()
+    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)' //color || 'rgba(0, 0, 0, 0.4)'
+    this.ctx.fillRect(xPosition + width - 3 / zoom, yPosition, (width ? 3 : 0)/zoom, height)
+    this.ctx.fill()
+
   }
 
   setStartPoint = (startPoint: number) => {
@@ -425,6 +439,14 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.isMoving = value
   }
 
+  setChangingLeftBorder = (value: boolean) => {
+    this.changingLeftBorder = value
+  }
+
+  setChangingRightBorder = (value: boolean) => {
+    this.changingRightBorder = value
+  }
+
   resetToDefault = () => {
     if (this.drawOpt) {
       this.drawOpt.color = this.defaultColor
@@ -434,6 +456,8 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.sizeOpt.xPosition = this.initialXPosition
     this.isMoving = false
     this.widthSetIsComplete = false
+    this.changingLeftBorder = false
+    this.changingRightBorder = false
   }
 }
 

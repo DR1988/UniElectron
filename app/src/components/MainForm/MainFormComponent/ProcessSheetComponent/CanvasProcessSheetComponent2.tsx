@@ -213,7 +213,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         screenSpaceRef.current.save()
         screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
         screenSpaceRef.current.scale(scaleRef.current, 1)
-        element.drawElement()
+        element.drawElement(scaleRef.current)
         screenSpaceRef.current.restore()
         return
 
@@ -359,9 +359,21 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
 
     if (selectedElement instanceof ProcessSelection) {
-      selectedElement.drawOpt.color = 'rgba(0, 0, 0, 0.5)'
-      selectedElement.setIsMoving(true)
+      const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
+
+      const {width, xPosition} = selectedElement.sizeOpt
+      if (worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current) {
+        selectedElement.setChangingLeftBorder(true)
+        // screenSpaceRef.current.canvas.style.cursor = 'e-resize'
+      } else if (worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width) {
+        selectedElement.setChangingRightBorder(true)
+        // screenSpaceRef.current.canvas.style.cursor = 'e-resize'
+      } else {
+        selectedElement.drawOpt.color = 'rgba(0, 0, 0, 0.3)'
+        selectedElement.setIsMoving(true)
+      }
       selectedElementRef.current = selectedElement
+
     }
 
   }
@@ -379,6 +391,55 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }
 
+  const onProcessSelectionBorder = (event: React.MouseEvent) => {
+    let processSelectionElement = selectedElementRef.current
+
+    if (!(processSelectionElement instanceof ProcessSelection)) {
+      processSelectionElement = elements.current.find(element => {
+        return element instanceof ProcessSelection
+      }) as ProcessSelection
+    }
+
+    if (processSelectionElement instanceof ProcessSelection) {
+      const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
+
+      const {width, xPosition} = processSelectionElement.sizeOpt
+
+      if (processSelectionElement.changingLeftBorder || processSelectionElement.changingRightBorder) {
+        if (processSelectionElement.changingLeftBorder) {
+          const offset = event.movementX / scaleRef.current
+          const newOffset = xPosition + offset
+
+          const newWidth = width - offset
+
+          if (newWidth > 5 && worldX < xPosition + width  - 5) {
+            processSelectionElement.sizeOpt.xPosition = newOffset
+            processSelectionElement.sizeOpt.width = newWidth
+          }
+
+        }
+        if (processSelectionElement.changingRightBorder) {
+          const offset = event.movementX / scaleRef.current
+          const newWidth = width + offset
+
+          if (newWidth > 5 && worldX > xPosition + 5) {
+            processSelectionElement.sizeOpt.width = newWidth
+          }
+        }
+
+      } else {
+        if (worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current) {
+          screenSpaceRef.current.canvas.style.cursor = 'e-resize'
+        } else if (worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width) {
+          screenSpaceRef.current.canvas.style.cursor = 'e-resize'
+        } else {
+          screenSpaceRef.current.canvas.style.cursor = 'auto'
+        }
+      }
+
+    }
+  }
+
   const handleMouseMove = (event: React.MouseEvent) => {
     // if (selectedElementRef.current) {
     //   log('selectedElementRef.current', selectedElementRef.current)
@@ -386,6 +447,9 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     if (!selectedElementRef.current) {
       onPanMove(event)
     }
+
+    // debounce or throttle
+    onProcessSelectionBorder(event)
 
     onCoverMove(event)
 
@@ -397,7 +461,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const handleMouseUp = (event: React.MouseEvent) => {
     moving.current = false
 
-    const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    let selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
     if (selectedElement instanceof Cover) {
       selectedElement.setDragging(false)
@@ -424,8 +488,17 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       selectedElementRef.current = null
     }
 
-    if (selectedElementRef.current instanceof ProcessSelection) {
-      selectedElementRef.current.setIsMoving(false)
+    if (selectedElement instanceof ProcessSelection || selectedElementRef.current instanceof ProcessSelection ) {
+      if (selectedElementRef.current instanceof ProcessSelection) {
+        selectedElementRef.current.setIsMoving(false)
+        selectedElementRef.current.setChangingLeftBorder(false)
+        selectedElementRef.current.setChangingRightBorder(false)
+      } else if (selectedElement instanceof ProcessSelection) {
+        selectedElement.setIsMoving(false)
+        selectedElement.setChangingLeftBorder(false)
+        selectedElement.setChangingRightBorder(false)
+      }
+
     }
 
     if (!selectedElement) {
@@ -499,6 +572,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     if (selectedElementRef.current instanceof ProcessSelection) {
       selectedElementRef.current.setIsMoving(false)
+      selectedElementRef.current.setChangingLeftBorder(false)
+      selectedElementRef.current.setChangingRightBorder(false)
     }
   }
 

@@ -178,7 +178,7 @@ export const useElements = (
         },
         drawOpt: {
           selectable: true,
-          color: 'rgba(0, 0, 0, 0.3)'
+          color: 'rgba(0, 0, 0, 0.2)'
         }
       })
 
