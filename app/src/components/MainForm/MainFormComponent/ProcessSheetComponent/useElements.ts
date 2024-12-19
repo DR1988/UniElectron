@@ -20,6 +20,10 @@ export const useElements = (
   const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT
   return useMemo(() => {
     const elementsArray = []
+    const result: { elementsArray: any[], processSelectionElement: ProcessSelection | null } = {
+      elementsArray,
+      processSelectionElement: null
+    }
 
     // const containerRect = container?.getBoundingClientRect()
     if (screenSpace && containerWidth) {
@@ -144,35 +148,35 @@ export const useElements = (
         drawOpt: {
           selectable: true
         }
-      // }, 4763)
+        // }, 4763)
       }, allTime)
 
       elementsArray.push(timeLine)
 
 
       const timeView = new TimeView({
-          ctx: screenSpace,
-          sizeOpt: {
-            width: 20,
-            xPosition: 0,
-            yPosition: canvasHeight - LEGEND_HEIGHT,
-            height: RECT_HEIGHT/2
-          },
-          drawOpt: {
-            color: 'blue',
-            selectable: true
-          }
+        ctx: screenSpace,
+        sizeOpt: {
+          width: 20,
+          xPosition: 0,
+          yPosition: canvasHeight - LEGEND_HEIGHT,
+          height: RECT_HEIGHT / 2
+        },
+        drawOpt: {
+          color: 'blue',
+          selectable: true
+        }
         // }, 4763
-        }, allTime)
+      }, allTime)
 
       elementsArray.push(timeView)
 
 
-      const processSelection = new ProcessSelection({
+      const processSelection = ProcessSelection.getInstance({
         ctx: screenSpace,
         sizeOpt: {
           width: 0,
-          xPosition: 0,
+          xPosition: -10,
           yPosition: 5, //canvasHeight - LEGEND_HEIGHT,
           height: canvasHeight - LEGEND_HEIGHT - 5
         },
@@ -182,11 +186,14 @@ export const useElements = (
         }
       })
 
+      result.processSelectionElement = processSelection
       elementsArray.push(processSelection)
 
     }
 
-    return elementsArray
+    result.elementsArray = elementsArray
+
+    return result
 
   }, [containerWidth, screenSpace, lineFormer, allTime])
 

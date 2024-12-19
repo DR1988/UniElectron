@@ -1,7 +1,6 @@
-import {DRAW_RECT, DRAW_RECT_OPT, DRAW_RECT_PARAMS, Point, SIZE_OPT, TEXT_DRAW_OPT} from './CanvasTypes';
+import {DRAW_RECT_OPT, DRAW_RECT_PARAMS, SIZE_OPT, TEXT_DRAW_OPT} from './CanvasTypes';
 import {RECT_HEIGHT} from './CanvasConstants';
-import React, {useMemo} from 'react';
-import {convertSecToDay, getIntervalsFromSeconds} from '../../../../utils';
+import {getIntervalsFromSeconds} from '../../../../utils';
 import throttle from 'lodash/throttle';
 
 export type PositionSize = {
@@ -384,8 +383,9 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   isMoving: boolean
   changingLeftBorder: boolean
   changingRightBorder: boolean
+  private static instance: ProcessSelection
 
-  constructor(params: DRAW_RECT_PARAMS) {
+  private constructor(params: DRAW_RECT_PARAMS) {
     super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
 
     const {ctx, sizeOpt, drawOpt} = params
@@ -400,6 +400,14 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.isMoving = false
     this.changingLeftBorder = false
     this.changingRightBorder = false
+  }
+
+  public static getInstance(params: DRAW_RECT_PARAMS): ProcessSelection {
+    if (!this.instance) {
+      this.instance = new ProcessSelection(params)
+    }
+
+    return this.instance
   }
 
   drawElement = (zoom: number = 1) => {

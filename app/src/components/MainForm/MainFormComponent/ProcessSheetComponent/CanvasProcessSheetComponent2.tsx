@@ -68,6 +68,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const timeLineOffsetRef = useRef(0)
   const startRef = useRef(false)
   const startTimeRef = useRef<Date | null>(null)
+  const processSelection = useRef<ProcessSelection | null>(null)
 
   // const [containerWidth, setContainerWidth] = useState(0)
 
@@ -120,7 +121,9 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }, [container])
 
 
-  elements.current = useElements(screenSpaceRef.current?.canvas?.width, screenSpaceRef.current, lineFormer, allTime)
+  const {elementsArray, processSelectionElement} = useElements(screenSpaceRef.current?.canvas?.width, screenSpaceRef.current, lineFormer, allTime)
+  elements.current = elementsArray
+  processSelection.current = processSelectionElement
 
   const draw = useCallback(() => {
     if (!screenSpaceRef.current || !container) {
@@ -266,16 +269,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const onTimeLineMove = (event: React.MouseEvent) => {
     // log('selectedElementRef', selectedElementRef.current)
     if (selectedElementRef.current instanceof TimeLine) {
-      const processSelectionElement = elements.current.find(element => {
-        return element instanceof ProcessSelection
-      }) as ProcessSelection
-
-
-      if (processSelectionElement && !processSelectionElement.widthSetIsComplete) {
+      if (processSelection.current && !processSelection.current.widthSetIsComplete) {
         const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
 
-        const width = worldX - processSelectionElement.sizeOpt.xPosition
-        processSelectionElement.setWidth(width)
+        const width = worldX - processSelection.current.sizeOpt.xPosition
+        processSelection.current.setWidth(width)
       }
 
       if (!useAnimationFrame) {
@@ -339,15 +337,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
 
     if (selectedElement instanceof TimeLine) {
-      // trying to select processSelectionElement
-      const processSelectionElement = elements.current.find(element => {
-        return element instanceof ProcessSelection
-      }) as ProcessSelection
 
-      if (processSelectionElement.sizeOpt.width === 0) {
+      if (processSelection.current.sizeOpt.width === 0) {
 
         const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
-        processSelectionElement.setStartPoint(worldX)
+        processSelection.current.setStartPoint(worldX)
       }
 
       selectedElementRef.current = selectedElement
@@ -392,38 +386,30 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const onProcessSelectionBorder = (event: React.MouseEvent) => {
-    let processSelectionElement = selectedElementRef.current
-
-    if (!(processSelectionElement instanceof ProcessSelection)) {
-      processSelectionElement = elements.current.find(element => {
-        return element instanceof ProcessSelection
-      }) as ProcessSelection
-    }
-
-    if (processSelectionElement instanceof ProcessSelection) {
+    if (processSelection.current) {
       const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
 
-      const {width, xPosition} = processSelectionElement.sizeOpt
+      const {width, xPosition} = processSelection.current.sizeOpt
 
-      if (processSelectionElement.changingLeftBorder || processSelectionElement.changingRightBorder) {
-        if (processSelectionElement.changingLeftBorder) {
+      if (processSelection.current.changingLeftBorder || processSelection.current.changingRightBorder) {
+        if (processSelection.current.changingLeftBorder) {
           const offset = event.movementX / scaleRef.current
           const newOffset = xPosition + offset
 
           const newWidth = width - offset
 
           if (newWidth > 5 && worldX < xPosition + width  - 5) {
-            processSelectionElement.sizeOpt.xPosition = newOffset
-            processSelectionElement.sizeOpt.width = newWidth
+            processSelection.current.sizeOpt.xPosition = newOffset
+            processSelection.current.sizeOpt.width = newWidth
           }
 
         }
-        if (processSelectionElement.changingRightBorder) {
+        if (processSelection.current.changingRightBorder) {
           const offset = event.movementX / scaleRef.current
           const newWidth = width + offset
 
           if (newWidth > 5 && worldX > xPosition + 5) {
-            processSelectionElement.sizeOpt.width = newWidth
+            processSelection.current.sizeOpt.width = newWidth
           }
         }
 
@@ -477,10 +463,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
 
     if (selectedElementRef.current instanceof TimeLine) {
-      const processSelectionElement = elements.current.find(element => {
-        return element instanceof ProcessSelection
-      }) as ProcessSelection
-
+      const processSelectionElement = processSelection.current
       if (processSelectionElement && !processSelectionElement.widthSetIsComplete && processSelectionElement.sizeOpt.width !== 0) {
         processSelectionElement.setWidthSetIsComplete(true)
       }
@@ -510,10 +493,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
     if (selectedElement instanceof TimeLine) {
-      const processSelectionElement = elements.current.find(element => {
-        return element instanceof ProcessSelection
-      }) as ProcessSelection
-      processSelectionElement?.resetToDefault()
+      processSelection.current?.resetToDefault()
     }
   }
 
