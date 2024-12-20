@@ -396,7 +396,7 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   private static instance: ProcessSelection
 
   private focusColor = 'rgba(0, 0, 0, 0.3)'
-
+  private timeTextOffsetX = 3
 
   constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
@@ -446,13 +446,19 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
       const textLeft = Math.round(this.sizeOpt.xPosition / this.ctx.canvas.width * this.allTime)
       const textRight = Math.round((this.sizeOpt.xPosition + this.sizeOpt.width) / this.ctx.canvas.width * this.allTime)
 
-      const startLeft = getTime(textLeft)
+      const startTime = getTime(textLeft)
       const endTime = getTime(textRight)
 
-      const textWidth = this.ctx.measureText(endTime).width
+      const startTimeTextWidth = this.ctx.measureText(startTime).width
+      const endTimeTextWidth = this.ctx.measureText(endTime).width
 
-      this.ctx.fillText(startLeft, xPosition * zoom + 3, height)
-      this.ctx.fillText(endTime, (xPosition + width) * zoom - textWidth - 3, height)
+      let endTimeTextOffsetY = 0
+      if (startTimeTextWidth + endTimeTextWidth >= width - 2 * this.timeTextOffsetX - 5) {
+        endTimeTextOffsetY = 1
+      }
+
+      this.ctx.fillText(startTime, xPosition * zoom + this.timeTextOffsetX, height)
+      this.ctx.fillText(endTime, (xPosition + width) * zoom - endTimeTextWidth - this.timeTextOffsetX, height - endTimeTextOffsetY * 14)
       this.ctx.restore()
     }
 
