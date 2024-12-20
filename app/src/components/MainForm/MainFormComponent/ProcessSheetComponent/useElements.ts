@@ -1,6 +1,6 @@
 import {useMemo} from 'react';
 import {
-  ChangeElement,
+  ChangeElement, ContextMenu,
   Cover,
   Line, ProcessSelection,
   SideCover,
@@ -20,9 +20,15 @@ export const useElements = (
   const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT
   return useMemo(() => {
     const elementsArray = []
-    const result: { elementsArray: any[], processSelectionElement: ProcessSelection | null } = {
+    const result:
+      {
+        elementsArray: any[],
+        processSelectionElement: ProcessSelection | null,
+        contextMenuElement: ContextMenu | null
+      } = {
       elementsArray,
-      processSelectionElement: null
+      processSelectionElement: null,
+      contextMenuElement: null
     }
 
     // const containerRect = container?.getBoundingClientRect()
@@ -171,12 +177,12 @@ export const useElements = (
 
       elementsArray.push(timeView)
 
-
-      const processSelection = ProcessSelection.getInstance({
+      const processSelection = new ProcessSelection({
         ctx: screenSpace,
         sizeOpt: {
-          width: 0,
-          xPosition: -10,
+          width: 400,
+          // xPosition: -10,
+          xPosition: 120,
           yPosition: 5, //canvasHeight - LEGEND_HEIGHT,
           height: canvasHeight - LEGEND_HEIGHT - 5
         },
@@ -184,10 +190,33 @@ export const useElements = (
           selectable: true,
           color: 'rgba(0, 0, 0, 0.2)'
         }
-      })
+      }, allTime)
 
       result.processSelectionElement = processSelection
       elementsArray.push(processSelection)
+
+
+      const contextMenu = new ContextMenu({
+          ctx: screenSpace,
+          sizeOpt: {
+            width: 180,
+            // xPosition: -10,
+            xPosition: 210,
+            yPosition: 105, //canvasHeight - LEGEND_HEIGHT,
+            height: 135
+          },
+          drawOpt: {
+            selectable: true,
+            // color: 'rgba(0, 0, 0, 0.2)'
+            color: 'rgba(171, 193, 197, 1)',
+            shouldSkipSizing: true
+          }
+        },
+        allTime)
+
+      result.contextMenuElement = contextMenu
+
+      elementsArray.push(contextMenu)
 
     }
 

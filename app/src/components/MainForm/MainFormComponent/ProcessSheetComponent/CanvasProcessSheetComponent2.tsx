@@ -14,7 +14,7 @@ import {
   TIME_LINE_HEIGHT
 } from './CanvasConstants';
 import {
-  ChangeElement,
+  ChangeElement, ContextMenu,
   Cover,
   DrawingElement,
   ELEMENT_TYPES,
@@ -69,6 +69,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const startRef = useRef(false)
   const startTimeRef = useRef<Date | null>(null)
   const processSelection = useRef<ProcessSelection | null>(null)
+  const contextMenu = useRef<ContextMenu | null>(null)
 
   // const [containerWidth, setContainerWidth] = useState(0)
 
@@ -121,9 +122,14 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }, [container])
 
 
-  const {elementsArray, processSelectionElement} = useElements(screenSpaceRef.current?.canvas?.width, screenSpaceRef.current, lineFormer, allTime)
+  const {
+    elementsArray,
+    processSelectionElement,
+    contextMenuElement
+  } = useElements(screenSpaceRef.current?.canvas?.width, screenSpaceRef.current, lineFormer, allTime)
   elements.current = elementsArray
   processSelection.current = processSelectionElement
+  contextMenu.current = contextMenuElement
 
   const draw = useCallback(() => {
     if (!screenSpaceRef.current || !container) {
@@ -213,6 +219,16 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
 
       if (element instanceof ProcessSelection) {
+        screenSpaceRef.current.save()
+        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.current.scale(scaleRef.current, 1)
+        element.drawElement(scaleRef.current)
+        screenSpaceRef.current.restore()
+        return
+
+      }
+
+      if (element instanceof ContextMenu) {
         screenSpaceRef.current.save()
         screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
         screenSpaceRef.current.scale(scaleRef.current, 1)
@@ -316,56 +332,89 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const handleMouseDown = (event: React.MouseEvent) => {
-    moving.current = event.nativeEvent.offsetY < canvasHeight - LEGEND_HEIGHT;
+    const rightClick = event.nativeEvent.button === 2
+    // if (event.nativeEvent.button === 2) {
+    //   return
+    // }
+
+    const clickOnContextMenu = contextMenu.current.isClickOnElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    contextMenu.current.clickedRadioElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    contextMenu.current.clickedCancel({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    const clickedRadio = contextMenu.current.clickedOk({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+
+    console.log('clickedRadio', clickedRadio)
+    // console.log('clickOnContextMenu', clickOnContextMenu)
+    if (clickOnContextMenu) {
+      // contextMenu.current.setStartPoint(0)
+      // contextMenu.current.setShouldDraw(false)
+      return
+    } else {
+      // contextMenu.current.setStartPoint(0)
+      contextMenu.current.setShouldDraw(false)
+    }
+
+    moving.current = !rightClick && event.nativeEvent.offsetY < canvasHeight - LEGEND_HEIGHT;
 
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
     selectedElementRef.current?.returnDefaultColor()
+    // const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
 
-    if (selectedElement instanceof ChangeElement) {
-      selectedElementRef.current = selectedElement
-      selectedElementRef.current.drawOpt.color = 'red'
-      if (!useAnimationFrame) {
-        draw()
-      }
-    } else if (selectedElement instanceof Cover) {
-      selectedElementRef.current?.returnDefaultColor()
-      selectedElementRef.current = selectedElement
-      selectedElementRef.current.drawOpt.color = 'rgba(0, 0, 0, 0.1)'
-      if (!useAnimationFrame) {
-        draw()
-      }
-    }
-
-    if (selectedElement instanceof TimeLine) {
-
-      if (processSelection.current.sizeOpt.width === 0) {
-
-        const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
-        processSelection.current.setStartPoint(worldX)
+    if (!rightClick) {
+      if (selectedElement instanceof ChangeElement) {
+        selectedElementRef.current = selectedElement
+        selectedElementRef.current.drawOpt.color = 'red'
+        if (!useAnimationFrame) {
+          draw()
+        }
+      } else if (selectedElement instanceof Cover) {
+        selectedElementRef.current?.returnDefaultColor()
+        selectedElementRef.current = selectedElement
+        selectedElementRef.current.drawOpt.color = 'rgba(0, 0, 0, 0.1)'
+        if (!useAnimationFrame) {
+          draw()
+        }
       }
 
-      selectedElementRef.current = selectedElement
+      if (selectedElement instanceof TimeLine) {
 
-    }
+        if (processSelection.current.sizeOpt.width === 0) {
 
-    if (selectedElement instanceof Cover) {
-      selectedElement.setDragging(true)
+          const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
+          processSelection.current.setStartPoint(worldX)
+        }
+
+        selectedElementRef.current = selectedElement
+
+      }
+
+      if (selectedElement instanceof Cover) {
+        selectedElement.setDragging(true)
+      }
     }
 
     if (selectedElement instanceof ProcessSelection) {
       const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
 
+
       const {width, xPosition} = selectedElement.sizeOpt
-      if (worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current) {
+      if (!rightClick && worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current) {
         selectedElement.setChangingLeftBorder(true)
         // screenSpaceRef.current.canvas.style.cursor = 'e-resize'
-      } else if (worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width) {
+      } else if (!rightClick && worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width) {
         selectedElement.setChangingRightBorder(true)
         // screenSpaceRef.current.canvas.style.cursor = 'e-resize'
       } else {
-        selectedElement.drawOpt.color = 'rgba(0, 0, 0, 0.3)'
-        selectedElement.setIsMoving(true)
+        selectedElement.setFocusColor()
+
+        if (rightClick) {
+          contextMenu.current.setStartPoint({x:event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+          contextMenu.current.setShouldDraw(true)
+        } else {
+          selectedElement.setIsMoving(true)
+        }
+
       }
+
       selectedElementRef.current = selectedElement
 
     }
@@ -398,9 +447,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
           const newWidth = width - offset
 
-          if (newWidth > 5 && worldX < xPosition + width  - 5) {
-            processSelection.current.sizeOpt.xPosition = newOffset
-            processSelection.current.sizeOpt.width = newWidth
+
+          if (newWidth > 5 && worldX < xPosition + width - 5) {
+            const startTime = Math.round(newOffset / screenSpaceRef.current.canvas.width * allTime)
+            log('startTime', startTime)
+            processSelection.current.setStartPoint(newOffset)
+            processSelection.current.setWidth(newWidth)
           }
 
         }
@@ -409,7 +461,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
           const newWidth = width + offset
 
           if (newWidth > 5 && worldX > xPosition + 5) {
-            processSelection.current.sizeOpt.width = newWidth
+            processSelection.current.setWidth(newWidth)
           }
         }
 
@@ -447,6 +499,10 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const handleMouseUp = (event: React.MouseEvent) => {
     moving.current = false
 
+    if (event.nativeEvent.button === 2) {
+      return
+    }
+
     let selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
     if (selectedElement instanceof Cover) {
@@ -471,7 +527,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       selectedElementRef.current = null
     }
 
-    if (selectedElement instanceof ProcessSelection || selectedElementRef.current instanceof ProcessSelection ) {
+    if (selectedElement instanceof ProcessSelection || selectedElementRef.current instanceof ProcessSelection) {
       if (selectedElementRef.current instanceof ProcessSelection) {
         selectedElementRef.current.setIsMoving(false)
         selectedElementRef.current.setChangingLeftBorder(false)
@@ -529,6 +585,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const changeScale = (event: React.WheelEvent) => {
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
+    contextMenu.current.setShouldDraw(false)
 
     if (event.nativeEvent.offsetY > canvasHeight - LEGEND_HEIGHT && !(selectedElement instanceof Cover)) {
 

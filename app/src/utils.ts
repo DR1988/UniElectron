@@ -109,3 +109,20 @@ export const getIntervalsFromSeconds = (_seconds: number) => {
 
   return moment.utc(_seconds*1000 ).format('mm:ss')
 }
+
+export const getTime = (time: number) => {
+  const result = convertSecToDay(time)
+
+  const {value: hourValue} = result['hour']
+  const {value: minuteValue} = result['minutes']
+  const {value: secondValue} = result['seconds']
+  const _secondValue = secondValue / 10 >= 1 ? secondValue : `0${secondValue}`
+  const _minuteValue = minuteValue /10 >= 1 ? minuteValue : `0${minuteValue}`
+
+  if (hourValue) {
+    return `${hourValue}:${_minuteValue}:${_secondValue}`
+  } else if (minuteValue) {
+    return `${_minuteValue}:${_secondValue}`
+  }
+  return `${_secondValue}`
+}

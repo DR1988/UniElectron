@@ -1,7 +1,9 @@
-import {DRAW_RECT_OPT, DRAW_RECT_PARAMS, SIZE_OPT, TEXT_DRAW_OPT} from './CanvasTypes';
+import {DRAW_RECT_OPT, DRAW_RECT_PARAMS, Point, SIZE_OPT, TEXT_DRAW_OPT} from './CanvasTypes';
 import {RECT_HEIGHT} from './CanvasConstants';
-import {getIntervalsFromSeconds} from '../../../../utils';
+import {getIntervalsFromSeconds, getTime} from '../../../../utils';
 import throttle from 'lodash/throttle';
+import React from 'react';
+import {RemoveSpaceOption} from '../../../CommonTypes';
 
 export type PositionSize = {
   xPosition,
@@ -15,7 +17,15 @@ const log2 = throttle(console.log, 500)
 const log3 = throttle(console.log, 500)
 
 
-export type ELEMENT_TYPES = 'COVER' | 'LINE' | 'CHANGE_ELEMENT' | 'SIDE_COVER' | 'TIME_LINE' | 'TIME_VIEW' | 'PROCESS_SELECTION'
+export type ELEMENT_TYPES =
+  'COVER'
+  | 'LINE'
+  | 'CHANGE_ELEMENT'
+  | 'SIDE_COVER'
+  | 'TIME_LINE'
+  | 'TIME_VIEW'
+  | 'PROCESS_SELECTION'
+  | 'CONTEXT_MENU'
 
 export abstract class DrawingElement<Type extends ELEMENT_TYPES> {
   ctx: CanvasRenderingContext2D
@@ -355,7 +365,7 @@ export class TimeView extends DrawingElement<'TIME_VIEW'> {
     this.ctx.fillStyle = this.drawOpt.color
 
     // const xInitialOffset = -7.3* ( width / 2) *zoom
-    const xInitialOffset = ( width / 2) *zoom
+    const xInitialOffset = (width / 2) * zoom
 
 
     this.ctx.moveTo((xPosition + width) / 2 * zoom - xInitialOffset - width / 2, yPosition);
@@ -385,7 +395,10 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   changingRightBorder: boolean
   private static instance: ProcessSelection
 
-  private constructor(params: DRAW_RECT_PARAMS) {
+  private focusColor = 'rgba(0, 0, 0, 0.3)'
+
+
+  constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
 
     const {ctx, sizeOpt, drawOpt} = params
@@ -402,14 +415,6 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.changingRightBorder = false
   }
 
-  public static getInstance(params: DRAW_RECT_PARAMS): ProcessSelection {
-    if (!this.instance) {
-      this.instance = new ProcessSelection(params)
-    }
-
-    return this.instance
-  }
-
   drawElement = (zoom: number = 1) => {
     const {xPosition, yPosition, width, height} = this.sizeOpt
     const {color} = this.drawOpt || {}
@@ -421,12 +426,40 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
 
     this.ctx.beginPath()
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)' //color || 'rgba(0, 0, 0, 0.4)'
-    this.ctx.fillRect(xPosition, yPosition, (width ? 3 : 0)/zoom, height)
+    this.ctx.fillRect(xPosition, yPosition, (width ? 3 : 0) / zoom, height)
     this.ctx.fill()
+
+    if (width) {
+      this.ctx.save()
+
+      if (this.drawOpt.color === this.defaultColor) {
+        this.ctx.fillStyle = 'black';
+        // this.ctx.fillStyle = 'blue';
+      } else {
+        this.ctx.fillStyle = 'white';
+        // this.ctx.fillStyle = 'blue';
+      }
+      this.ctx.font = "bold 12px Arial, Helvetica, sans-serif"
+      this.ctx.textAlign = "start";
+      this.ctx.scale(1 / zoom, 1)
+
+      const textLeft = Math.round(this.sizeOpt.xPosition / this.ctx.canvas.width * this.allTime)
+      const textRight = Math.round((this.sizeOpt.xPosition + this.sizeOpt.width) / this.ctx.canvas.width * this.allTime)
+
+      const startLeft = getTime(textLeft)
+      const endTime = getTime(textRight)
+
+      const textWidth = this.ctx.measureText(endTime).width
+
+      this.ctx.fillText(startLeft, xPosition * zoom + 3, height)
+      this.ctx.fillText(endTime, (xPosition + width) * zoom - textWidth - 3, height)
+      this.ctx.restore()
+    }
+
 
     this.ctx.beginPath()
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)' //color || 'rgba(0, 0, 0, 0.4)'
-    this.ctx.fillRect(xPosition + width - 3 / zoom, yPosition, (width ? 3 : 0)/zoom, height)
+    this.ctx.fillRect(xPosition + width - 3 / zoom, yPosition, (width ? 3 : 0) / zoom, height)
     this.ctx.fill()
 
   }
@@ -443,7 +476,7 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.widthSetIsComplete = value
   }
 
-  setIsMoving = (value:boolean) => {
+  setIsMoving = (value: boolean) => {
     this.isMoving = value
   }
 
@@ -466,6 +499,288 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.widthSetIsComplete = false
     this.changingLeftBorder = false
     this.changingRightBorder = false
+  }
+
+  setFocusColor = () => {
+    this.drawOpt.color = this.focusColor
+  }
+
+}
+
+export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
+  private shouldDraw: boolean = true
+
+  private radioSize = 15
+  private radioInitOffset = 20
+  private radioVerticalOffset = 25
+  private leftMargin = 10
+  private bottomMargin = 10
+  private buttonTextMargin = 5
+  private buttonHeight = 20
+  private buttonFontSize = 16
+  private radioSelected: RemoveSpaceOption | undefined
+  private cancelText = 'Cancel'
+  private okText = 'OK'
+
+  constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
+    super('CONTEXT_MENU', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
+
+    const {ctx, sizeOpt, drawOpt} = params
+    this.ctx = ctx
+    this.sizeOpt = sizeOpt
+    this.drawOpt = drawOpt
+    this.initialWidth = sizeOpt.width
+    this.initialXPosition = sizeOpt.xPosition
+    this.defaultColor = this.drawOpt?.color || 'red'
+    this.order = 3
+  }
+
+  drawElement(zoom: number = 1) {
+
+    if (this.shouldDraw) {
+      this.drawSheet()
+      this.drawRadioButtons()
+      this.drawButtons()
+    }
+
+  }
+
+  private drawSheet = () => {
+    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const {color, text} = this.drawOpt || {}
+
+    let signX = 0
+    let signY = 0
+    if (xPosition + width < this.ctx.canvas.width) {
+    } else {
+      signX = 1
+    }
+    if (yPosition + height < this.ctx.canvas.height) {
+    } else {
+      signY = 1
+    }
+
+    const mirrorOffsetX = - signX * width
+    const mirrorOffsetY = - signY * height
+
+    this.ctx.save()
+    this.ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
+    this.ctx.shadowBlur = 8;
+    this.ctx.shadowOffsetX = 10;
+    this.ctx.shadowOffsetY = 10;
+
+    this.ctx.beginPath()
+    this.ctx.fillStyle = color || 'red'
+
+    this.ctx.fillRect(xPosition + mirrorOffsetX, yPosition + mirrorOffsetY, width, height)
+    this.ctx.fill()
+    this.ctx.restore()
+  }
+
+  private drawRadioButtons = () => {
+    const {xPosition, yPosition, width, height} = this.sizeOpt
+    let sign = 0
+    let signY = 0
+    if (xPosition + width < this.ctx.canvas.width) {
+    } else {
+      sign = 1
+    }
+    if (yPosition + height < this.ctx.canvas.height) {
+    } else {
+      signY = 1
+    }
+
+    const mirrorOffsetX = - sign * width
+    const mirrorOffsetY = - signY * height
+
+    this.ctx.fillStyle = 'black';
+    this.ctx.font = "bold 15px Arial, Helvetica, sans-serif"
+    this.ctx.textBaseline = "bottom";
+
+    this.ctx.beginPath()
+    this.ctx.rect(xPosition + 10 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset, this.radioSize, this.radioSize);
+    this.ctx.fillText('Remove all', (xPosition + 35) + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioSize)
+    this.ctx.stroke();
+
+    if (this.radioSelected === 'remove_all') {
+      this.ctx.beginPath()
+      this.ctx.rect(xPosition + 12 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + 2, this.radioSize - 4, this.radioSize - 4);
+      this.ctx.fill()
+    }
+
+    this.ctx.beginPath()
+    this.ctx.rect(xPosition + 10 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioVerticalOffset, this.radioSize, this.radioSize);
+    this.ctx.fillText('Remove changes', (xPosition + 35) + mirrorOffsetX, yPosition + mirrorOffsetY+ this.radioInitOffset + this.radioVerticalOffset + this.radioSize)
+    this.ctx.stroke();
+
+    if (this.radioSelected === 'remove_changes') {
+      this.ctx.beginPath()
+      this.ctx.rect(xPosition + 12 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioVerticalOffset + 2, this.radioSize - 4, this.radioSize - 4);
+      this.ctx.fill()
+    }
+
+    this.ctx.beginPath()
+    this.ctx.rect(xPosition + 10 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + 2 * this.radioVerticalOffset, this.radioSize, this.radioSize);
+    this.ctx.fillText('Insert space', (xPosition + 35) + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + 2 * this.radioVerticalOffset + this.radioSize)
+    this.ctx.stroke();
+
+    if (this.radioSelected === 'insert_space') {
+      this.ctx.beginPath()
+      this.ctx.rect(xPosition + 12 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + 2 * this.radioVerticalOffset + 2, this.radioSize - 4, this.radioSize - 4);
+      this.ctx.fill()
+    }
+  }
+
+  private drawButtons = () => {
+    const {xPosition, yPosition, width, height} = this.sizeOpt
+    let sign = 0
+    let signY = 0
+    if (xPosition + width < this.ctx.canvas.width) {
+    } else {
+      sign = 1
+    }
+    if (yPosition + height < this.ctx.canvas.height) {
+    } else {
+      signY = 1
+    }
+
+    const mirrorOffsetX = - sign * width
+    const mirrorOffsetY = - signY * height
+
+    this.ctx.save()
+    this.ctx.fillStyle = 'white';
+    this.ctx.font = `bolder ${this.buttonFontSize}px Arial, Helvetica, sans-serif`
+    this.ctx.textBaseline = "top";
+    this.ctx.textAlign = "center";
+
+    const cancelTextWidth = this.ctx.measureText(this.cancelText).width
+    const okTextWidth = this.ctx.measureText(this.okText).width
+
+    this.ctx.beginPath()
+    this.ctx.rect(xPosition + mirrorOffsetX + this.leftMargin, yPosition + mirrorOffsetY + height - this.buttonHeight - this.bottomMargin, cancelTextWidth + this.leftMargin, this.buttonHeight);
+    this.ctx.stroke()
+    this.ctx.fill();
+
+    this.ctx.save()
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillText(this.cancelText, (xPosition + mirrorOffsetX + this.leftMargin + this.buttonTextMargin + cancelTextWidth / 2), yPosition + mirrorOffsetY + height - this.bottomMargin - this.buttonFontSize)
+    this.ctx.restore()
+
+    this.ctx.save()
+    this.ctx.beginPath()
+    if (!this.okIsActive) {
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      // this.ctx.strokeStyle = 'grey';
+    }
+    this.ctx.rect(xPosition + mirrorOffsetX + width - 2 * this.leftMargin - okTextWidth, yPosition + mirrorOffsetY + height - this.buttonHeight - this.bottomMargin, okTextWidth + this.leftMargin, this.buttonHeight);
+    this.ctx.stroke()
+    this.ctx.fill();
+    this.ctx.restore()
+
+    this.ctx.save()
+    this.ctx.fillStyle = 'black';
+    this.ctx.fillText(this.okText, (xPosition + mirrorOffsetX + width - 2*this.leftMargin + this.buttonTextMargin - okTextWidth / 2), yPosition + mirrorOffsetY + height - this.bottomMargin - this.buttonFontSize)
+    this.ctx.restore()
+
+    this.ctx.restore()
+  }
+
+  setStartPoint = (startPoint: { x: number, y: number }) => {
+    this.sizeOpt.xPosition = startPoint.x
+    this.sizeOpt.yPosition = startPoint.y
+  }
+
+  setShouldDraw = (shouldDraw: boolean) => {
+    this.shouldDraw = shouldDraw
+    if (!shouldDraw) {
+      this.radioSelected = undefined
+    }
+  }
+
+  public get isShouldDraw(): boolean {
+    return this.shouldDraw
+  }
+
+  public isClickOnElement(point: Point): boolean {
+    const {xPosition, yPosition, width, height} = this.sizeOpt
+
+    return this.shouldDraw && (
+      point.x > xPosition
+      && (point.x < xPosition + width)
+      && point.y > yPosition
+      && (point.y < yPosition + height)
+    )
+  }
+
+  public clickedRadioElement(point: Point) {
+    const {xPosition, yPosition, width, height} = this.sizeOpt
+    if (this.shouldDraw) {
+      if (
+        point.x > xPosition + this.leftMargin
+        && (point.x < xPosition + width - this.leftMargin)
+        && point.y > yPosition + this.radioInitOffset
+        && (point.y < yPosition + this.radioInitOffset + this.radioSize)
+      ) {
+        this.radioSelected = 'remove_all'
+      } else if (
+        point.x > xPosition + this.leftMargin
+        && (point.x < xPosition + width - this.leftMargin)
+        && point.y > yPosition + this.radioInitOffset + this.radioVerticalOffset
+        && (point.y < yPosition + this.radioInitOffset + +this.radioVerticalOffset + this.radioSize)
+      ) {
+        this.radioSelected = 'remove_changes'
+      } else if (
+        point.x > xPosition + this.leftMargin
+        && (point.x < xPosition + width - this.leftMargin)
+        && point.y > yPosition + this.radioInitOffset + 2 * this.radioVerticalOffset
+        && (point.y < yPosition + this.radioInitOffset + 2 * this.radioVerticalOffset + this.radioSize)
+      ) {
+        this.radioSelected = 'insert_space'
+      }
+    }
+  }
+
+  public clickedCancel(point: Point) {
+    const {xPosition, yPosition, width, height} = this.sizeOpt
+    if (this.shouldDraw) {
+      const cancelTextWidth = this.ctx.measureText(this.cancelText).width
+
+      if (
+        point.x > xPosition + this.leftMargin
+        && (point.x < xPosition + cancelTextWidth + this.leftMargin)
+        && point.y > yPosition + height - this.buttonHeight - this.bottomMargin
+        && (point.y < yPosition + height - this.bottomMargin )
+      ) {
+        this.setShouldDraw(false)
+      }
+
+    }
+  }
+
+  public clickedOk(point: Point): RemoveSpaceOption | undefined {
+    const {xPosition, yPosition, width, height} = this.sizeOpt
+    if (this.shouldDraw && this.okIsActive) {
+      const okTextWidth = this.ctx.measureText(this.okText).width
+
+      if (
+        point.x > xPosition + width - 2 * this.leftMargin - okTextWidth
+        && (point.x < xPosition + width - this.leftMargin - okTextWidth + okTextWidth)
+        && point.y > yPosition + height - this.buttonHeight - this.bottomMargin
+        && (point.y < yPosition + height - this.bottomMargin )
+      ) {
+        console.log('OK')
+        return this.radioSelected
+      }
+
+    }
+  }
+
+  private get okIsActive():boolean {
+    return !!this.radioSelected
+  }
+
+  public get radioSelectedElement(): RemoveSpaceOption | undefined {
+    return this.radioSelected
   }
 }
 
