@@ -47,9 +47,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     lineFormer,
     allTime,
     time,
-    distance
+    distance,
+    showModal,
+    setChosenValveTime
   }
 ) => {
+  console.log('lineFormer', lineFormer)
   const useAnimationFrame = true
 
   const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT
@@ -362,7 +365,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     if (!rightClick) {
       if (selectedElement instanceof ChangeElement) {
         selectedElementRef.current = selectedElement
-        selectedElementRef.current.drawOpt.color = 'red'
+        showModal()
+        setChosenValveTime(selectedElement.Data.lineId, +selectedElement.Data.changeElement.changeId)
         if (!useAnimationFrame) {
           draw()
         }

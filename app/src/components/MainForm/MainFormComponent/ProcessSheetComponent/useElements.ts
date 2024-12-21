@@ -83,7 +83,7 @@ export const useElements = (
                 text: value || duration,
                 selectable: true
               }
-            }),
+            }, {lineId: lf.id, changeElement: change}),
             new ChangeElement({
               ctx: screenSpace,
               sizeOpt: {
@@ -96,7 +96,7 @@ export const useElements = (
                 color: 'rgba(171, 193, 197, 1)',
                 shouldSkipSizing: true
               },
-            })
+            }, {lineId: lf.id, changeElement: change})
           )
         })
       })

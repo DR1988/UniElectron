@@ -1,3 +1,5 @@
+import {Change} from '../../MainFormInterfaces';
+
 export type SIZE_OPT = { xPosition: number, yPosition: number, width: number, height: number }
 export type DRAW_RECT_OPT = {
   color?: string,
@@ -37,3 +39,5 @@ export type TEXT_DRAW_OPT = {
   rectY: number,
   color?: string
 }
+
+export type ChangeElementData = {lineId: number, changeElement: Change}

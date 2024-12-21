@@ -1,4 +1,4 @@
-import {DRAW_RECT_OPT, DRAW_RECT_PARAMS, Point, SIZE_OPT, TEXT_DRAW_OPT} from './CanvasTypes';
+import {ChangeElementData, DRAW_RECT_OPT, DRAW_RECT_PARAMS, Point, SIZE_OPT, TEXT_DRAW_OPT} from './CanvasTypes';
 import {RECT_HEIGHT} from './CanvasConstants';
 import {getIntervalsFromSeconds, getTime} from '../../../../utils';
 import throttle from 'lodash/throttle';
@@ -160,7 +160,7 @@ export class Line extends DrawingElement<'LINE'> {
 }
 
 export class ChangeElement extends DrawingElement<'CHANGE_ELEMENT'> {
-  constructor(params: DRAW_RECT_PARAMS) {
+  constructor(params: DRAW_RECT_PARAMS, private data: ChangeElementData) {
     super('CHANGE_ELEMENT', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
 
     const {ctx, sizeOpt, drawOpt} = params
@@ -193,6 +193,9 @@ export class ChangeElement extends DrawingElement<'CHANGE_ELEMENT'> {
     }
   }
 
+  public get Data(): ChangeElementData {
+    return this.data
+  }
 }
 
 export class TimeLine extends DrawingElement<'TIME_LINE'> {
