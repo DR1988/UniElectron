@@ -514,7 +514,7 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
 }
 
 export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
-  private shouldDraw: boolean = true
+  private shouldDraw: boolean = false
 
   private radioSize = 15
   private radioInitOffset = 20

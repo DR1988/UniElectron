@@ -180,9 +180,8 @@ export const useElements = (
       const processSelection = new ProcessSelection({
         ctx: screenSpace,
         sizeOpt: {
-          width: 400,
-          // xPosition: -10,
-          xPosition: 120,
+          width: 0,
+          xPosition: -10,
           yPosition: 5, //canvasHeight - LEGEND_HEIGHT,
           height: canvasHeight - LEGEND_HEIGHT - 5
         },
@@ -200,8 +199,7 @@ export const useElements = (
           ctx: screenSpace,
           sizeOpt: {
             width: 180,
-            // xPosition: -10,
-            xPosition: 210,
+            xPosition: -10,
             yPosition: 105, //canvasHeight - LEGEND_HEIGHT,
             height: 135
           },
