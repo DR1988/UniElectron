@@ -182,46 +182,46 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
             lineFormer={lineFormer}
             container={containerRef.current}/>
 
-          <section
-            // onMouseMove={handleMouseMove}
-            id="processSheet"
-            className={cn(s['lines-keeper'], {[s.crossed]: crossCursor})}
-            onWheel={changScale}
-            onMouseDown={lockOnForm}
-            onMouseUp={lockOnForm}
-            onMouseMove={isMoving ? moveForm : f => f}
-            onMouseLeave={unlockForm}
-            ref={sectionRef}
-          >
-            <div
-              ref={formRef}
-              style={{
-                transform: `scaleX(${scale}) translateX(${translateX}px)`
-              }}
-              className={s.lineKeeperContent}
-            >
-              {lineFormer.map(elem => <ValveLineComponent
-                  key={elem.name + elem.id}
-                  line={elem}
-                  allTime={allTime}
-                  showModal={showModal}
-                  setChosenValveTime={setChosenValveTime}
-                  scale={scale}
-                  changeTime={props.changeTime}
-                  formRef={formRef.current}
-                />,
-              )}
-              <TimeLine
-                formRef={formRef.current}
-                timeLineHeight={formHeight}
-                scale={scale}
-                distance={distance}
-                time={time}
-                allTime={allTime}
-                removeSelectedTimeElements={removeSelectedTimeElements}
-              />
-            </div>
-          </section>
+          {/*<section*/}
+          {/*  // onMouseMove={handleMouseMove}*/}
+          {/*  id="processSheet"*/}
+          {/*  className={cn(s['lines-keeper'], {[s.crossed]: crossCursor})}*/}
+          {/*  onWheel={changScale}*/}
+          {/*  onMouseDown={lockOnForm}*/}
+          {/*  onMouseUp={lockOnForm}*/}
+          {/*  onMouseMove={isMoving ? moveForm : f => f}*/}
+          {/*  onMouseLeave={unlockForm}*/}
+          {/*  ref={sectionRef}*/}
+          {/*>*/}
+          {/*  <div*/}
+          {/*    ref={formRef}*/}
+          {/*    style={{*/}
+          {/*      transform: `scaleX(${scale}) translateX(${translateX}px)`*/}
+          {/*    }}*/}
+          {/*    className={s.lineKeeperContent}*/}
+          {/*  >*/}
+          {/*    {lineFormer.map(elem => <ValveLineComponent*/}
+          {/*        key={elem.name + elem.id}*/}
+          {/*        line={elem}*/}
+          {/*        allTime={allTime}*/}
+          {/*        showModal={showModal}*/}
+          {/*        setChosenValveTime={setChosenValveTime}*/}
+          {/*        scale={scale}*/}
+          {/*        changeTime={props.changeTime}*/}
+          {/*        formRef={formRef.current}*/}
+          {/*      />,*/}
+          {/*    )}*/}
+          {/*    <TimeLine*/}
+          {/*      formRef={formRef.current}*/}
+          {/*      timeLineHeight={formHeight}*/}
+          {/*      scale={scale}*/}
+          {/*      distance={distance}*/}
+          {/*      time={time}*/}
+          {/*      allTime={allTime}*/}
+          {/*      removeSelectedTimeElements={removeSelectedTimeElements}*/}
+          {/*    />*/}
+          {/*  </div>*/}
+          {/*</section>*/}
       </div>
     </section>
   )

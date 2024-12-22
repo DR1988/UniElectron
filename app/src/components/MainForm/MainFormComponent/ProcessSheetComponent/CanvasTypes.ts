@@ -1,6 +1,10 @@
 import {Change} from '../../MainFormInterfaces';
 
-export type SIZE_OPT = { xPosition: number, yPosition: number, width: number, height: number }
+export type SIZE_OPT = {
+  xPosition: number, yPosition: number, width: number, height: number,
+  crossingValueStartWidth?: number,
+  crossingValueEndWidth?: number
+}
 export type DRAW_RECT_OPT = {
   color?: string,
   height?: number,
@@ -26,7 +30,7 @@ export type DRAW_RECT_PARAMS = {
   ctx: CanvasRenderingContext2D, sizeOpt: SIZE_OPT, drawOpt?: DRAW_RECT_OPT
 }
 
-export type DRAW_RECT = (ctx: CanvasRenderingContext2D,  sizeOpt: SIZE_OPT, drawOpt?: DRAW_RECT_OPT) => ({
+export type DRAW_RECT = (ctx: CanvasRenderingContext2D, sizeOpt: SIZE_OPT, drawOpt?: DRAW_RECT_OPT) => ({
   xPosition: number,
   yPosition: number,
   width: number,
@@ -40,4 +44,4 @@ export type TEXT_DRAW_OPT = {
   color?: string
 }
 
-export type ChangeElementData = {lineId: number, changeElement: Change}
+export type ChangeElementData = { lineId: number, changeElement: Change }

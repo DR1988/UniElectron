@@ -175,16 +175,51 @@ export class ChangeElement extends DrawingElement<'CHANGE_ELEMENT'> {
 
 
   drawElement = (zoom: number = 1) => {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const {xPosition, yPosition, width, height, crossingValueEndWidth, crossingValueStartWidth} = this.sizeOpt
     const {color, text} = this.drawOpt || {}
 
-    this.ctx.beginPath()
-    this.ctx.fillStyle = color || 'rgba(171, 193, 197, 1)'
+    if (crossingValueEndWidth || crossingValueStartWidth) {
+      // log('crossingValueStartWidth', crossingValueEndWidth, crossingValueStartWidth)
+      // log2('this.data', this.data)
+
+      if (crossingValueStartWidth > 0) {
+        // this.getCrossingSpace(xPosition, yPosition, crossingValueStartWidth, height)
+        this.ctx.beginPath()
+        // this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'
+        this.ctx.fillRect(xPosition, yPosition, width, height || RECT_HEIGHT)
+        this.ctx.fill()
+
+      } else if (crossingValueEndWidth < 0) {
+        // if (this.data.lineId === 3) {
+        //   log('datadata', this.data)
+        // }
+
+        // this.getCrossingSpace(xPosition, yPosition, crossingValueEndWidth, height)
+        this.ctx.beginPath()
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)'
+        // this.ctx.fillStyle = 'red'
+
+        // this.ctx.fillStyle = 'red'
+        this.ctx.fillRect(xPosition, yPosition, width, height || RECT_HEIGHT)
+        this.ctx.fill()
+      }
+    } else {
+      // if (this.data.lineId === 3) {
+      //   log2('ssssss', this.data)
+      //   log3('-----------------')
+      // }
+      this.ctx.beginPath()
+      this.ctx.fillStyle = color || 'rgba(171, 193, 197, 1)'
+      this.ctx.fillRect(xPosition, yPosition, width, height || RECT_HEIGHT)
+      this.ctx.fill()
+    }
 
 
-    this.ctx.fillRect(xPosition, yPosition, width, height || RECT_HEIGHT)
-    this.ctx.fill()
-
+    // if (this.data.lineId === 3 && this.data.changeElement.duration < 0) {
+    //   log2('texttexttext', text)
+    //   log3('-----------------', this.data.changeElement)
+    // }
     if (text !== undefined) {
       this.ctx.save()
       this.ctx.scale(1 / zoom, 1)
@@ -195,6 +230,47 @@ export class ChangeElement extends DrawingElement<'CHANGE_ELEMENT'> {
 
   public get Data(): ChangeElementData {
     return this.data
+  }
+
+  private getCrossingSpace = (
+    x: number,
+    y: number,
+    width: number,
+    height: number
+  ) => {
+    const stripeWidth = 6
+    const slice = width / stripeWidth
+
+    const startClr = 'red'
+    const stopClr = 'blue'
+    // log('slice', slice)
+    // this.ctx.save()
+    this.ctx.beginPath()
+    const gr = this.ctx.createLinearGradient(x, y, width, width);
+    for (let index = 0; index <= slice; index++) {
+      // console.log(index)
+      if (index === 0 || index === slice) {
+        // console.log('index', index, startClr)
+        gr.addColorStop(1 / slice * index, startClr);
+      } else {
+        if (index % 2 === 0) {
+          // log('stopClr', stopClr)
+          // console.log('index', index, stopClr)
+          gr.addColorStop(1 / slice * index, stopClr);
+          // console.log('index', index, startClr)
+          gr.addColorStop(1 / slice * index, startClr);
+        } else {
+          // console.log('index', index, startClr)
+          gr.addColorStop(1 / slice * index, startClr);
+          // console.log('index', index, stopClr)
+          gr.addColorStop(1 / slice * index, stopClr);
+        }
+      }
+
+    }
+
+    this.ctx.fillStyle = gr;
+    this.ctx.fillRect(x, y, width, height);
   }
 }
 
@@ -569,8 +645,8 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
       signY = 1
     }
 
-    const mirrorOffsetX = - signX * width
-    const mirrorOffsetY = - signY * height
+    const mirrorOffsetX = -signX * width
+    const mirrorOffsetY = -signY * height
 
     this.ctx.save()
     this.ctx.shadowColor = "rgba(0, 0, 0, 0.25)";
@@ -599,8 +675,8 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
       signY = 1
     }
 
-    const mirrorOffsetX = - sign * width
-    const mirrorOffsetY = - signY * height
+    const mirrorOffsetX = -sign * width
+    const mirrorOffsetY = -signY * height
 
     this.ctx.fillStyle = 'black';
     this.ctx.font = "bold 15px Arial, Helvetica, sans-serif"
@@ -619,7 +695,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
 
     this.ctx.beginPath()
     this.ctx.rect(xPosition + 10 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioVerticalOffset, this.radioSize, this.radioSize);
-    this.ctx.fillText('Remove changes', (xPosition + 35) + mirrorOffsetX, yPosition + mirrorOffsetY+ this.radioInitOffset + this.radioVerticalOffset + this.radioSize)
+    this.ctx.fillText('Remove changes', (xPosition + 35) + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioVerticalOffset + this.radioSize)
     this.ctx.stroke();
 
     if (this.radioSelected === 'remove_changes') {
@@ -653,8 +729,8 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
       signY = 1
     }
 
-    const mirrorOffsetX = - sign * width
-    const mirrorOffsetY = - signY * height
+    const mirrorOffsetX = -sign * width
+    const mirrorOffsetY = -signY * height
 
     this.ctx.save()
     this.ctx.fillStyle = 'white';
@@ -688,7 +764,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
 
     this.ctx.save()
     this.ctx.fillStyle = 'black';
-    this.ctx.fillText(this.okText, (xPosition + mirrorOffsetX + width - 2*this.leftMargin + this.buttonTextMargin - okTextWidth / 2), yPosition + mirrorOffsetY + height - this.bottomMargin - this.buttonFontSize)
+    this.ctx.fillText(this.okText, (xPosition + mirrorOffsetX + width - 2 * this.leftMargin + this.buttonTextMargin - okTextWidth / 2), yPosition + mirrorOffsetY + height - this.bottomMargin - this.buttonFontSize)
     this.ctx.restore()
 
     this.ctx.restore()
@@ -758,7 +834,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
         point.x > xPosition + this.leftMargin
         && (point.x < xPosition + cancelTextWidth + this.leftMargin)
         && point.y > yPosition + height - this.buttonHeight - this.bottomMargin
-        && (point.y < yPosition + height - this.bottomMargin )
+        && (point.y < yPosition + height - this.bottomMargin)
       ) {
         this.setShouldDraw(false)
       }
@@ -775,7 +851,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
         point.x > xPosition + width - 2 * this.leftMargin - okTextWidth
         && (point.x < xPosition + width - this.leftMargin - okTextWidth + okTextWidth)
         && point.y > yPosition + height - this.buttonHeight - this.bottomMargin
-        && (point.y < yPosition + height - this.bottomMargin )
+        && (point.y < yPosition + height - this.bottomMargin)
       ) {
         console.log('OK')
         return this.radioSelected
@@ -784,7 +860,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
     }
   }
 
-  private get okIsActive():boolean {
+  private get okIsActive(): boolean {
     return !!this.radioSelected
   }
 

@@ -333,10 +333,10 @@ class MainForm extends Component<Props, MainFormState> {
 
     const newlineFormer = cloneDeep(lineFormer)
     newlineFormer[chosenLine.id].changes[index].endTime = value
-    newlineFormer[chosenLine.id].changes[index].duration = startTime - value
+    newlineFormer[chosenLine.id].changes[index].duration = value - startTime
     const newChosenLine: ValveLineType = cloneDeep(chosenLine)
     newChosenLine.changes[index].endTime = value
-    newChosenLine.changes[index].duration = startTime - value
+    newChosenLine.changes[index].duration = value - startTime
 
     if (newChosenLine.changes[index + 1]) {
       let wrongSign = ''
@@ -546,6 +546,7 @@ class MainForm extends Component<Props, MainFormState> {
             newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueEnd = NaN
           }
 
+          newlineFormer[chosenLine.id].changes.sort((a,b) => a.endTime - b.endTime) // sort for canvas
           const maxTime = Math.max(...newlineFormer.map((lines) => {
             if (lines.changes.length) {
               return lines.changes[lines.changes.length - 1].endTime
@@ -598,7 +599,7 @@ class MainForm extends Component<Props, MainFormState> {
         return 0
       }))
       const allTime = newEndTime > maxTime ? newEndTime : maxTime
-
+      newlineFormer[chosenLine.id].changes.sort((a,b) => a.endTime - b.endTime) // sort for canvas
       this.setState({
         ...this.state,
         lineFormer: newlineFormer,
@@ -618,6 +619,7 @@ class MainForm extends Component<Props, MainFormState> {
         if (newStartTime <= previousChanges[i].startTime) {
           currentItemIndex = i
           const filteredChange = changes.filter(change => change.changeId !== changeId)
+
           const newChanges =
             this.insertItem(filteredChange, currentItemIndex,
               {
@@ -644,12 +646,14 @@ class MainForm extends Component<Props, MainFormState> {
             newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueEnd = NaN
           }
 
+          newlineFormer[chosenLine.id].changes.sort((a,b) => a.endTime - b.endTime) // sort for canvas
           const maxTime = Math.max(...newlineFormer.map((lines) => {
             if (lines.changes.length) {
               return lines.changes[lines.changes.length - 1].endTime
             }
             return 0
           }))
+
           const allTime = newEndTime > maxTime ? newEndTime : maxTime
           this.setState({
             ...this.state,
@@ -681,7 +685,7 @@ class MainForm extends Component<Props, MainFormState> {
     newlineFormer[chosenLine.id].changes[currentItemIndex].duration = newEndTime - newStartTime
     const newChosenLine: ValveLineType = cloneDeep(chosenLine)
     newChosenLine.changes = newChanges
-    newChosenLine.changes[currentItemIndex].duration = newStartTime - newEndTime
+    newChosenLine.changes[currentItemIndex].duration = newEndTime - newStartTime
     let wrongSign = ''
     if (newChosenLine.changes[currentItemIndex - 1].endTime >= newStartTime) {
       newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueStart =

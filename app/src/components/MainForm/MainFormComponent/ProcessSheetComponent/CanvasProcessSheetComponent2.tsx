@@ -52,7 +52,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     setChosenValveTime
   }
 ) => {
-  console.log('lineFormer', lineFormer)
+
   const useAnimationFrame = true
 
   const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT

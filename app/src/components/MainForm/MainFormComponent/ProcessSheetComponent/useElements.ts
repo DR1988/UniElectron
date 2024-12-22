@@ -69,6 +69,20 @@ export const useElements = (
           const duration = endTime - startTime
           const width = containerWidth * duration / allTime
           const xPosition = containerWidth * startTime / allTime
+          const crossingValueStartWidth = containerWidth * crossingValueStart / allTime
+          const crossingValueEndWidth = containerWidth * crossingValueEnd / allTime
+
+          // if (lf.id === 3) {
+          //   console.log('------')
+          //   console.log('change', change)
+          //   console.log('value || duration', value || duration)
+          //   console.log('crossingValueStartWidth', crossingValueStartWidth)
+          //   console.log('crossingValueStart', crossingValueStart)
+          //   console.log('crossingValueEndWidth', crossingValueEndWidth)
+          //   console.log('crossingValueEnd', crossingValueEnd)
+          //   console.log('------')
+          //
+          // }
 
           elementsArray.push(new ChangeElement({
               ctx: screenSpace,
@@ -76,7 +90,9 @@ export const useElements = (
                 width: width,
                 xPosition: xPosition,
                 yPosition: 5 * (index + 1) + 30 * index,
-                height: RECT_HEIGHT
+                height: RECT_HEIGHT,
+                crossingValueStartWidth,
+                crossingValueEndWidth,
               },
               drawOpt: {
                 color: 'rgba(171, 193, 197, 1)',
