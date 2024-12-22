@@ -1,7 +1,7 @@
 import {useMemo} from 'react';
 import {
   ChangeElement, ContextMenu,
-  Cover,
+  Cover, HoverLine,
   Line, ProcessSelection,
   SideCover,
   TimeLine,
@@ -25,10 +25,12 @@ export const useElements = (
         elementsArray: any[],
         processSelectionElement: ProcessSelection | null,
         contextMenuElement: ContextMenu | null
+        hoverLineElement: HoverLine | null
       } = {
       elementsArray,
       processSelectionElement: null,
-      contextMenuElement: null
+      contextMenuElement: null,
+      hoverLineElement: null,
     }
 
     // const containerRect = container?.getBoundingClientRect()
@@ -232,6 +234,23 @@ export const useElements = (
 
       elementsArray.push(contextMenu)
 
+      const hoverLine = new HoverLine({
+        ctx: screenSpace,
+        sizeOpt: {
+          width: 15,
+          xPosition: 26,
+          yPosition: 5,
+          height: canvasHeight - LEGEND_HEIGHT - 5
+        },
+        drawOpt: {
+          color: 'red',
+          selectable: true
+        }
+        // }, 4763
+      }, allTime)
+
+      elementsArray.push(hoverLine)
+      result.hoverLineElement = hoverLine
     }
 
     result.elementsArray = elementsArray

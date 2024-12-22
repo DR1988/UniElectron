@@ -17,7 +17,7 @@ import {
   ChangeElement, ContextMenu,
   Cover,
   DrawingElement,
-  ELEMENT_TYPES,
+  ELEMENT_TYPES, HoverLine,
   Line, ProcessSelection, SideCover, TimeLine, TimeView
 } from './CanvasElements';
 import throttle from 'lodash/throttle';
@@ -73,6 +73,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const startTimeRef = useRef<Date | null>(null)
   const processSelection = useRef<ProcessSelection | null>(null)
   const contextMenu = useRef<ContextMenu | null>(null)
+  const hoverLine = useRef<HoverLine | null>(null)
 
   // const [containerWidth, setContainerWidth] = useState(0)
 
@@ -128,11 +129,13 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const {
     elementsArray,
     processSelectionElement,
-    contextMenuElement
+    contextMenuElement,
+    hoverLineElement
   } = useElements(screenSpaceRef.current?.canvas?.width, screenSpaceRef.current, lineFormer, allTime)
   elements.current = elementsArray
   processSelection.current = processSelectionElement
   contextMenu.current = contextMenuElement
+  hoverLine.current = hoverLineElement
 
   const draw = useCallback(() => {
     if (!screenSpaceRef.current || !container) {
@@ -241,6 +244,16 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
       }
 
+      if (element instanceof HoverLine) {
+        screenSpaceRef.current.save()
+        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.current.scale(scaleRef.current, 1)
+        element.drawElement(scaleRef.current)
+        screenSpaceRef.current.restore()
+
+        return
+      }
+
     })
 
 
@@ -340,7 +353,10 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     //   return
     // }
 
-    const clickOnContextMenu = contextMenu.current.isClickOnElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    const clickOnContextMenu = contextMenu.current.isClickOnElement({
+      x: event.nativeEvent.offsetX,
+      y: event.nativeEvent.offsetY
+    })
     contextMenu.current.clickedRadioElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
     contextMenu.current.clickedCancel({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
     const clickedRadio = contextMenu.current.clickedOk({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
@@ -411,7 +427,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         selectedElement.setFocusColor()
 
         if (rightClick) {
-          contextMenu.current.setStartPoint({x:event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+          contextMenu.current.setStartPoint({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
           contextMenu.current.setShouldDraw(true)
         } else {
           selectedElement.setIsMoving(true)
@@ -482,6 +498,18 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }
 
+  const onChangeElementHover = (event: React.MouseEvent) => {
+    const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    if (selectedElement instanceof ChangeElement) {
+      hoverLine.current.setStart(selectedElement.initialXPosition)
+      hoverLine.current.setWidth(selectedElement.initialWidth)
+      hoverLine.current.setShouldShow(true)
+    } else {
+      hoverLine.current.setShouldShow(false)
+    }
+
+  }
+
   const handleMouseMove = (event: React.MouseEvent) => {
     // if (selectedElementRef.current) {
     //   log('selectedElementRef.current', selectedElementRef.current)
@@ -498,6 +526,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     onTimeLineMove(event)
 
     onProcessSelectionMove(event)
+
+    onChangeElementHover(event)
   }
 
   const handleMouseUp = (event: React.MouseEvent) => {
