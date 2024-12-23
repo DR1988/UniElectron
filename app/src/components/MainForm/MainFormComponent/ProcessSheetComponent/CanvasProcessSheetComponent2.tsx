@@ -508,6 +508,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       hoverLine.current.setStart(selectedElement.initialXPosition)
       hoverLine.current.setWidth(selectedElement.initialWidth)
       hoverLine.current.setShouldShow(true)
+      screenSpaceRef.current.canvas.style.cursor = 'pointer'
     } else {
       hoverLine.current.setShouldShow(false)
     }

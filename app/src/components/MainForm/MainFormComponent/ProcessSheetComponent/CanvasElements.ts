@@ -233,46 +233,6 @@ export class ChangeElement extends DrawingElement<'CHANGE_ELEMENT'> {
     return this.data
   }
 
-  private getCrossingSpace = (
-    x: number,
-    y: number,
-    width: number,
-    height: number
-  ) => {
-    const stripeWidth = 6
-    const slice = width / stripeWidth
-
-    const startClr = 'red'
-    const stopClr = 'blue'
-    // log('slice', slice)
-    // this.ctx.save()
-    this.ctx.beginPath()
-    const gr = this.ctx.createLinearGradient(x, y, width, width);
-    for (let index = 0; index <= slice; index++) {
-      // console.log(index)
-      if (index === 0 || index === slice) {
-        // console.log('index', index, startClr)
-        gr.addColorStop(1 / slice * index, startClr);
-      } else {
-        if (index % 2 === 0) {
-          // log('stopClr', stopClr)
-          // console.log('index', index, stopClr)
-          gr.addColorStop(1 / slice * index, stopClr);
-          // console.log('index', index, startClr)
-          gr.addColorStop(1 / slice * index, startClr);
-        } else {
-          // console.log('index', index, startClr)
-          gr.addColorStop(1 / slice * index, startClr);
-          // console.log('index', index, stopClr)
-          gr.addColorStop(1 / slice * index, stopClr);
-        }
-      }
-
-    }
-
-    this.ctx.fillStyle = gr;
-    this.ctx.fillRect(x, y, width, height);
-  }
 }
 
 export class TimeLine extends DrawingElement<'TIME_LINE'> {
@@ -477,6 +437,8 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
 
   private focusColor = 'rgba(0, 0, 0, 0.3)'
   private timeTextOffsetX = 3
+  private timeTextFontSize = 12
+  private borderWidth = 3
 
   constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
@@ -506,7 +468,7 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
 
     this.ctx.beginPath()
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)' //color || 'rgba(0, 0, 0, 0.4)'
-    this.ctx.fillRect(xPosition, yPosition, (width ? 3 : 0) / zoom, height)
+    this.ctx.fillRect(xPosition, yPosition, (width ? this.borderWidth : 0) / zoom, height)
     this.ctx.fill()
 
     if (width) {
@@ -519,7 +481,7 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
         this.ctx.fillStyle = 'white';
         // this.ctx.fillStyle = 'blue';
       }
-      this.ctx.font = "bold 12px Arial, Helvetica, sans-serif"
+      this.ctx.font = `bold ${this.timeTextFontSize}px Arial, Helvetica, sans-serif`
       this.ctx.textAlign = "start";
       this.ctx.scale(1 / zoom, 1)
 
@@ -537,15 +499,39 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
         endTimeTextOffsetY = 1
       }
 
-      this.ctx.fillText(startTime, xPosition * zoom + this.timeTextOffsetX, height)
-      this.ctx.fillText(endTime, (xPosition + width) * zoom - endTimeTextWidth - this.timeTextOffsetX, height - endTimeTextOffsetY * 14)
+
+      const startTextIsBig = this.ctx.measureText(startTime).width > width - 2 * this.borderWidth
+      const endTextIsBig = this.ctx.measureText(endTime).width > width - 2 * this.borderWidth
+
+log2('endTextIsBig', endTextIsBig)
+      if (startTextIsBig) {
+        this.ctx.save()
+        this.ctx.beginPath()
+        this.ctx.rect(xPosition, height - endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
+        this.ctx.clip()
+        this.ctx.fillText(startTime, xPosition * zoom + this.timeTextOffsetX, height);
+        this.ctx.restore()
+      } else {
+        this.ctx.fillText(startTime, xPosition * zoom + this.timeTextOffsetX, height)
+      }
+
+      if (endTextIsBig) {
+        this.ctx.save()
+        this.ctx.beginPath()
+        this.ctx.rect(xPosition, height - 2 * endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
+        this.ctx.clip()
+        this.ctx.fillText(endTime, (xPosition + width) * zoom - endTimeTextWidth - this.timeTextOffsetX, height - endTimeTextOffsetY * (this.timeTextFontSize + 2))
+        this.ctx.restore()
+      } else {
+        this.ctx.fillText(endTime, (xPosition + width) * zoom - endTimeTextWidth - this.timeTextOffsetX, height - endTimeTextOffsetY * (this.timeTextFontSize + 2))
+      }
       this.ctx.restore()
     }
 
 
     this.ctx.beginPath()
     this.ctx.fillStyle = 'rgba(0, 0, 0, 0.4)' //color || 'rgba(0, 0, 0, 0.4)'
-    this.ctx.fillRect(xPosition + width - 3 / zoom, yPosition, (width ? 3 : 0) / zoom, height)
+    this.ctx.fillRect(xPosition + width - this.borderWidth / zoom, yPosition, (width ? this.borderWidth : 0) / zoom, height)
     this.ctx.fill()
 
   }
