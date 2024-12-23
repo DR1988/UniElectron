@@ -19,16 +19,17 @@ class Modal extends Component<Props> {
   }
 
   componentDidMount() {
-    this.coverRef.current.focus()
+    setTimeout(() => {
+      this.coverRef.current.focus()
+    }, 10)
   }
   render() {
     const { closeModal, render, resetToPreviousChanges, shouldCloseOnEsp = true, containerMargin } = this.props
-    console.log('containerMargin', containerMargin);
-    
+
     return (
       <div
         ref={this.coverRef}
-        onKeyDown={(e: React.KeyboardEvent) => {          
+        onKeyDown={(e: React.KeyboardEvent) => {
           if (shouldCloseOnEsp && e.keyCode === 27) {
             resetToPreviousChanges?.()
             closeModal?.()

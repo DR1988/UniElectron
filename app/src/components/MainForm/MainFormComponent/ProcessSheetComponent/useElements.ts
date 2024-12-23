@@ -237,8 +237,8 @@ export const useElements = (
       const hoverLine = new HoverLine({
         ctx: screenSpace,
         sizeOpt: {
-          width: 15,
-          xPosition: 26,
+          width: 0,
+          xPosition: -10,
           yPosition: 5,
           height: canvasHeight - LEGEND_HEIGHT - 5
         },
@@ -247,7 +247,7 @@ export const useElements = (
           selectable: true
         }
         // }, 4763
-      }, allTime)
+      })
 
       elementsArray.push(hoverLine)
       result.hoverLineElement = hoverLine

@@ -49,7 +49,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     time,
     distance,
     showModal,
-    setChosenValveTime
+    setChosenValveTime,
+    removeSelectedTimeElements
   }
 ) => {
 
@@ -361,14 +362,17 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     contextMenu.current.clickedCancel({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
     const clickedRadio = contextMenu.current.clickedOk({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
-    console.log('clickedRadio', clickedRadio)
-    // console.log('clickOnContextMenu', clickOnContextMenu)
+    if (clickedRadio) {
+      const startTime = Math.round(processSelection.current.sizeOpt.xPosition / screenSpaceRef.current.canvas.width * allTime)
+      const endTime = Math.round((processSelection.current.sizeOpt.xPosition + processSelection.current.sizeOpt.width) / screenSpaceRef.current.canvas.width * allTime)
+
+      removeSelectedTimeElements(startTime, endTime, clickedRadio)
+      contextMenu.current.setShouldDraw(false)
+    }
+
     if (clickOnContextMenu) {
-      // contextMenu.current.setStartPoint(0)
-      // contextMenu.current.setShouldDraw(false)
       return
     } else {
-      // contextMenu.current.setStartPoint(0)
       contextMenu.current.setShouldDraw(false)
     }
 
