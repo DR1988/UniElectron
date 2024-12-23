@@ -503,7 +503,6 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
       const startTextIsBig = this.ctx.measureText(startTime).width > width - 2 * this.borderWidth
       const endTextIsBig = this.ctx.measureText(endTime).width > width - 2 * this.borderWidth
 
-log2('endTextIsBig', endTextIsBig)
       if (startTextIsBig) {
         this.ctx.save()
         this.ctx.beginPath()

@@ -664,8 +664,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     draw={draw}
     useAnimationFrame={useAnimationFrame}
   />
-    <span style={{display: 'block'}}>zoom: {1}</span>
-    <span style={{display: 'block'}}>mouseWheelCoordinateRef.current: {mouseWheelCoordinateRef.current}</span>
     <button onClick={() => tryStart()}>Start Test</button>
     <button onClick={() => tryStop()}>Stop Test</button>
   </div>
