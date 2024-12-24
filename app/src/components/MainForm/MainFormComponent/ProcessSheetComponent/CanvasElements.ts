@@ -253,68 +253,6 @@ export class TimeLine extends DrawingElement<'TIME_LINE'> {
 
   drawElement = (zoom: number = 1) => {
     const {xPosition, yPosition, width, height} = this.sizeOpt
-    //just ten frames for a time line
-    // if (this.allTime > 0) {
-    //   const elements = []
-    //   const interval = this.allTime / this.MAX_INTERVALS
-    //   const result = convertSecToDay(interval)
-    //   const largestInterval = result['largest']
-    //   const {value, sec, getStringValue, largest} = result[largestInterval]
-    //   const commonSize = sec / this.allTime * 100
-    //   const lastSize = largestInterval !== 'seconds' ? result.seconds.sec / this.allTime * 100 * this.MAX_INTERVALS : 0 // секунд может быть ноль - надо вроверять и стаивить другой интервал - например самый большрй интервал будет часы, а самый маленький - минуты
-    //
-    //
-    //   this.ctx.save()
-    //
-    //   this.ctx.scale(1 / zoom, 1)
-    //   this.ctx.beginPath();
-    //   this.ctx.moveTo(xPosition* zoom, yPosition + (height || RECT_HEIGHT));
-    //   this.ctx.lineTo((xPosition + width)*zoom, yPosition + (height || RECT_HEIGHT));
-    //   this.ctx.lineWidth = 3;
-    //   this.ctx.stroke();
-    //
-    //   this.ctx.lineWidth = 3;
-    //   this.ctx.fillStyle = 'black';
-    //   this.ctx.font = "bold 13px Arial, Helvetica, sans-serif"
-    //
-    //   for (let i = 0; i < this.MAX_INTERVALS; i++) {
-    //     const text = getStringValue(value * (i))
-    //     const xPosStart = i === 0 ? width*zoom / this.MAX_INTERVALS * i + 1 : width*zoom / this.MAX_INTERVALS * i
-    //
-    //     this.ctx.beginPath();
-    //     this.ctx.moveTo(xPosStart, yPosition + (height || RECT_HEIGHT) / 2);
-    //     this.ctx.lineTo(xPosStart, yPosition + (height || RECT_HEIGHT));
-    //     this.ctx.lineWidth = 2;
-    //     this.ctx.stroke();
-    //
-    //     if (i === 0) {
-    //       this.ctx.fillStyle = 'red';
-    //       this.ctx.textAlign = "start";
-    //       this.ctx.fillText('00:00', xPosStart  - 1, yPosition + (height || RECT_HEIGHT) / 2 - 1);
-    //     } else {
-    //       this.ctx.fillStyle = 'black';
-    //       this.ctx.textAlign = "center";
-    //       this.ctx.fillText(text, xPosStart, yPosition + (height || RECT_HEIGHT) / 2 - 1);
-    //     }
-    //
-    //   }
-    //   const text = getStringValue(value * (this.MAX_INTERVALS))
-    //
-    //   console.log('------------')
-    //   console.log('width*zoom-2', width*zoom)
-    //   this.ctx.textAlign = "end";
-    //   this.ctx.fillStyle = 'red';
-    //   this.ctx.strokeStyle = "red";
-    //   this.ctx.beginPath();
-    //   this.ctx.moveTo(width*zoom-2 , yPosition + (height || RECT_HEIGHT) / 2);
-    //   this.ctx.lineTo(width*zoom-2 , yPosition + (height || RECT_HEIGHT));
-    //   this.ctx.lineWidth = 2;
-    //   this.ctx.stroke();
-    //   this.ctx.fillText(text, width*zoom - 2, yPosition + (height || RECT_HEIGHT) / 2 - 1);
-    //
-    //   this.ctx.restore()
-    //
-    // }
 
     if (this.allTime > 0) {
 
@@ -495,13 +433,12 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
       const endTimeTextWidth = this.ctx.measureText(endTime).width
 
       let endTimeTextOffsetY = 0
-      if (startTimeTextWidth + endTimeTextWidth >= width - 2 * this.timeTextOffsetX - 5) {
+      if (startTimeTextWidth + endTimeTextWidth >= width * zoom - 2 * this.timeTextOffsetX - 5) {
         endTimeTextOffsetY = 1
       }
 
-
-      const startTextIsBig = this.ctx.measureText(startTime).width > width - 2 * this.borderWidth
-      const endTextIsBig = this.ctx.measureText(endTime).width > width - 2 * this.borderWidth
+      const startTextIsBig = this.ctx.measureText(startTime).width > width * zoom - 2 * this.borderWidth
+      const endTextIsBig = this.ctx.measureText(endTime).width > width * zoom - 2 * this.borderWidth
 
       if (startTextIsBig) {
         this.ctx.save()
@@ -585,13 +522,47 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   private radioInitOffset = 20
   private radioVerticalOffset = 25
   private leftMargin = 10
+  private leftInnerRadioButtonMargin = 2
+  private fillInnerRadioButtonMargin = 4
+  private leftTextRadioButtonMargin = 35
   private bottomMargin = 10
   private buttonTextMargin = 5
   private buttonHeight = 20
   private buttonFontSize = 16
   private radioSelected: RemoveSpaceOption | undefined
   private cancelText = 'Cancel'
+  private cancelTextWidth: number = 0
   private okText = 'OK'
+  private okTextWidth: number = 0
+
+  public elementsPosition: {
+    drawSheet: {
+      xPosition: number,
+      yPosition: number
+    },
+    drawRadioButtons: Record<RemoveSpaceOption, {
+      xPosition: number,
+      yPosition: number
+    }>,
+    drawButtons: Record<'Cancel' | 'OK', {
+      xPosition: number,
+      yPosition: number
+    }>
+  } = {
+    drawSheet: {
+      xPosition: 0,
+      yPosition: 0
+    },
+    drawRadioButtons: {
+      remove_all: {xPosition: 0, yPosition: 0},
+      remove_changes: {xPosition: 0, yPosition: 0},
+      insert_space: {xPosition: 0, yPosition: 0},
+    },
+    drawButtons: {
+      Cancel: {xPosition: 0, yPosition: 0},
+      OK: {xPosition: 0, yPosition: 0},
+    }
+  }
 
   constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('CONTEXT_MENU', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
@@ -643,6 +614,9 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
     this.ctx.beginPath()
     this.ctx.fillStyle = color || 'red'
 
+    this.elementsPosition.drawSheet.xPosition = xPosition + mirrorOffsetX
+    this.elementsPosition.drawSheet.yPosition = yPosition + mirrorOffsetY
+
     this.ctx.fillRect(xPosition + mirrorOffsetX, yPosition + mirrorOffsetY, width, height)
     this.ctx.fill()
     this.ctx.restore()
@@ -664,42 +638,65 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
     const mirrorOffsetX = -sign * width
     const mirrorOffsetY = -signY * height
 
+    this.ctx.save()
+
     this.ctx.fillStyle = 'black';
     this.ctx.font = "bold 15px Arial, Helvetica, sans-serif"
     this.ctx.textBaseline = "bottom";
 
+    const xRadioPosition = xPosition + this.leftMargin + mirrorOffsetX
+    const remove_allYPosition = yPosition + mirrorOffsetY + this.radioInitOffset
+    const remove_changesYPosition = yPosition + mirrorOffsetY + this.radioInitOffset + this.radioVerticalOffset
+    const insert_spaceYPosition = yPosition + mirrorOffsetY + this.radioInitOffset + 2 * this.radioVerticalOffset
+
+    this.elementsPosition.drawRadioButtons.remove_all = {
+      xPosition: xRadioPosition,
+      yPosition: remove_allYPosition
+    }
+
+    this.elementsPosition.drawRadioButtons.remove_changes = {
+      xPosition: xRadioPosition,
+      yPosition: remove_changesYPosition
+    }
+
+    this.elementsPosition.drawRadioButtons.insert_space = {
+      xPosition: xRadioPosition,
+      yPosition: insert_spaceYPosition
+    }
+
     this.ctx.beginPath()
-    this.ctx.rect(xPosition + 10 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset, this.radioSize, this.radioSize);
-    this.ctx.fillText('Remove all', (xPosition + 35) + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioSize)
+    this.ctx.rect(xRadioPosition, remove_allYPosition, this.radioSize, this.radioSize);
+    this.ctx.fillText('Remove all', (xPosition + this.leftTextRadioButtonMargin) + mirrorOffsetX, remove_allYPosition + this.radioSize)
     this.ctx.stroke();
 
     if (this.radioSelected === 'remove_all') {
       this.ctx.beginPath()
-      this.ctx.rect(xPosition + 12 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + 2, this.radioSize - 4, this.radioSize - 4);
+      this.ctx.rect(xRadioPosition + this.leftInnerRadioButtonMargin, remove_allYPosition + this.leftInnerRadioButtonMargin, this.radioSize - this.fillInnerRadioButtonMargin, this.radioSize - this.fillInnerRadioButtonMargin);
       this.ctx.fill()
     }
 
     this.ctx.beginPath()
-    this.ctx.rect(xPosition + 10 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioVerticalOffset, this.radioSize, this.radioSize);
-    this.ctx.fillText('Remove changes', (xPosition + 35) + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioVerticalOffset + this.radioSize)
+    this.ctx.rect(xRadioPosition, remove_changesYPosition, this.radioSize, this.radioSize);
+    this.ctx.fillText('Remove changes', (xPosition + this.leftTextRadioButtonMargin) + mirrorOffsetX, remove_changesYPosition + this.radioSize)
     this.ctx.stroke();
 
     if (this.radioSelected === 'remove_changes') {
       this.ctx.beginPath()
-      this.ctx.rect(xPosition + 12 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + this.radioVerticalOffset + 2, this.radioSize - 4, this.radioSize - 4);
+      this.ctx.rect(xRadioPosition + this.leftInnerRadioButtonMargin, remove_changesYPosition + this.leftInnerRadioButtonMargin, this.radioSize - this.fillInnerRadioButtonMargin, this.radioSize - this.fillInnerRadioButtonMargin);
       this.ctx.fill()
     }
 
     this.ctx.beginPath()
-    this.ctx.rect(xPosition + 10 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + 2 * this.radioVerticalOffset, this.radioSize, this.radioSize);
-    this.ctx.fillText('Insert space', (xPosition + 35) + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + 2 * this.radioVerticalOffset + this.radioSize)
+    this.ctx.rect(xRadioPosition, insert_spaceYPosition, this.radioSize, this.radioSize);
+    this.ctx.fillText('Insert space', (xPosition + this.leftTextRadioButtonMargin) + mirrorOffsetX, insert_spaceYPosition + this.radioSize)
     this.ctx.stroke();
 
     if (this.radioSelected === 'insert_space') {
       this.ctx.beginPath()
-      this.ctx.rect(xPosition + 12 + mirrorOffsetX, yPosition + mirrorOffsetY + this.radioInitOffset + 2 * this.radioVerticalOffset + 2, this.radioSize - 4, this.radioSize - 4);
+      this.ctx.rect(xRadioPosition + this.leftInnerRadioButtonMargin, insert_spaceYPosition + this.leftInnerRadioButtonMargin, this.radioSize - 4, this.radioSize - 4);
       this.ctx.fill()
     }
+    this.ctx.restore()
   }
 
   private drawButtons = () => {
@@ -724,17 +721,34 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
     this.ctx.textBaseline = "top";
     this.ctx.textAlign = "center";
 
-    const cancelTextWidth = this.ctx.measureText(this.cancelText).width
-    const okTextWidth = this.ctx.measureText(this.okText).width
+    this.cancelTextWidth = this.cancelTextWidth || this.ctx.measureText(this.cancelText).width
+    this.okTextWidth = this.okTextWidth || this.ctx.measureText(this.okText).width
+
+    const cancelButtonXPosition = xPosition + mirrorOffsetX + this.leftMargin
+    const cancelButtonYPosition = yPosition + mirrorOffsetY + height - this.buttonHeight - this.bottomMargin
+
+    this.elementsPosition.drawButtons.Cancel = {
+      xPosition: cancelButtonXPosition,
+      yPosition: cancelButtonYPosition
+    }
+
+
+    const okButtonXPosition = xPosition + mirrorOffsetX + width - 2 * this.leftMargin - this.okTextWidth
+    const okButtonYPosition = yPosition + mirrorOffsetY + height - this.buttonHeight - this.bottomMargin
+
+    this.elementsPosition.drawButtons.OK = {
+      xPosition: okButtonXPosition,
+      yPosition: okButtonYPosition
+    }
 
     this.ctx.beginPath()
-    this.ctx.rect(xPosition + mirrorOffsetX + this.leftMargin, yPosition + mirrorOffsetY + height - this.buttonHeight - this.bottomMargin, cancelTextWidth + this.leftMargin, this.buttonHeight);
+    this.ctx.rect(cancelButtonXPosition, cancelButtonYPosition, this.cancelTextWidth + this.leftMargin, this.buttonHeight);
     this.ctx.stroke()
     this.ctx.fill();
 
     this.ctx.save()
     this.ctx.fillStyle = 'black';
-    this.ctx.fillText(this.cancelText, (xPosition + mirrorOffsetX + this.leftMargin + this.buttonTextMargin + cancelTextWidth / 2), yPosition + mirrorOffsetY + height - this.bottomMargin - this.buttonFontSize)
+    this.ctx.fillText(this.cancelText, (cancelButtonXPosition + this.buttonTextMargin + this.cancelTextWidth / 2), yPosition + mirrorOffsetY + height - this.bottomMargin - this.buttonFontSize)
     this.ctx.restore()
 
     this.ctx.save()
@@ -743,14 +757,14 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
       this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
       // this.ctx.strokeStyle = 'grey';
     }
-    this.ctx.rect(xPosition + mirrorOffsetX + width - 2 * this.leftMargin - okTextWidth, yPosition + mirrorOffsetY + height - this.buttonHeight - this.bottomMargin, okTextWidth + this.leftMargin, this.buttonHeight);
+    this.ctx.rect(okButtonXPosition, okButtonYPosition, this.okTextWidth + this.leftMargin, this.buttonHeight);
     this.ctx.stroke()
     this.ctx.fill();
     this.ctx.restore()
 
     this.ctx.save()
     this.ctx.fillStyle = 'black';
-    this.ctx.fillText(this.okText, (xPosition + mirrorOffsetX + width - 2 * this.leftMargin + this.buttonTextMargin - okTextWidth / 2), yPosition + mirrorOffsetY + height - this.bottomMargin - this.buttonFontSize)
+    this.ctx.fillText(this.okText, (xPosition + mirrorOffsetX + width - 2 * this.leftMargin + this.buttonTextMargin - this.okTextWidth / 2), yPosition + mirrorOffsetY + height - this.bottomMargin - this.buttonFontSize)
     this.ctx.restore()
 
     this.ctx.restore()
@@ -773,7 +787,8 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   public isClickOnElement(point: Point): boolean {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const {width, height} = this.sizeOpt
+    const {xPosition, yPosition} = this.elementsPosition.drawSheet
 
     return this.shouldDraw && (
       point.x > xPosition
@@ -784,27 +799,29 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   public clickedRadioElement(point: Point) {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const {remove_all, remove_changes, insert_space} = this.elementsPosition.drawRadioButtons
+    const {width} = this.sizeOpt
+
     if (this.shouldDraw) {
       if (
-        point.x > xPosition + this.leftMargin
-        && (point.x < xPosition + width - this.leftMargin)
-        && point.y > yPosition + this.radioInitOffset
-        && (point.y < yPosition + this.radioInitOffset + this.radioSize)
+        point.x > remove_all.xPosition
+        && (point.x < remove_all.xPosition + width - this.leftMargin)
+        && point.y > remove_all.yPosition
+        && (point.y < remove_all.yPosition + this.radioSize)
       ) {
         this.radioSelected = 'remove_all'
       } else if (
-        point.x > xPosition + this.leftMargin
-        && (point.x < xPosition + width - this.leftMargin)
-        && point.y > yPosition + this.radioInitOffset + this.radioVerticalOffset
-        && (point.y < yPosition + this.radioInitOffset + +this.radioVerticalOffset + this.radioSize)
+        point.x > remove_changes.xPosition
+        && (point.x < remove_changes.xPosition + width - this.leftMargin)
+        && point.y > remove_changes.yPosition
+        && (point.y < remove_changes.yPosition + this.radioSize)
       ) {
         this.radioSelected = 'remove_changes'
       } else if (
-        point.x > xPosition + this.leftMargin
-        && (point.x < xPosition + width - this.leftMargin)
-        && point.y > yPosition + this.radioInitOffset + 2 * this.radioVerticalOffset
-        && (point.y < yPosition + this.radioInitOffset + 2 * this.radioVerticalOffset + this.radioSize)
+        point.x > insert_space.xPosition
+        && (point.x < insert_space.xPosition + width - this.leftMargin)
+        && point.y > insert_space.yPosition
+        && (point.y < insert_space.yPosition + this.radioSize)
       ) {
         this.radioSelected = 'insert_space'
       }
@@ -812,15 +829,13 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   public clickedCancel(point: Point) {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const {xPosition, yPosition} = this.elementsPosition.drawButtons.Cancel
     if (this.shouldDraw) {
-      const cancelTextWidth = this.ctx.measureText(this.cancelText).width
-
       if (
-        point.x > xPosition + this.leftMargin
-        && (point.x < xPosition + cancelTextWidth + this.leftMargin)
-        && point.y > yPosition + height - this.buttonHeight - this.bottomMargin
-        && (point.y < yPosition + height - this.bottomMargin)
+        point.x > xPosition
+        && (point.x < xPosition + this.cancelTextWidth + this.leftMargin)
+        && point.y > yPosition
+        && (point.y < yPosition + this.buttonHeight)
       ) {
         this.setShouldDraw(false)
       }
@@ -829,17 +844,16 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   public clickedOk(point: Point): RemoveSpaceOption | undefined {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const {xPosition, yPosition} = this.elementsPosition.drawButtons.OK
+
     if (this.shouldDraw && this.okIsActive) {
-      const okTextWidth = this.ctx.measureText(this.okText).width
 
       if (
-        point.x > xPosition + width - 2 * this.leftMargin - okTextWidth
-        && (point.x < xPosition + width - this.leftMargin - okTextWidth + okTextWidth)
-        && point.y > yPosition + height - this.buttonHeight - this.bottomMargin
-        && (point.y < yPosition + height - this.bottomMargin)
+        point.x > xPosition
+        && (point.x < xPosition + this.okTextWidth + this.leftMargin)
+        && point.y > yPosition
+        && (point.y < yPosition + this.buttonHeight)
       ) {
-        console.log('OK')
         return this.radioSelected
       }
 

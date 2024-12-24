@@ -64,6 +64,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const selectedElementRef = useRef<DrawingElement<ELEMENT_TYPES> | null>(null)
   const mouseWheelCoordinateRef = useRef(0)
   const elements = useRef<DrawingElement<ELEMENT_TYPES>[]>([])
+  const elementsSorted = useRef<DrawingElement<ELEMENT_TYPES>[]>([])
 
   const moving = useRef(false)
   const offsetXRef = useRef(0)
@@ -317,6 +318,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   const getSelectedElement = (point: Point): DrawingElement<ELEMENT_TYPES> | undefined => {
 
+    // elementsSorted.current = elements.current.slice().sort((a, b) => a.order - b.order)
+
     const selectedElements = elements.current.filter((element, index) => {
       const {sizeOpt: {yPosition, xPosition, width, height}, drawOpt} = element
       const {worldX} = screenToWorld(point.x, 0)
@@ -341,6 +344,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       if (element instanceof ProcessSelection) {
         return point.y >= yPosition && point.y <= yPosition + height &&
           worldX >= xPosition && worldX <= xPosition + width && element.selectable
+      }
+
+      if (element instanceof ContextMenu) {
+        return element.isClickOnElement(point)
+        // point.y >= yPosition && point.y <= yPosition + height &&
+        //   worldX >= xPosition && worldX <= xPosition + width && element.selectable
       }
 
     }).sort((a, b) => b.order - a.order)
@@ -423,9 +432,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       const {width, xPosition} = selectedElement.sizeOpt
       if (!rightClick && worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current) {
         selectedElement.setChangingLeftBorder(true)
+        selectedElement.setFocusColor()
         // screenSpaceRef.current.canvas.style.cursor = 'e-resize'
       } else if (!rightClick && worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width) {
         selectedElement.setChangingRightBorder(true)
+        selectedElement.setFocusColor()
         // screenSpaceRef.current.canvas.style.cursor = 'e-resize'
       } else {
         selectedElement.setFocusColor()
@@ -474,7 +485,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
           if (newWidth > 5 && worldX < xPosition + width - 5) {
             const startTime = Math.round(newOffset / screenSpaceRef.current.canvas.width * allTime)
-            log('startTime', startTime)
             processSelection.current.setStartPoint(newOffset)
             processSelection.current.setWidth(newWidth)
           }
@@ -519,10 +529,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     // if (selectedElementRef.current) {
     //   log('selectedElementRef.current', selectedElementRef.current)
     // }
+    // const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
     if (!selectedElementRef.current) {
       onPanMove(event)
     }
-
+ // log('selectedElement', selectedElement)
     // debounce or throttle
     onProcessSelectionBorder(event)
 
