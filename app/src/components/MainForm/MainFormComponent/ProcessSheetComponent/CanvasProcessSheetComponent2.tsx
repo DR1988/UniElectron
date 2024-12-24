@@ -301,7 +301,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const onTimeLineMove = (event: React.MouseEvent) => {
-    // log('selectedElementRef', selectedElementRef.current)
     if (selectedElementRef.current instanceof TimeLine) {
       if (processSelection.current && !processSelection.current.widthSetIsComplete) {
         const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
@@ -657,10 +656,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       selectedElementRef.current.setDragging(false)
     }
 
-    if (selectedElementRef.current instanceof ProcessSelection) {
-      selectedElementRef.current.setIsMoving(false)
-      selectedElementRef.current.setChangingLeftBorder(false)
-      selectedElementRef.current.setChangingRightBorder(false)
+    if (selectedElementRef.current instanceof ProcessSelection || selectedElementRef.current instanceof TimeLine) {
+      processSelection.current.setIsMoving(false)
+      processSelection.current.setChangingLeftBorder(false)
+      processSelection.current.setChangingRightBorder(false)
+      processSelection.current.setWidthSetIsComplete(true)
     }
   }
 
