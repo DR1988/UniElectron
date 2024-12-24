@@ -306,7 +306,10 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
 
         const width = worldX - processSelection.current.sizeOpt.xPosition
-        processSelection.current.setWidth(width)
+        if (width > 1) {
+          processSelection.current.setWidth(width)
+        }
+
       }
 
       if (!useAnimationFrame) {
@@ -532,7 +535,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     if (!selectedElementRef.current) {
       onPanMove(event)
     }
- // log('selectedElement', selectedElement)
+
     // debounce or throttle
     onProcessSelectionBorder(event)
 
