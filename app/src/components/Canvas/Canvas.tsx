@@ -9,6 +9,7 @@ export type  CanvasProp = {
   onMouseUp: (event: React.MouseEvent) => void
   onMouseDown: (event: React.MouseEvent) => void
   onDoubleClick: (event: React.MouseEvent) => void
+  onClick: (event: React.MouseEvent) => void
   onMouseLeave: (event: React.MouseEvent) => void
   screenSpaceRef: React.MutableRefObject<CanvasRenderingContext2D>
   useAnimationFrame: boolean
@@ -46,6 +47,7 @@ export const Canvas: FunctionComponent<CanvasProp> = (props) => {
     onMouseUp,
     useAnimationFrame,
     onDoubleClick,
+    onClick,
     ...rest
   } = props
 
@@ -91,5 +93,6 @@ export const Canvas: FunctionComponent<CanvasProp> = (props) => {
     onWheel={changeScale}
     onMouseLeave={onMouseLeave}
     onDoubleClick={onDoubleClick}
+    onClick={onClick}
     ref={canvasRef} {...rest}></canvas>
 }

@@ -371,12 +371,27 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   isMoving: boolean
   changingLeftBorder: boolean
   changingRightBorder: boolean
-  private static instance: ProcessSelection
 
   private focusColor = 'rgba(0, 0, 0, 0.3)'
   private timeTextOffsetX = 3
-  private timeTextFontSize = 12
+  private timeTextFontSize = 22
   private borderWidth = 3
+  public elementsPosition: {
+    startTimeText: {
+      xPosition: number,
+      yPosition: number
+    },
+    endTimeText: {
+      xPosition: number,
+      yPosition: number
+    },
+  } = {
+    startTimeText: {xPosition: 0, yPosition: 0},
+    endTimeText: {xPosition: 0, yPosition: 0}
+  }
+
+  private startTimeTextWidth: number = 0
+  private endTimeTextWidth: number = 0
 
   constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
@@ -429,26 +444,37 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
       const startTime = getTime(textLeft)
       const endTime = getTime(textRight)
 
-      const startTimeTextWidth = this.ctx.measureText(startTime).width
-      const endTimeTextWidth = this.ctx.measureText(endTime).width
+      this.startTimeTextWidth = this.startTimeTextWidth || this.ctx.measureText(startTime).width
+      this.endTimeTextWidth = this.endTimeTextWidth || this.ctx.measureText(endTime).width
 
       let endTimeTextOffsetY = 0
-      if (startTimeTextWidth + endTimeTextWidth >= width * zoom - 2 * this.timeTextOffsetX - 5) {
+      if (this.startTimeTextWidth + this.endTimeTextWidth >= width * zoom - 2 * this.timeTextOffsetX - 5) {
         endTimeTextOffsetY = 1
       }
 
       const startTextIsBig = this.ctx.measureText(startTime).width > width * zoom - 2 * this.borderWidth
       const endTextIsBig = this.ctx.measureText(endTime).width > width * zoom - 2 * this.borderWidth
 
+      const startTimeTextXPosition = xPosition * zoom + this.timeTextOffsetX
+      const endTimeTextXPosition = (xPosition + width) * zoom - this.endTimeTextWidth - this.timeTextOffsetX
+      const endTimeTextYPosition = height - endTimeTextOffsetY * (this.timeTextFontSize + 2)
+      this.elementsPosition = {
+        startTimeText: {xPosition: startTimeTextXPosition, yPosition: height},
+        endTimeText: {xPosition: endTimeTextXPosition, yPosition: endTimeTextYPosition}
+      }
+
       if (startTextIsBig) {
         this.ctx.save()
         this.ctx.beginPath()
         this.ctx.rect(xPosition, height - endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
         this.ctx.clip()
-        this.ctx.fillText(startTime, xPosition * zoom + this.timeTextOffsetX, height);
+        this.ctx.fillText(startTime, startTimeTextXPosition, height);
         this.ctx.restore()
       } else {
-        this.ctx.fillText(startTime, xPosition * zoom + this.timeTextOffsetX, height)
+        // this.ctx.beginPath()
+        // this.ctx.rect(startTimeTextXPosition, height, width, RECT_HEIGHT)
+        // this.ctx.fill()
+        this.ctx.fillText(startTime, startTimeTextXPosition, height)
       }
 
       if (endTextIsBig) {
@@ -456,10 +482,10 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
         this.ctx.beginPath()
         this.ctx.rect(xPosition, height - 2 * endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
         this.ctx.clip()
-        this.ctx.fillText(endTime, (xPosition + width) * zoom - endTimeTextWidth - this.timeTextOffsetX, height - endTimeTextOffsetY * (this.timeTextFontSize + 2))
+        this.ctx.fillText(endTime, endTimeTextXPosition, endTimeTextYPosition)
         this.ctx.restore()
       } else {
-        this.ctx.fillText(endTime, (xPosition + width) * zoom - endTimeTextWidth - this.timeTextOffsetX, height - endTimeTextOffsetY * (this.timeTextFontSize + 2))
+        this.ctx.fillText(endTime, endTimeTextXPosition, endTimeTextYPosition)
       }
       this.ctx.restore()
     }
@@ -511,6 +537,39 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
 
   setFocusColor = () => {
     this.drawOpt.color = this.focusColor
+  }
+
+  clickedOnTime = (point: Point) => {
+    const {startTimeText, endTimeText} = this.elementsPosition
+
+    return (point.x > startTimeText.xPosition
+      && point.x < startTimeText.xPosition + this.startTimeTextWidth
+      && point.y > startTimeText.yPosition - this.timeTextFontSize
+      && point.y < startTimeText.yPosition) || (point.x > endTimeText.xPosition
+      && point.x < endTimeText.xPosition + this.startTimeTextWidth
+      && point.y > endTimeText.yPosition - this.timeTextFontSize
+      && point.y < endTimeText.yPosition
+    )
+    // if (point.x > startTimeText.xPosition
+    //   && point.x < startTimeText.xPosition + this.startTimeTextWidth
+    //   && point.y > startTimeText.yPosition - this.timeTextFontSize
+    //   && point.y < startTimeText.yPosition
+    // ) {
+    //   return true
+    // }
+    //
+    // if (point.x > endTimeText.xPosition
+    //   && point.x < endTimeText.xPosition + this.startTimeTextWidth
+    //   && point.y > endTimeText.yPosition - this.timeTextFontSize
+    //   && point.y < endTimeText.yPosition
+    // ) {
+    //   return true
+    // }
+    //
+    // return false
+    // this.startTimeTextWidth
+    // this.endTimeTextWidth
+    // this.
   }
 
 }

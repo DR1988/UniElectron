@@ -22,6 +22,8 @@ import {
 } from './CanvasElements';
 import throttle from 'lodash/throttle';
 import {useElements} from './useElements';
+import {ChangeTimeForm} from './TimeLineComponent/ChangeTimeForm';
+import ClickOutHandler from 'react-onclickout'
 
 export type Props = {
   distance: number,
@@ -605,6 +607,21 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }
 
+  const handleClick = (event: React.MouseEvent) => {
+    // console.log('screenX', screenX)
+    // console.log('worldX', worldX)
+    // console.log('event.nativeEvent.offsetX', event.nativeEvent.offsetX)
+    // console.log('offsetXRef.offsetX', offsetXRef.current)
+
+    const isClickedOnTime = processSelection.current.clickedOnTime({x: offsetXRef.current * scaleRef.current +event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    if (isClickedOnTime) {
+      setChangeTimeModalPosition({x: event.clientX, y: event.clientY})
+      setChangeTimeModal(true)
+      // console.log('event.nativeEvent.offsetX', event.nativeEvent.offsetX)
+      // console.log('event.nativeEvent.offsetY', event.nativeEvent.offsetY)
+    }
+  }
+
   const scaleOnScreenSpace = (event: React.WheelEvent) => {
     const {worldX: worldXBeforeZoom} = screenToWorld(event.nativeEvent.offsetX, 0)
     const dir = Math.sign(-event.deltaY)
@@ -667,10 +684,21 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }
 
+  const [changeTimeModal, setChangeTimeModal] = useState(false)
+  const [changeTimeModalPosition, setChangeTimeModalPosition] = useState<{ x: number, y: number }>({
+    x: 0,
+    y: 0,
+  })
+
+  const closeChangeTimeModal = useCallback(() => {
+    setChangeTimeModal(false)
+  }, [])
+
   return <div><Canvas
     screenSpaceRef={screenSpaceRef}
     onMouseDown={handleMouseDown}
     onMouseMove={handleMouseMove}
+    onClick={handleClick}
     onMouseUp={handleMouseUp}
     onMouseLeave={handleLeave}
     changeScale={changeScale}
@@ -678,6 +706,41 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     draw={draw}
     useAnimationFrame={useAnimationFrame}
   />
+    {changeTimeModal ?
+      <ClickOutHandler onClickOut={closeChangeTimeModal}>
+        <div
+          style={{
+            zIndex: 3,
+            position: 'absolute',
+            left: changeTimeModalPosition.x,
+            top: changeTimeModalPosition.y,
+
+            // left: 450,
+            // top: 345,
+            // transform: `scaleX(${1 / scale})`,
+            boxShadow: '4px 4px 4px 4px rgba(34, 60, 80, 0.2)',
+          }}
+        >
+          <ChangeTimeForm
+            startTime={1}
+            endTime={2}
+            changeStartTime={(value) => {
+              if (value >= 0) {
+                const currentStartPositionNew = value * 100 / allTime
+                // setCurrentStartPosition(currentStartPositionNew)
+              }
+
+            }}
+            changeEndTime={(value) => {
+              if (value <= allTime) {
+                const currentEndPositionNew = value * 100 / allTime
+                // setCurrentStopPosition(currentEndPositionNew)
+              }
+            }}
+          />
+        </div>
+      </ClickOutHandler>
+      : null}
     <button onClick={() => tryStart()}>Start Test</button>
     <button onClick={() => tryStop()}>Stop Test</button>
   </div>
