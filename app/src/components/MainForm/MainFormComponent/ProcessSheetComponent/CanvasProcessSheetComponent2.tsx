@@ -3,7 +3,7 @@ import {Props} from './ProcessSheetComponent';
 import {ValveLineType} from '../../MainFormInterfaces';
 import {RemoveSpaceOption} from '../../../CommonTypes';
 import {Canvas} from '../../../Canvas/Canvas';
-import {DRAW_RECT, Point, TEXT_DRAW_OPT} from './CanvasTypes';
+import {DRAW_RECT, DrawingElement, ELEMENT_TYPES, Point, TEXT_DRAW_OPT} from './CanvasElements/CanvasTypes';
 import {
   LEGEND_HEIGHT,
   LINE_GAP,
@@ -13,17 +13,22 @@ import {
   STEP,
   TIME_LINE_HEIGHT
 } from './CanvasConstants';
-import {
-  ChangeElement, ContextMenu,
-  Cover,
-  DrawingElement,
-  ELEMENT_TYPES, HoverLine,
-  Line, ProcessSelection, SideCover, TimeLine, TimeView
-} from './CanvasElements';
+
 import throttle from 'lodash/throttle';
 import {useElements} from './useElements';
 import {ChangeTimeForm} from './TimeLineComponent/ChangeTimeForm';
 import ClickOutHandler from 'react-onclickout'
+import {
+  ProcessSelection,
+  ContextMenu,
+  HoverLine,
+  ChangeElement,
+  TimeLine,
+  TimeView,
+  SideCover,
+  Cover,
+  Line
+} from './CanvasElements';
 
 export type Props = {
   distance: number,
@@ -613,7 +618,10 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     // console.log('event.nativeEvent.offsetX', event.nativeEvent.offsetX)
     // console.log('offsetXRef.offsetX', offsetXRef.current)
 
-    const isClickedOnTime = processSelection.current.clickedOnTime({x: offsetXRef.current * scaleRef.current +event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+    const isClickedOnTime = processSelection.current.clickedOnTime({
+      x: offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX,
+      y: event.nativeEvent.offsetY
+    })
     if (isClickedOnTime) {
       setChangeTimeModalPosition({x: event.clientX, y: event.clientY})
       setChangeTimeModal(true)
@@ -715,15 +723,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
             left: changeTimeModalPosition.x,
             top: changeTimeModalPosition.y,
 
-            // left: 450,
-            // top: 345,
-            // transform: `scaleX(${1 / scale})`,
             boxShadow: '4px 4px 4px 4px rgba(34, 60, 80, 0.2)',
           }}
         >
           <ChangeTimeForm
-            startTime={1}
-            endTime={2}
+            startTime={Math.round(processSelection.current.sizeOpt.xPosition / screenSpaceRef.current.canvas.width * allTime)}
+            endTime={Math.round((processSelection.current.sizeOpt.xPosition + processSelection.current.sizeOpt.width) / screenSpaceRef.current.canvas.width * allTime)}
             changeStartTime={(value) => {
               if (value >= 0) {
                 const currentStartPositionNew = value * 100 / allTime

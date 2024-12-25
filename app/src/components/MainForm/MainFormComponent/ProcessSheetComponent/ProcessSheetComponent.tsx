@@ -20,7 +20,6 @@ import {render} from 'react-dom'
 import ValveTimeComponentAdder from '../ValveTimeComponentAdder/ValveTimeComponentAdder'
 import throttle from 'lodash/throttle';
 import {RemoveSpaceOption} from '../../../CommonTypes';
-import {CanvasProcessSheetComponent} from './CanvasProcessSheetComponent';
 import {CanvasProcessSheetComponent2} from './CanvasProcessSheetComponent2';
 
 export interface Props {

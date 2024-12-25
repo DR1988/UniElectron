@@ -1,14 +1,19 @@
 import {useMemo} from 'react';
-import {
-  ChangeElement, ContextMenu,
-  Cover, HoverLine,
-  Line, ProcessSelection,
-  SideCover,
-  TimeLine,
-  TimeView
-} from './CanvasElements';
+
 import {LEGEND_HEIGHT, LINE_GAP, LINE_HEIGHT, RECT_HEIGHT, TIME_LINE_HEIGHT} from './CanvasConstants';
 import {ValveLineType} from '../../MainFormInterfaces';
+import {
+  ProcessSelection,
+  ContextMenu,
+  HoverLine,
+  ChangeElement,
+  TimeLine,
+  TimeView,
+  SideCover,
+  Cover,
+  Line
+} from './CanvasElements';
+import {DrawingElement, ELEMENT_TYPES} from './CanvasElements/CanvasTypes';
 
 export const useElements = (
   containerWidth: number,
@@ -19,7 +24,7 @@ export const useElements = (
 
   const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT
   return useMemo(() => {
-    const elementsArray = []
+    const elementsArray: Array<DrawingElement<ELEMENT_TYPES>> = []
     const result:
       {
         elementsArray: any[],
@@ -253,7 +258,7 @@ export const useElements = (
       result.hoverLineElement = hoverLine
     }
 
-    result.elementsArray = elementsArray
+    result.elementsArray = elementsArray.sort((a, b) => a.order - b.order)
 
     return result
 

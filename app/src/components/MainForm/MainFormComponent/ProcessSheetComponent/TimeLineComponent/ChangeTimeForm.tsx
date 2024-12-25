@@ -1,6 +1,7 @@
 import React, {FunctionComponent} from 'react';
 
 import styles from './ChangeTime.css'
+import {getTime} from '../../../../../utils';
 
 export type Props = {
   startTime: number
@@ -16,6 +17,11 @@ export const ChangeTimeForm: FunctionComponent<Props> = (
     changeStartTime,
     changeEndTime,
   }) => {
+  const startTimeTotal = getTime(startTime)
+  const endTimeTotal = getTime(endTime)
+  // console.log('startTimeTotal', startTimeTotal)
+  // console.log('split', startTimeTotal.split(':'))
+  const startTimeLength = startTimeTotal.split(':').length
 
   const _changeStartTime = (event: SyntheticInputEvent<HTMLInputElement>) => {
     const _value = +event.target.value.trim()
@@ -42,22 +48,34 @@ export const ChangeTimeForm: FunctionComponent<Props> = (
         <div className={styles.controls}>
           <label className={styles.controlLabel}>
             Star Time
-          <input
-            className={styles.controlInput}
-            value={startTime}
-            onChange={_changeStartTime}
-          />
+            {startTimeTotal.split(':').map(el => {
+
+              return <div style={{display: 'flex'}}>
+                <div style={{marginLeft: 5}}>
+                  <input
+                    className={styles.controlInput}
+                    value={+el}
+                    onChange={_changeStartTime}
+                  />
+                </div>
+              </div>
+            })}
+            {/*<input*/}
+            {/*  className={styles.controlInput}*/}
+            {/*  value={startTime}*/}
+            {/*  onChange={_changeStartTime}*/}
+            {/*/>*/}
           </label>
         </div>
         <div className={`${styles.controls} ${styles.restControl}`}>
           <label
             className={styles.controlLabel}>
             End Time
-          <input
-            className={styles.controlInput}
-            value={endTime}
-            onChange={_changeEndTime}
-          />
+            <input
+              className={styles.controlInput}
+              value={endTime}
+              onChange={_changeEndTime}
+            />
           </label>
         </div>
       </div>
