@@ -12,7 +12,7 @@
 }
 
 .controls {
-  width: 60px;
+  /*width: 60px;*/
 }
 
 .restControl {
@@ -20,7 +20,8 @@
 }
 
 .controlLabel {
-  font-size: 12px;
+  font-size: 14px;
+  margin-left: 5px;
 }
 
 .controlInput {

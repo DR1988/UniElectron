@@ -10,6 +10,7 @@ export type TIME_INTERVAL = {
 }
 
 export type TIME_LINE = Record<TIME_INTERVALS, TIME_INTERVAL> & { largest: TIME_INTERVALS }
+export type TIME_VALUES = Record<TIME_INTERVALS, number>
 
 export const convertSecToDay = (_seconds: number): TIME_LINE => {
   const day = Math.floor(_seconds / (24 * 3600));
@@ -88,26 +89,26 @@ export const getIntervalsFromSeconds = (_seconds: number) => {
   const day = Math.floor(_seconds / (24 * 3600));
 
   if (day > 0) {
-    return `${day > 9 ? day : `0${day}`}:${moment.utc(_seconds*1000 ).format('HH:mm')}`
+    return `${day > 9 ? day : `0${day}`}:${moment.utc(_seconds * 1000).format('HH:mm')}`
   }
 
   _seconds = _seconds % (24 * 3600);
 
   const hour = Math.floor(_seconds / 3600);
 
-  if (hour>0) {
-    return moment.utc(_seconds*1000 ).format('HH:mm:ss')
+  if (hour > 0) {
+    return moment.utc(_seconds * 1000).format('HH:mm:ss')
   }
   _seconds %= 3600;
   const minutes = Math.floor(_seconds / 60);
 
 
-  if (minutes>0) {
-    return moment.utc(_seconds*1000 ).format('mm:ss')
+  if (minutes > 0) {
+    return moment.utc(_seconds * 1000).format('mm:ss')
   }
   _seconds %= 60;
 
-  return moment.utc(_seconds*1000 ).format('mm:ss')
+  return moment.utc(_seconds * 1000).format('mm:ss')
 }
 
 export const getTime = (time: number) => {
@@ -117,7 +118,7 @@ export const getTime = (time: number) => {
   const {value: minuteValue} = result['minutes']
   const {value: secondValue} = result['seconds']
   const _secondValue = secondValue / 10 >= 1 ? secondValue : `0${secondValue}`
-  const _minuteValue = minuteValue /10 >= 1 ? minuteValue : `0${minuteValue}`
+  const _minuteValue = minuteValue / 10 >= 1 ? minuteValue : `0${minuteValue}`
 
   if (hourValue) {
     return `${hourValue}:${_minuteValue}:${_secondValue}`
@@ -125,4 +126,66 @@ export const getTime = (time: number) => {
     return `${_minuteValue}:${_secondValue}`
   }
   return `${_secondValue}`
+}
+
+export const getDaysFromSeconds = (_seconds: number): TIME_VALUES => {
+  const day = Math.floor(_seconds / (24 * 3600));
+
+  _seconds = _seconds % (24 * 3600);
+
+  const hour = Math.floor(_seconds / 3600);
+
+  _seconds %= 3600;
+  const minutes = Math.floor(_seconds / 60);
+
+  _seconds %= 60;
+  const seconds = _seconds;
+
+  return {
+    day,
+    hour,
+    minutes,
+    seconds
+  }
+}
+
+export type TIME_RECORD = {
+  value: number
+  interval: TIME_INTERVALS
+  maxValue: number
+}
+
+export const getTimeIntervalsFromSeconds = (_seconds: number):  TIME_RECORD[] => {
+  const result: TIME_RECORD[]  = []
+
+  const day = Math.floor(_seconds / (24 * 3600));
+
+  if (day) {
+    result.push({value: day, interval: 'day', maxValue: Number.MAX_VALUE})
+  }
+
+  _seconds = _seconds % (24 * 3600);
+
+  const hour = Math.floor(_seconds / 3600);
+
+  if (hour) {
+    result.push({value: hour, interval: 'hour', maxValue: 23})
+  }
+
+
+  _seconds %= 3600;
+  const minutes = Math.floor(_seconds / 60);
+
+  if (minutes) {
+    result.push({value: minutes, interval: 'minutes', maxValue: 59})
+  }
+
+  _seconds %= 60;
+  const seconds = _seconds;
+
+  if (seconds) {
+    result.push({value: seconds, interval: 'seconds', maxValue: 59})
+  }
+
+  return result
 }

@@ -63,13 +63,13 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     if (width) {
       this.ctx.save()
 
-      if (this.drawOpt.color === this.defaultColor) {
-        this.ctx.fillStyle = 'black';
-        // this.ctx.fillStyle = 'blue';
-      } else {
-        this.ctx.fillStyle = 'white';
-        // this.ctx.fillStyle = 'blue';
-      }
+      // if (this.drawOpt.color === this.defaultColor) {
+      this.ctx.fillStyle = 'black';
+      // this.ctx.fillStyle = 'blue';
+      // } else {
+      //   this.ctx.fillStyle = 'white';
+      //   this.ctx.fillStyle = 'blue';
+      // }
       this.ctx.font = `bold ${this.timeTextFontSize}px Arial, Helvetica, sans-serif`
       this.ctx.textAlign = "start";
       this.ctx.scale(1 / zoom, 1)
@@ -80,49 +80,52 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
       const startTime = getTime(textLeft)
       const endTime = getTime(textRight)
 
-      this.startTimeTextWidth = this.startTimeTextWidth || this.ctx.measureText(startTime).width
-      this.endTimeTextWidth = this.endTimeTextWidth || this.ctx.measureText(endTime).width
+      this.startTimeTextWidth = this.ctx.measureText(startTime).width
+      this.endTimeTextWidth = this.ctx.measureText(endTime).width
 
       let endTimeTextOffsetY = 0
       if (this.startTimeTextWidth + this.endTimeTextWidth >= width * zoom - 2 * this.timeTextOffsetX - 5) {
         endTimeTextOffsetY = 1
       }
 
-      const startTextIsBig = this.ctx.measureText(startTime).width > width * zoom - 2 * this.borderWidth
-      const endTextIsBig = this.ctx.measureText(endTime).width > width * zoom - 2 * this.borderWidth
+      const startTextIsBig = this.startTimeTextWidth > width * zoom - 2 * this.borderWidth
+      const endTextIsBig = this.endTimeTextWidth > width * zoom - 2 * this.borderWidth
 
-      const startTimeTextXPosition = xPosition * zoom + this.timeTextOffsetX
-      const endTimeTextXPosition = (xPosition + width) * zoom - this.endTimeTextWidth - this.timeTextOffsetX
-      const endTimeTextYPosition = height - endTimeTextOffsetY * (this.timeTextFontSize + 2)
+      const startTimeTextXPosition = Math.min(this.ctx.canvas.width * zoom - this.startTimeTextWidth - 5 - this.timeTextOffsetX- this.endTimeTextWidth, Math.max(0, xPosition * zoom - this.startTimeTextWidth - this.timeTextOffsetX))
+      const endTimeTextXPosition = Math.max(this.endTimeTextWidth + 5, Math.min((this.ctx.canvas.width * zoom - this.endTimeTextWidth), (xPosition + width) * zoom + this.timeTextOffsetX))
+      // const endTimeTextXPosition = Math.max(this.startTimeTextWidth + this.endTimeTextWidth, (xPosition + width) * zoom - this.endTimeTextWidth - this.timeTextOffsetX)
+      const startTimeTextYPosition = height + this.timeTextFontSize + 5
+      const endTimeTextYPosition = height + this.timeTextFontSize + 5 //- endTimeTextOffsetY * (this.timeTextFontSize + 2)
+
       this.elementsPosition = {
-        startTimeText: {xPosition: startTimeTextXPosition, yPosition: height},
+        startTimeText: {xPosition: startTimeTextXPosition, yPosition: startTimeTextYPosition},
         endTimeText: {xPosition: endTimeTextXPosition, yPosition: endTimeTextYPosition}
       }
 
-      if (startTextIsBig) {
-        this.ctx.save()
-        this.ctx.beginPath()
-        this.ctx.rect(xPosition, height - endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
-        this.ctx.clip()
-        this.ctx.fillText(startTime, startTimeTextXPosition, height);
-        this.ctx.restore()
-      } else {
-        // this.ctx.beginPath()
-        // this.ctx.rect(startTimeTextXPosition, height, width, RECT_HEIGHT)
-        // this.ctx.fill()
-        this.ctx.fillText(startTime, startTimeTextXPosition, height)
-      }
+      // if (startTextIsBig) {
+      //   this.ctx.save()
+      //   this.ctx.beginPath()
+      //   this.ctx.rect(xPosition, startTimeTextYPosition - endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
+      //   this.ctx.clip()
+      //   this.ctx.fillText(startTime, startTimeTextXPosition, startTimeTextYPosition);
+      //   this.ctx.restore()
+      // } else {
+      // this.ctx.beginPath()
+      // this.ctx.rect(startTimeTextXPosition, height, width, RECT_HEIGHT)
+      // this.ctx.fill()
+      this.ctx.fillText(startTime, startTimeTextXPosition, startTimeTextYPosition)
+      // }
 
-      if (endTextIsBig) {
-        this.ctx.save()
-        this.ctx.beginPath()
-        this.ctx.rect(xPosition, height - 2 * endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
-        this.ctx.clip()
-        this.ctx.fillText(endTime, endTimeTextXPosition, endTimeTextYPosition)
-        this.ctx.restore()
-      } else {
-        this.ctx.fillText(endTime, endTimeTextXPosition, endTimeTextYPosition)
-      }
+      // if (endTextIsBig) {
+      //   this.ctx.save()
+      //   this.ctx.beginPath()
+      //   this.ctx.rect(xPosition, height - 2 * endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
+      //   this.ctx.clip()
+      //   this.ctx.fillText(endTime, endTimeTextXPosition, endTimeTextYPosition)
+      //   this.ctx.restore()
+      // } else {
+      this.ctx.fillText(endTime, endTimeTextXPosition, endTimeTextYPosition)
+      // }
       this.ctx.restore()
     }
 

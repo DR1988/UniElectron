@@ -1,0 +1,49 @@
+.container {
+  display: flex;
+  position: relative;
+}
+
+.inputContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: column;
+  align-self: flex-end;
+  height: 28px;
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+}
+
+.label {
+  text-transform: capitalize;
+  margin-bottom: 2px;
+  font-size: 12px;
+}
+
+.input {
+  height: 30px;
+  font-size: 18px;
+  width: 60px;
+}
+
+.button {
+  width: 15px;
+  height: 14px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+
+  padding: 0;
+  text-transform: uppercase;
+  border-radius: 2px;
+  background-color: rgb(193, 221, 230);
+  border: 2px solid transparent;
+  transition: 0.2s ease-in-out background-color;
+  /* border: none; */
+  outline: none;
+}

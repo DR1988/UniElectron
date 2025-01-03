@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, {CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Props} from './ProcessSheetComponent';
 import {ValveLineType} from '../../MainFormInterfaces';
 import {RemoveSpaceOption} from '../../../CommonTypes';
@@ -83,8 +83,10 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const processSelection = useRef<ProcessSelection | null>(null)
   const contextMenu = useRef<ContextMenu | null>(null)
   const hoverLine = useRef<HoverLine | null>(null)
+  const changeTimeRef = useRef<HTMLDivElement | null>(null)
 
-  // const [containerWidth, setContainerWidth] = useState(0)
+  const [startTime, setStartTime] = useState(0)
+  const [endTime, setEndTime] = useState(0)
 
   const tryStart = () => {
     startRef.current = true
@@ -133,6 +135,17 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     }
   }, [container])
+
+  useEffect(() => {
+    if (processSelection.current?.sizeOpt?.xPosition) {
+      const startTime = Math.round(processSelection.current.sizeOpt.xPosition / screenSpaceRef.current.canvas.width * allTime)
+      const endTime = Math.round((processSelection.current.sizeOpt.xPosition + processSelection.current.sizeOpt.width) / screenSpaceRef.current.canvas.width * allTime)
+
+      setStartTime(startTime)
+      setEndTime(endTime)
+    }
+
+  }, [allTime, processSelection.current?.sizeOpt?.xPosition, processSelection.current?.sizeOpt?.width])
 
 
   const {
@@ -492,8 +505,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
           const newWidth = width - offset
 
 
-          if (newWidth > 5 && worldX < xPosition + width - 5) {
-            const startTime = Math.round(newOffset / screenSpaceRef.current.canvas.width * allTime)
+          if (newWidth > 5 && worldX < xPosition + width - 5 && newOffset >= 0) {
             processSelection.current.setStartPoint(newOffset)
             processSelection.current.setWidth(newWidth)
           }
@@ -693,6 +705,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const [changeTimeModal, setChangeTimeModal] = useState(false)
+  const [changeTimeVisibility, setChangeTimeVisibility] = useState<CSSProperties['visibility']>('hidden')
   const [changeTimeModalPosition, setChangeTimeModalPosition] = useState<{ x: number, y: number }>({
     x: 0,
     y: 0,
@@ -701,6 +714,21 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const closeChangeTimeModal = useCallback(() => {
     setChangeTimeModal(false)
   }, [])
+
+  useEffect(() => {
+    if (changeTimeRef.current) {
+      const canvasRect = screenSpaceRef.current.canvas.getBoundingClientRect()
+      const changeTimeRect = changeTimeRef.current.getBoundingClientRect()
+      if (canvasRect && changeTimeRect) {
+        if (changeTimeRect.right < canvasRect.right) {
+          setChangeTimeVisibility('visible')
+        } else {
+          setChangeTimeModalPosition({x: canvasRect.right - changeTimeRect.width - 20, y: changeTimeModalPosition.y})
+          setChangeTimeVisibility('visible')
+        }
+      }
+    }
+  }, [changeTimeModal])
 
   return <div><Canvas
     screenSpaceRef={screenSpaceRef}
@@ -717,29 +745,40 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     {changeTimeModal ?
       <ClickOutHandler onClickOut={closeChangeTimeModal}>
         <div
+          ref={changeTimeRef}
           style={{
+            visibility: changeTimeVisibility,
             zIndex: 3,
             position: 'absolute',
             left: changeTimeModalPosition.x,
             top: changeTimeModalPosition.y,
-
             boxShadow: '4px 4px 4px 4px rgba(34, 60, 80, 0.2)',
           }}
         >
           <ChangeTimeForm
-            startTime={Math.round(processSelection.current.sizeOpt.xPosition / screenSpaceRef.current.canvas.width * allTime)}
-            endTime={Math.round((processSelection.current.sizeOpt.xPosition + processSelection.current.sizeOpt.width) / screenSpaceRef.current.canvas.width * allTime)}
+            allTime={allTime}
+            startTime={startTime}
+            endTime={endTime}
             changeStartTime={(value) => {
               if (value >= 0) {
-                const currentStartPositionNew = value * 100 / allTime
-                // setCurrentStartPosition(currentStartPositionNew)
-              }
+                const {width, xPosition} = processSelection.current.sizeOpt
+                const newXPosition = value / allTime * screenSpaceRef.current.canvas.width
+                const xPositionDelta = xPosition - newXPosition
+                const newWidth = width + xPositionDelta
+                setStartTime(value)
+                processSelection.current.setStartPoint(newXPosition)
+                processSelection.current.setWidth(newWidth)
 
+              }
             }}
+
             changeEndTime={(value) => {
-              if (value <= allTime) {
-                const currentEndPositionNew = value * 100 / allTime
-                // setCurrentStopPosition(currentEndPositionNew)
+              if (value >= 0) {
+                const {width, xPosition} = processSelection.current.sizeOpt
+                const newXPosition = value / allTime * screenSpaceRef.current.canvas.width
+                const newWidth = newXPosition - xPosition
+                setEndTime(value)
+                processSelection.current.setWidth(newWidth)
               }
             }}
           />
