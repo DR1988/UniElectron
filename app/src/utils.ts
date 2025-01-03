@@ -114,14 +114,18 @@ export const getIntervalsFromSeconds = (_seconds: number) => {
 export const getTime = (time: number) => {
   const result = convertSecToDay(time)
 
+  const {value: dayValue} = result['day']
   const {value: hourValue} = result['hour']
   const {value: minuteValue} = result['minutes']
   const {value: secondValue} = result['seconds']
   const _secondValue = secondValue / 10 >= 1 ? secondValue : `0${secondValue}`
   const _minuteValue = minuteValue / 10 >= 1 ? minuteValue : `0${minuteValue}`
+  const _hourValue = hourValue / 10 >= 1 ? hourValue : `0${hourValue}`
 
-  if (hourValue) {
-    return `${hourValue}:${_minuteValue}:${_secondValue}`
+  if (dayValue) {
+    return `${dayValue}:${_hourValue}:${_minuteValue}:${_secondValue}`
+  } else if (_hourValue) {
+    return `${_hourValue}:${_minuteValue}:${_secondValue}`
   } else if (minuteValue) {
     return `${_minuteValue}:${_secondValue}`
   }
