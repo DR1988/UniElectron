@@ -1,6 +1,6 @@
 import {DRAW_RECT_PARAMS, DrawingElement} from './CanvasTypes';
 import {RECT_HEIGHT} from '../CanvasConstants';
-import {getIntervalsFromSeconds} from '../../../../../utils';
+import {getTime} from '../../../../../utils';
 
 export class TimeLine extends DrawingElement<'TIME_LINE'> {
   MAX_INTERVALS = 10
@@ -36,7 +36,7 @@ export class TimeLine extends DrawingElement<'TIME_LINE'> {
       this.ctx.font = "bold 12px Arial, Helvetica, sans-serif"
 
       for (let i = 0; i <= this.MAX_INTERVALS * zoom; i++) {
-        const text = getIntervalsFromSeconds(this.allTime / this.MAX_INTERVALS * (i) / zoom)
+        const text = getTime(this.allTime / this.MAX_INTERVALS * (i) / zoom)
         const xPosStart = i === 0 ? width / this.MAX_INTERVALS * i + 1 : width / this.MAX_INTERVALS * i
         this.ctx.strokeStyle = 'black';
 

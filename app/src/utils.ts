@@ -1,5 +1,3 @@
-import moment from 'moment';
-
 export type TIME_INTERVALS = 'day' | 'hour' | 'minutes' | 'seconds'
 
 export type TIME_INTERVAL = {
@@ -23,7 +21,7 @@ export const convertSecToDay = (_seconds: number): TIME_LINE => {
   const minutes = Math.floor(_seconds / 60);
 
   _seconds %= 60;
-  const seconds = _seconds;
+  const seconds = Math.floor(_seconds);
 
   let largest: TIME_INTERVALS = 'seconds'
 
@@ -85,32 +83,6 @@ export const convertSecToDay = (_seconds: number): TIME_LINE => {
 }
 
 
-export const getIntervalsFromSeconds = (_seconds: number) => {
-  const day = Math.floor(_seconds / (24 * 3600));
-
-  if (day > 0) {
-    return `${day > 9 ? day : `0${day}`}:${moment.utc(_seconds * 1000).format('HH:mm')}`
-  }
-
-  _seconds = _seconds % (24 * 3600);
-
-  const hour = Math.floor(_seconds / 3600);
-
-  if (hour > 0) {
-    return moment.utc(_seconds * 1000).format('HH:mm:ss')
-  }
-  _seconds %= 3600;
-  const minutes = Math.floor(_seconds / 60);
-
-
-  if (minutes > 0) {
-    return moment.utc(_seconds * 1000).format('mm:ss')
-  }
-  _seconds %= 60;
-
-  return moment.utc(_seconds * 1000).format('mm:ss')
-}
-
 export const getTime = (time: number) => {
   const result = convertSecToDay(time)
 
@@ -122,14 +94,22 @@ export const getTime = (time: number) => {
   const _minuteValue = minuteValue / 10 >= 1 ? minuteValue : `0${minuteValue}`
   const _hourValue = hourValue / 10 >= 1 ? hourValue : `0${hourValue}`
 
-  if (dayValue) {
-    return `${dayValue}:${_hourValue}:${_minuteValue}:${_secondValue}`
-  } else if (_hourValue) {
-    return `${_hourValue}:${_minuteValue}:${_secondValue}`
-  } else if (minuteValue) {
-    return `${_minuteValue}:${_secondValue}`
+  if (minuteValue.toString().length > 10) {
+    console.log('min', minuteValue)
   }
-  return `${_secondValue}`
+  if (_secondValue.toString().length > 10) {
+    console.log('_secondValue', _secondValue)
+  }
+  if (dayValue) {
+    // return `${dayValue}d:${_hourValue}h:${_minuteValue}m:${_secondValue}s`
+    return `${dayValue}d:${_hourValue}h`
+  } else if (hourValue) {
+    // return `${_hourValue}h:${_minuteValue}m:${_secondValue}s`
+    return `${_hourValue}h:${_minuteValue}m`
+  } else if (minuteValue) {
+    return `${_minuteValue}m:${_secondValue}s`
+  }
+  return `${_secondValue}s`
 }
 
 export const getDaysFromSeconds = (_seconds: number): TIME_VALUES => {

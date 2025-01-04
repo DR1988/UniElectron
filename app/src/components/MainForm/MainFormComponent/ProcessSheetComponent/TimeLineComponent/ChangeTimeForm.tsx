@@ -2,9 +2,6 @@ import React, {FunctionComponent, useState} from 'react';
 
 import styles from './ChangeTime.css'
 import {
-  convertSecToDay,
-  getDaysFromSeconds,
-  getTime,
   getTimeIntervalsFromSeconds,
   TIME_RECORD
 } from '../../../../../utils';
