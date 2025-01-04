@@ -521,9 +521,9 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         }
 
       } else {
-        if (worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current) {
+        if (worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current && event.nativeEvent.offsetY <= canvasHeight - LEGEND_HEIGHT + 2) {
           screenSpaceRef.current.canvas.style.cursor = 'e-resize'
-        } else if (worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width) {
+        } else if (worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width && event.nativeEvent.offsetY <= canvasHeight - LEGEND_HEIGHT + 2) {
           screenSpaceRef.current.canvas.style.cursor = 'e-resize'
         } else {
           screenSpaceRef.current.canvas.style.cursor = 'auto'
@@ -543,7 +543,17 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     } else {
       hoverLine.current.setShouldShow(false)
     }
+  }
 
+  const onTimeElementsHover = (event: React.MouseEvent) => {
+    const hoveredOnTime = processSelection.current.clickedOnTime({
+      x: offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX,
+      y: event.nativeEvent.offsetY
+    })
+
+    if (hoveredOnTime) {
+      screenSpaceRef.current.canvas.style.cursor = 'pointer'
+    }
   }
 
   const handleMouseMove = (event: React.MouseEvent) => {
@@ -565,6 +575,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     onProcessSelectionMove(event)
 
     onChangeElementHover(event)
+
+    onTimeElementsHover(event)
   }
 
   const handleMouseUp = (event: React.MouseEvent) => {
@@ -625,10 +637,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const handleClick = (event: React.MouseEvent) => {
-    // console.log('screenX', screenX)
-    // console.log('worldX', worldX)
-    // console.log('event.nativeEvent.offsetX', event.nativeEvent.offsetX)
-    // console.log('offsetXRef.offsetX', offsetXRef.current)
 
     const isClickedOnTime = processSelection.current.clickedOnTime({
       x: offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX,
@@ -637,8 +645,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     if (isClickedOnTime) {
       setChangeTimeModalPosition({x: event.clientX, y: event.clientY})
       setChangeTimeModal(true)
-      // console.log('event.nativeEvent.offsetX', event.nativeEvent.offsetX)
-      // console.log('event.nativeEvent.offsetY', event.nativeEvent.offsetY)
     }
   }
 

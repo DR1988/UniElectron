@@ -12,18 +12,25 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   private timeTextOffsetX = 3
   private timeTextFontSize = 12
   private borderWidth = 3
+  private buttonPadding = 5
+  private timePositionPadding = 5
+  private timeMargin = 10
   public elementsPosition: {
     startTimeText: {
       xPosition: number,
-      yPosition: number
+      yPosition: number,
+      width: number,
+      height: number
     },
     endTimeText: {
       xPosition: number,
-      yPosition: number
+      yPosition: number,
+      width: number,
+      height: number
     },
   } = {
-    startTimeText: {xPosition: 0, yPosition: 0},
-    endTimeText: {xPosition: 0, yPosition: 0}
+    startTimeText: {xPosition: 0, yPosition: 0, width: 0, height: 0},
+    endTimeText: {xPosition: 0, yPosition: 0, width: 0, height: 0}
   }
 
   private startTimeTextWidth: number = 0
@@ -63,13 +70,8 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     if (width) {
       this.ctx.save()
 
-      // if (this.drawOpt.color === this.defaultColor) {
       this.ctx.fillStyle = 'black';
-      // this.ctx.fillStyle = 'blue';
-      // } else {
-      //   this.ctx.fillStyle = 'white';
-      //   this.ctx.fillStyle = 'blue';
-      // }
+
       this.ctx.font = `bold ${this.timeTextFontSize}px Arial, Helvetica, sans-serif`
       this.ctx.textAlign = "start";
       this.ctx.scale(1 / zoom, 1)
@@ -83,49 +85,37 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
       this.startTimeTextWidth = this.ctx.measureText(startTime).width
       this.endTimeTextWidth = this.ctx.measureText(endTime).width
 
-      let endTimeTextOffsetY = 0
-      if (this.startTimeTextWidth + this.endTimeTextWidth >= width * zoom - 2 * this.timeTextOffsetX - 5) {
-        endTimeTextOffsetY = 1
-      }
-
-      const startTextIsBig = this.startTimeTextWidth > width * zoom - 2 * this.borderWidth
-      const endTextIsBig = this.endTimeTextWidth > width * zoom - 2 * this.borderWidth
-
-      const startTimeTextXPosition = Math.min(this.ctx.canvas.width * zoom - this.startTimeTextWidth - 5 - this.timeTextOffsetX- this.endTimeTextWidth, Math.max(0, xPosition * zoom - this.startTimeTextWidth - this.timeTextOffsetX))
-      const endTimeTextXPosition = Math.max(this.endTimeTextWidth + 5, Math.min((this.ctx.canvas.width * zoom - this.endTimeTextWidth), (xPosition + width) * zoom + this.timeTextOffsetX))
-      // const endTimeTextXPosition = Math.max(this.startTimeTextWidth + this.endTimeTextWidth, (xPosition + width) * zoom - this.endTimeTextWidth - this.timeTextOffsetX)
-      const startTimeTextYPosition = height + this.timeTextFontSize + 5
-      const endTimeTextYPosition = height + this.timeTextFontSize + 5 //- endTimeTextOffsetY * (this.timeTextFontSize + 2)
+      const startTimeTextXPosition = Math.min(this.ctx.canvas.width * zoom - this.startTimeTextWidth - this.timePositionPadding - this.timeTextOffsetX - this.endTimeTextWidth - this.timeMargin, Math.max(0, xPosition * zoom - this.startTimeTextWidth - this.timeTextOffsetX))
+      const endTimeTextXPosition = Math.max(this.endTimeTextWidth + this.timePositionPadding + this.timeMargin, Math.min((this.ctx.canvas.width * zoom - this.endTimeTextWidth), (xPosition + width) * zoom + this.timeTextOffsetX))
+      const startTimeTextYPosition = height + this.timeTextFontSize + this.timePositionPadding
+      const endTimeTextYPosition = height + this.timeTextFontSize + this.timePositionPadding
 
       this.elementsPosition = {
-        startTimeText: {xPosition: startTimeTextXPosition, yPosition: startTimeTextYPosition},
-        endTimeText: {xPosition: endTimeTextXPosition, yPosition: endTimeTextYPosition}
+        startTimeText: {
+          xPosition: startTimeTextXPosition - this.buttonPadding,
+          yPosition: startTimeTextYPosition - this.timeTextFontSize,
+          width: this.startTimeTextWidth + 2 * this.buttonPadding,
+          height: this.timeTextFontSize + this.buttonPadding
+        },
+        endTimeText: {
+          xPosition: endTimeTextXPosition - this.buttonPadding,
+          yPosition: endTimeTextYPosition - this.timeTextFontSize,
+          width: this.endTimeTextWidth + 2 * this.buttonPadding,
+          height: this.timeTextFontSize + this.buttonPadding
+        }
       }
 
-      // if (startTextIsBig) {
-      //   this.ctx.save()
-      //   this.ctx.beginPath()
-      //   this.ctx.rect(xPosition, startTimeTextYPosition - endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
-      //   this.ctx.clip()
-      //   this.ctx.fillText(startTime, startTimeTextXPosition, startTimeTextYPosition);
-      //   this.ctx.restore()
-      // } else {
-      // this.ctx.beginPath()
-      // this.ctx.rect(startTimeTextXPosition, height, width, RECT_HEIGHT)
-      // this.ctx.fill()
-      this.ctx.fillText(startTime, startTimeTextXPosition, startTimeTextYPosition)
-      // }
 
-      // if (endTextIsBig) {
-      //   this.ctx.save()
-      //   this.ctx.beginPath()
-      //   this.ctx.rect(xPosition, height - 2 * endTimeTextOffsetY * (this.timeTextFontSize + 2), width, RECT_HEIGHT)
-      //   this.ctx.clip()
-      //   this.ctx.fillText(endTime, endTimeTextXPosition, endTimeTextYPosition)
-      //   this.ctx.restore()
-      // } else {
+      this.ctx.beginPath()
+      this.ctx.fillStyle = 'rgba(171, 193, 197, 1)' //color || 'rgba(0, 0, 0, 0.4)'
+      this.ctx.fillRect(this.elementsPosition.startTimeText.xPosition, this.elementsPosition.startTimeText.yPosition, this.elementsPosition.startTimeText.width, this.elementsPosition.startTimeText.height)
+      this.ctx.fillRect(this.elementsPosition.endTimeText.xPosition, this.elementsPosition.endTimeText.yPosition, this.elementsPosition.endTimeText.width, this.elementsPosition.endTimeText.height)
+      this.ctx.fill()
+
+      this.ctx.fillStyle = 'black';
+      this.ctx.fillText(startTime, startTimeTextXPosition, startTimeTextYPosition)
       this.ctx.fillText(endTime, endTimeTextXPosition, endTimeTextYPosition)
-      // }
+
       this.ctx.restore()
     }
 
@@ -182,12 +172,12 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     const {startTimeText, endTimeText} = this.elementsPosition
 
     return (point.x > startTimeText.xPosition
-      && point.x < startTimeText.xPosition + this.startTimeTextWidth
-      && point.y > startTimeText.yPosition - this.timeTextFontSize
-      && point.y < startTimeText.yPosition) || (point.x > endTimeText.xPosition
-      && point.x < endTimeText.xPosition + this.startTimeTextWidth
-      && point.y > endTimeText.yPosition - this.timeTextFontSize
-      && point.y < endTimeText.yPosition
+      && point.x < startTimeText.xPosition + startTimeText.width
+      && point.y > startTimeText.yPosition
+      && point.y < startTimeText.yPosition + startTimeText.height) || (point.x > endTimeText.xPosition
+      && point.x < endTimeText.xPosition + endTimeText.width
+      && point.y > endTimeText.yPosition
+      && point.y < endTimeText.yPosition + startTimeText.height
     )
   }
 
