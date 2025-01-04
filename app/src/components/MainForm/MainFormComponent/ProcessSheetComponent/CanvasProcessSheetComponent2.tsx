@@ -84,9 +84,13 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const contextMenu = useRef<ContextMenu | null>(null)
   const hoverLine = useRef<HoverLine | null>(null)
   const changeTimeRef = useRef<HTMLDivElement | null>(null)
+  const timeLineOffset = useRef<number>(100)
 
   const [startTime, setStartTime] = useState(0)
   const [endTime, setEndTime] = useState(0)
+  const [isOptionsOpen, toggleOptions] = useState(false)
+  const [isMovement, setMovement] = useState(false)
+
 
   const tryStart = () => {
     startRef.current = true
@@ -233,6 +237,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
             const timeSpent = new Date().getTime() - startTimeRef.current.getTime()
             startTimeRef.current = new Date()
             timeLineOffsetRef.current += velocityRef.current * timeSpent / 1000
+            const offset = timeLineOffset.current / scaleRef.current
+
+            const isLarger = screenSpaceRef.current.canvas.width * (1 - 1 / scaleRef.current) > timeLineOffsetRef.current - offset
+            if (isMovement && (timeLineOffsetRef.current > offset && isLarger || offsetXRef.current > timeLineOffsetRef.current)) {
+              offsetXRef.current = Math.max(0, timeLineOffsetRef.current - offset)
+            }
           }
         }
 
@@ -279,7 +289,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     })
 
 
-  }, [container, lineFormer])
+  }, [container, lineFormer, isMovement])
 
   useEffect(() => {
     if (!useAnimationFrame) {
@@ -442,7 +452,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
       }
 
-      if (selectedElement instanceof Cover) {
+      if (selectedElement instanceof Cover && !isMovement) {
         selectedElement.setDragging(true)
       }
     }
@@ -643,7 +653,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       y: event.nativeEvent.offsetY
     })
     if (isClickedOnTime) {
-      setChangeTimeModalPosition({x: event.clientX, y: event.clientY})
+      setChangeTimeModalPosition({x: event.nativeEvent.offsetX + 5, y: event.nativeEvent.offsetY + 10})
       setChangeTimeModal(true)
     }
   }
@@ -736,7 +746,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }, [changeTimeModal])
 
-  return <div><Canvas
+  return <div style={{position: 'relative'}}><Canvas
     screenSpaceRef={screenSpaceRef}
     onMouseDown={handleMouseDown}
     onMouseMove={handleMouseMove}
@@ -791,6 +801,32 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         </div>
       </ClickOutHandler>
       : null}
+    <ClickOutHandler onClickOut={() => toggleOptions(false)}>
+      <div style={{
+        position: 'absolute',
+        right: 0,
+        top: 5,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-end'
+      }}>
+        <button style={{
+          height: 20,
+          padding: 2,
+          fontSize: 12
+        }} onClick={() => toggleOptions(!isOptionsOpen)}>options
+        </button>
+        {isOptionsOpen ? <div style={{
+          backgroundColor: 'white',
+          padding: 3
+        }}>
+          <div style={{display: 'flex', alignItems: 'start'}}>
+            <input id={'setMovement'} onChange={(event) => setMovement(!isMovement)} style={{height: 16, width: 16}} type="checkbox"/>
+            <label style={{marginLeft: 5}} htmlFor={'setMovement'}>Follow time line</label>
+          </div>
+        </div> : null}
+      </div>
+    </ClickOutHandler>
     <button onClick={() => tryStart()}>Start Test</button>
     <button onClick={() => tryStop()}>Stop Test</button>
   </div>

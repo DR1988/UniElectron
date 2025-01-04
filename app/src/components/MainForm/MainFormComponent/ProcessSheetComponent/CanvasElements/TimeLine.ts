@@ -1,6 +1,11 @@
 import {DRAW_RECT_PARAMS, DrawingElement} from './CanvasTypes';
 import {RECT_HEIGHT} from '../CanvasConstants';
 import {getTime} from '../../../../../utils';
+import throttle from 'lodash/throttle';
+
+const log = throttle(console.log, 500)
+const log2 = throttle(console.log, 500)
+const log3 = throttle(console.log, 500)
 
 export class TimeLine extends DrawingElement<'TIME_LINE'> {
   MAX_INTERVALS = 10
@@ -28,7 +33,7 @@ export class TimeLine extends DrawingElement<'TIME_LINE'> {
       this.ctx.scale(1 / zoom, 1)
       this.ctx.beginPath();
       this.ctx.moveTo(xPosition * zoom, yPosition + (height || RECT_HEIGHT));
-      this.ctx.lineTo((xPosition + width) * zoom, yPosition + (height || RECT_HEIGHT));
+      this.ctx.lineTo((xPosition + width + 1) * zoom, yPosition + (height || RECT_HEIGHT));
       this.ctx.lineWidth = 2;
       this.ctx.stroke();
 
@@ -47,14 +52,16 @@ export class TimeLine extends DrawingElement<'TIME_LINE'> {
         this.ctx.stroke();
 
         for (let j = 1; j < 5; j++) {
-          const xSmallPosStart = xPosStart + width / 5 / this.MAX_INTERVALS * j //* (i + 1)
-          this.ctx.beginPath();
+          if (i < this.MAX_INTERVALS * zoom) {
+            const xSmallPosStart = xPosStart + width / 5 / this.MAX_INTERVALS * j //* (i + 1)
+            this.ctx.beginPath();
 
-          this.ctx.strokeStyle = 'rgba(128, 128, 128, 1)';
-          this.ctx.moveTo(xSmallPosStart, yPosition + 2 * (height || RECT_HEIGHT) / 3);
-          this.ctx.lineTo(xSmallPosStart, yPosition + (height || RECT_HEIGHT) - 1);
-          this.ctx.lineWidth = 2;
-          this.ctx.stroke();
+            this.ctx.strokeStyle = 'rgba(128, 128, 128, 1)';
+            this.ctx.moveTo(xSmallPosStart, yPosition + 2 * (height || RECT_HEIGHT) / 3);
+            this.ctx.lineTo(xSmallPosStart, yPosition + (height || RECT_HEIGHT) - 1);
+            this.ctx.lineWidth = 2;
+            this.ctx.stroke();
+          }
         }
 
 
