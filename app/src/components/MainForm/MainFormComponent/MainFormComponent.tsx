@@ -89,7 +89,7 @@ const MainFormComponent = ({
     <div>
       <div id="mainForm" className={s.mainForm}>
         <section className={s.sidebar}>
-          <ReactionFlowComponent socket={socket} lineFormer={lineFormer} time={time} />
+          <ReactionFlowComponent openManualControlModal={openManualControlModal} socket={socket} lineFormer={lineFormer} time={time} />
           <Editor
               editorState={textEditorState}
               toolbarClassName="toolbarClassName"

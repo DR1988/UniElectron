@@ -124,6 +124,7 @@ async function createWindow() {
     mainWindow.loadURL(`http://localhost:${port}/`)
   } else {
     mainWindow.loadURL(`http://localhost:${port}/`)
+    mainWindow.maximize()
     // mainWindow.loadURL(`file://${__dirname}/index.prod.html`)
   }
 

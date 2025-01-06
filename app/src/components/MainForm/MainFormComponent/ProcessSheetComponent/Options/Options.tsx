@@ -1,5 +1,4 @@
 import React, {useCallback} from 'react';
-import ClickOutHandler from 'react-onclickout'
 import styles from './Options.css'
 
 type Props = {
@@ -11,15 +10,12 @@ type Props = {
 
 export const Options: React.FC<Props> = (
   {
-   toggleOptions,
-   setMovement,
-   isOptionsOpen,
-   isMovement,
- }) => {
+    toggleOptions,
+    setMovement,
+    isOptionsOpen,
+    isMovement,
+  }) => {
 
-  const onClickOut = useCallback(() => {
-    toggleOptions(false)
-  }, [])
 
   const _toggleOptions = useCallback(() => {
     toggleOptions(!isOptionsOpen)
@@ -29,21 +25,19 @@ export const Options: React.FC<Props> = (
     setMovement(event.target.checked)
   }, [])
 
-  return <ClickOutHandler onClickOut={onClickOut}>
-    <div className={styles.container}>
-      <button  className={styles.button} onClick={_toggleOptions}>options
-      </button>
-      {isOptionsOpen ? <div className={styles.content}>
-        <div className={styles.innerContent}>
-          <input
-            checked={isMovement}
-            id='setMovement'
-            onChange={clickCheckBox}
-            className={styles.input}
-            type="checkbox"/>
-          <label className={styles.label} htmlFor={'setMovement'}>Follow time line</label>
-        </div>
-      </div> : null}
-    </div>
-  </ClickOutHandler>
+  return <div className={styles.container}>
+    <button className={styles.button} onClick={_toggleOptions}>options
+    </button>
+    {isOptionsOpen ? <div className={styles.content}>
+      <div className={styles.innerContent}>
+        <input
+          checked={isMovement}
+          id='setMovement'
+          onChange={clickCheckBox}
+          className={styles.input}
+          type="checkbox"/>
+        <label className={styles.label} htmlFor={'setMovement'}>Follow time line</label>
+      </div>
+    </div> : null}
+  </div>
 }

@@ -11,7 +11,8 @@ export type  CanvasProp = {
   onDoubleClick: (event: React.MouseEvent) => void
   onClick: (event: React.MouseEvent) => void
   onMouseLeave: (event: React.MouseEvent) => void
-  screenSpaceRef: React.MutableRefObject<CanvasRenderingContext2D>
+  screenSpaceRef: CanvasRenderingContext2D | null
+  setScreenSpaceRef: (context: CanvasRenderingContext2D) => void
   useAnimationFrame: boolean
 }
 
@@ -48,6 +49,7 @@ export const Canvas: FunctionComponent<CanvasProp> = (props) => {
     useAnimationFrame,
     onDoubleClick,
     onClick,
+    setScreenSpaceRef,
     ...rest
   } = props
 
@@ -58,9 +60,8 @@ export const Canvas: FunctionComponent<CanvasProp> = (props) => {
   useEffect(() => {
     const canvas = canvasRef.current
     const context = canvas.getContext('2d')
-    if (!screenSpaceRef.current) {
-
-      screenSpaceRef.current = context
+    if (!screenSpaceRef) {
+      setScreenSpaceRef(context)
     }
     let animationId
 

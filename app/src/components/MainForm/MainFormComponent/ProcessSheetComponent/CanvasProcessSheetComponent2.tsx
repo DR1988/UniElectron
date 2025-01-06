@@ -58,7 +58,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     distance,
     showModal,
     setChosenValveTime,
-    removeSelectedTimeElements
+    removeSelectedTimeElements,
   }
 ) => {
 
@@ -66,8 +66,9 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT
 
+  const [screenSpaceRef, setScreenSpaceRef] = useState<CanvasRenderingContext2D | null>(null)
+  const [screenSpaceWidth, setScreenSpaceRefWidth] = useState(0)
 
-  const screenSpaceRef = useRef<CanvasRenderingContext2D | null>(null)
 
   const selectedElementRef = useRef<DrawingElement<ELEMENT_TYPES> | null>(null)
   const mouseWheelCoordinateRef = useRef(0)
@@ -91,7 +92,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const [endTime, setEndTime] = useState(0)
   const [isOptionsOpen, toggleOptions] = useState(false)
   const [isMovement, setMovement] = useState(false)
-
 
   const tryStart = () => {
     startRef.current = true
@@ -126,25 +126,26 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   useEffect(() => {
     const containerRect = container?.getBoundingClientRect()
 
-    if (screenSpaceRef.current && containerRect) {
+    if (screenSpaceRef && containerRect) {
       velocityRef.current = containerRect.width / allTime /// 1000 // per ms
+      let width = 0
       if (process.env.NODE_ENV === 'development') {
-        screenSpaceRef.current.canvas.width = Math.max(MIN_CANVAS_WIDTH, containerRect.width);
+        width = Math.max(MIN_CANVAS_WIDTH, containerRect.width);
       } else {
         const maxWidth = window.screen.width - 420 - 95 // 400 - width of the left side with text area and 20 is a margin and 95 - left side with adding and valves names
-        screenSpaceRef.current.canvas.width = Math.max(MIN_CANVAS_WIDTH, maxWidth);
+        width = Math.max(MIN_CANVAS_WIDTH, maxWidth);
       }
-      screenSpaceRef.current.canvas.height = canvasHeight;
-      // screenSpaceRef.current.canvas.style.width = `${containerRect.width}px`;
-      // screenSpaceRef.current.canvas.style.height = `${canvasHeight}px`;
+      setScreenSpaceRefWidth(width)
+      screenSpaceRef.canvas.width = width
+      screenSpaceRef.canvas.height = canvasHeight;
 
     }
-  }, [container])
+  }, [container, canvasHeight, screenSpaceRef])
 
   useEffect(() => {
     if (processSelection.current?.sizeOpt?.xPosition) {
-      const startTime = Math.round(processSelection.current.sizeOpt.xPosition / screenSpaceRef.current.canvas.width * allTime)
-      const endTime = Math.round((processSelection.current.sizeOpt.xPosition + processSelection.current.sizeOpt.width) / screenSpaceRef.current.canvas.width * allTime)
+      const startTime = Math.round(processSelection.current.sizeOpt.xPosition / screenSpaceRef.canvas.width * allTime)
+      const endTime = Math.round((processSelection.current.sizeOpt.xPosition + processSelection.current.sizeOpt.width) / screenSpaceRef.canvas.width * allTime)
 
       setStartTime(startTime)
       setEndTime(endTime)
@@ -158,18 +159,18 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     processSelectionElement,
     contextMenuElement,
     hoverLineElement
-  } = useElements(screenSpaceRef.current?.canvas?.width, screenSpaceRef.current, lineFormer, allTime)
+  } = useElements(screenSpaceWidth, screenSpaceRef, lineFormer, allTime)
+
   elements.current = elementsArray
   processSelection.current = processSelectionElement
   contextMenu.current = contextMenuElement
   hoverLine.current = hoverLineElement
-
   const draw = useCallback(() => {
-    if (!screenSpaceRef.current || !container) {
+    if (!screenSpaceRef) {
       return
     }
 
-    screenSpaceRef.current.clearRect(0, 0, screenSpaceRef.current.canvas.width, screenSpaceRef.current.canvas.height)
+    screenSpaceRef.clearRect(0, 0, screenSpaceRef.canvas.width, screenSpaceRef.canvas.height)
 
     elements.current.forEach(element => {
 
@@ -179,110 +180,110 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       }
 
       if (element instanceof SideCover && element.name === 'sideCoverLeft') {
-        screenSpaceRef.current.save()
-        screenSpaceRef.current.translate(-screenSpaceRef.current.canvas.width + offsetXRef.current, 0)
-        // screenSpaceRef.current.scale(1 / scaleRef.current, 1)
+        screenSpaceRef.save()
+        screenSpaceRef.translate(-screenSpaceRef.canvas.width + offsetXRef.current, 0)
+        // screenSpaceRef.scale(1 / scaleRef.current, 1)
 
         element.drawElement()
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
         return
       }
 
       if (element instanceof SideCover && element.name === 'sideCoverRight') {
-        screenSpaceRef.current.save()
-        screenSpaceRef.current.translate(screenSpaceRef.current.canvas.width / scaleRef.current + offsetXRef.current, 0)
-        // screenSpaceRef.current.scale(1 / scaleRef.current, 1)
+        screenSpaceRef.save()
+        screenSpaceRef.translate(screenSpaceRef.canvas.width / scaleRef.current + offsetXRef.current, 0)
+        // screenSpaceRef.scale(1 / scaleRef.current, 1)
 
         element.drawElement()
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
         return
       }
 
       if (element.type === 'COVER') {
-        screenSpaceRef.current.save()
-        screenSpaceRef.current.translate(offsetXRef.current, 0)
-        screenSpaceRef.current.scale(1 / scaleRef.current, 1)
+        screenSpaceRef.save()
+        screenSpaceRef.translate(offsetXRef.current, 0)
+        screenSpaceRef.scale(1 / scaleRef.current, 1)
 
         element.drawElement()
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
 
         return
       }
 
       if (element instanceof ChangeElement) {
-        screenSpaceRef.current.save()
-        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
-        screenSpaceRef.current.scale(scaleRef.current, 1)
+        screenSpaceRef.save()
+        screenSpaceRef.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.scale(scaleRef.current, 1)
 
         element.drawElement(scaleRef.current)
 
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
         return
       }
 
       if (element instanceof TimeLine) {
-        screenSpaceRef.current.save()
-        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
-        screenSpaceRef.current.scale(scaleRef.current, 1)
+        screenSpaceRef.save()
+        screenSpaceRef.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.scale(scaleRef.current, 1)
         element.drawElement(scaleRef.current)
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
         return
       }
 
 
       if (element instanceof TimeView) {
-        screenSpaceRef.current.save()
+        screenSpaceRef.save()
 
         if (startRef.current) {
-          if (screenSpaceRef.current.canvas.width >= timeLineOffsetRef.current) {
+          if (screenSpaceRef.canvas.width >= timeLineOffsetRef.current) {
             const timeSpent = new Date().getTime() - startTimeRef.current.getTime()
             startTimeRef.current = new Date()
             timeLineOffsetRef.current += velocityRef.current * timeSpent / 1000
             const offset = timeLineOffset.current / scaleRef.current
 
-            const isLarger = screenSpaceRef.current.canvas.width * (1 - 1 / scaleRef.current) > timeLineOffsetRef.current - offset
+            const isLarger = screenSpaceRef.canvas.width * (1 - 1 / scaleRef.current) > timeLineOffsetRef.current - offset
             if (isMovement && (timeLineOffsetRef.current > offset && isLarger || offsetXRef.current > timeLineOffsetRef.current)) {
               offsetXRef.current = Math.max(0, timeLineOffsetRef.current - offset)
             }
           }
         }
 
-        screenSpaceRef.current.translate((-offsetXRef.current + timeLineOffsetRef.current) * scaleRef.current, 0)
-        screenSpaceRef.current.scale(scaleRef.current, 1)
+        screenSpaceRef.translate((-offsetXRef.current + timeLineOffsetRef.current) * scaleRef.current, 0)
+        screenSpaceRef.scale(scaleRef.current, 1)
 
         element.drawElement(scaleRef.current)
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
 
         return
       }
 
 
       if (element instanceof ProcessSelection) {
-        screenSpaceRef.current.save()
-        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
-        screenSpaceRef.current.scale(scaleRef.current, 1)
+        screenSpaceRef.save()
+        screenSpaceRef.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.scale(scaleRef.current, 1)
         element.drawElement(scaleRef.current)
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
         return
 
       }
 
       if (element instanceof ContextMenu) {
-        screenSpaceRef.current.save()
-        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
-        screenSpaceRef.current.scale(scaleRef.current, 1)
+        screenSpaceRef.save()
+        screenSpaceRef.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.scale(scaleRef.current, 1)
         element.drawElement(scaleRef.current)
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
         return
 
       }
 
       if (element instanceof HoverLine) {
-        screenSpaceRef.current.save()
-        screenSpaceRef.current.translate(-offsetXRef.current * scaleRef.current, 0)
-        screenSpaceRef.current.scale(scaleRef.current, 1)
+        screenSpaceRef.save()
+        screenSpaceRef.translate(-offsetXRef.current * scaleRef.current, 0)
+        screenSpaceRef.scale(scaleRef.current, 1)
         element.drawElement(scaleRef.current)
-        screenSpaceRef.current.restore()
+        screenSpaceRef.restore()
 
         return
       }
@@ -290,18 +291,18 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     })
 
 
-  }, [container, lineFormer, isMovement])
+  }, [screenSpaceRef, lineFormer, isMovement])
 
   useEffect(() => {
     if (!useAnimationFrame) {
       draw()
     }
-  }, [screenSpaceRef.current, container, elements.current])
+  }, [screenSpaceRef, container, elements.current])
 
   const onPanMove = (event: React.MouseEvent) => {
     if (moving.current) {
       const newOffset = offsetXRef.current - (event.movementX) / scaleRef.current
-      const scaledOffset = screenSpaceRef.current.canvas.width - screenSpaceRef.current.canvas.width / scaleRef.current
+      const scaledOffset = screenSpaceRef.canvas.width - screenSpaceRef.canvas.width / scaleRef.current
 
       if (newOffset > scaledOffset || newOffset < 0) {
         return
@@ -405,8 +406,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     const clickedRadio = contextMenu.current.clickedOk({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
     if (clickedRadio) {
-      const startTime = Math.round(processSelection.current.sizeOpt.xPosition / screenSpaceRef.current.canvas.width * allTime)
-      const endTime = Math.round((processSelection.current.sizeOpt.xPosition + processSelection.current.sizeOpt.width) / screenSpaceRef.current.canvas.width * allTime)
+      const startTime = Math.round(processSelection.current.sizeOpt.xPosition / screenSpaceRef.canvas.width * allTime)
+      const endTime = Math.round((processSelection.current.sizeOpt.xPosition + processSelection.current.sizeOpt.width) / screenSpaceRef.canvas.width * allTime)
 
       removeSelectedTimeElements(startTime, endTime, clickedRadio)
       contextMenu.current.setShouldDraw(false)
@@ -466,11 +467,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       if (!rightClick && worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current) {
         selectedElement.setChangingLeftBorder(true)
         selectedElement.setFocusColor()
-        // screenSpaceRef.current.canvas.style.cursor = 'e-resize'
+        // screenSpaceRef.canvas.style.cursor = 'e-resize'
       } else if (!rightClick && worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width) {
         selectedElement.setChangingRightBorder(true)
         selectedElement.setFocusColor()
-        // screenSpaceRef.current.canvas.style.cursor = 'e-resize'
+        // screenSpaceRef.canvas.style.cursor = 'e-resize'
       } else {
         selectedElement.setFocusColor()
 
@@ -493,7 +494,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     // log('selectedElementRef', selectedElementRef.current, selectedElementRef.current.isMoving)
     if (selectedElementRef.current instanceof ProcessSelection && selectedElementRef.current.isMoving) {
       const newOffset = selectedElementRef.current.sizeOpt.xPosition + (event.movementX) / scaleRef.current
-      const rightBorder = screenSpaceRef.current.canvas.width - selectedElementRef.current.sizeOpt.width //- selectedElementRef.current.sizeOpt.width * scaleRef.current
+      const rightBorder = screenSpaceRef.canvas.width - selectedElementRef.current.sizeOpt.width //- selectedElementRef.current.sizeOpt.width * scaleRef.current
 
       if (newOffset > rightBorder || newOffset < 0) {
         return
@@ -533,11 +534,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
       } else {
         if (worldX >= xPosition && worldX <= xPosition + 3 / scaleRef.current && event.nativeEvent.offsetY <= canvasHeight - LEGEND_HEIGHT + 2) {
-          screenSpaceRef.current.canvas.style.cursor = 'e-resize'
+          screenSpaceRef.canvas.style.cursor = 'e-resize'
         } else if (worldX >= xPosition + width - 3 / scaleRef.current && worldX <= xPosition + width && event.nativeEvent.offsetY <= canvasHeight - LEGEND_HEIGHT + 2) {
-          screenSpaceRef.current.canvas.style.cursor = 'e-resize'
+          screenSpaceRef.canvas.style.cursor = 'e-resize'
         } else {
-          screenSpaceRef.current.canvas.style.cursor = 'auto'
+          screenSpaceRef.canvas.style.cursor = 'auto'
         }
       }
 
@@ -550,7 +551,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       hoverLine.current.setStart(selectedElement.initialXPosition)
       hoverLine.current.setWidth(selectedElement.initialWidth)
       hoverLine.current.setShouldShow(true)
-      screenSpaceRef.current.canvas.style.cursor = 'pointer'
+      screenSpaceRef.canvas.style.cursor = 'pointer'
     } else {
       hoverLine.current.setShouldShow(false)
     }
@@ -563,7 +564,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     })
 
     if (hoveredOnTime) {
-      screenSpaceRef.current.canvas.style.cursor = 'pointer'
+      screenSpaceRef.canvas.style.cursor = 'pointer'
     }
   }
 
@@ -673,7 +674,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     const {worldX: worldXAfterZoom} = screenToWorld(event.nativeEvent.offsetX, 0)
     const newOffset = (offsetXRef.current + worldXBeforeZoom - worldXAfterZoom)
-    const scaledOffset = screenSpaceRef.current.canvas.width - screenSpaceRef.current.canvas.width / scaleRef.current
+    const scaledOffset = screenSpaceRef.canvas.width - screenSpaceRef.canvas.width / scaleRef.current
 
 
     if (newOffset > scaledOffset) {
@@ -734,7 +735,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   useEffect(() => {
     if (changeTimeRef.current) {
-      const canvasRect = screenSpaceRef.current.canvas.getBoundingClientRect()
+      const canvasRect = screenSpaceRef.canvas.getBoundingClientRect()
       const changeTimeRect = changeTimeRef.current.getBoundingClientRect()
       if (canvasRect && changeTimeRect) {
         if (changeTimeRect.right < canvasRect.right) {
@@ -749,6 +750,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   return <div style={{position: 'relative'}}><Canvas
     screenSpaceRef={screenSpaceRef}
+    setScreenSpaceRef={setScreenSpaceRef}
     onMouseDown={handleMouseDown}
     onMouseMove={handleMouseMove}
     onClick={handleClick}
@@ -779,7 +781,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
             changeStartTime={(value) => {
               if (value >= 0) {
                 const {width, xPosition} = processSelection.current.sizeOpt
-                const newXPosition = value / allTime * screenSpaceRef.current.canvas.width
+                const newXPosition = value / allTime * screenSpaceRef.canvas.width
                 const xPositionDelta = xPosition - newXPosition
                 const newWidth = width + xPositionDelta
                 setStartTime(value)
@@ -792,7 +794,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
             changeEndTime={(value) => {
               if (value >= 0) {
                 const {width, xPosition} = processSelection.current.sizeOpt
-                const newXPosition = value / allTime * screenSpaceRef.current.canvas.width
+                const newXPosition = value / allTime * screenSpaceRef.canvas.width
                 const newWidth = newXPosition - xPosition
                 setEndTime(value)
                 processSelection.current.setWidth(newWidth)
@@ -802,12 +804,14 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         </div>
       </ClickOutHandler>
       : null}
-    <Options
-      toggleOptions={toggleOptions}
-      setMovement={setMovement}
-      isOptionsOpen={isOptionsOpen}
-      isMovement={isMovement}
-    />
+    <ClickOutHandler onClickOut={() => toggleOptions(false)}>
+      <Options
+        toggleOptions={toggleOptions}
+        setMovement={setMovement}
+        isOptionsOpen={isOptionsOpen}
+        isMovement={isMovement}
+      />
+    </ClickOutHandler>
     <button onClick={() => tryStart()}>Start Test</button>
     <button onClick={() => tryStop()}>Stop Test</button>
   </div>
