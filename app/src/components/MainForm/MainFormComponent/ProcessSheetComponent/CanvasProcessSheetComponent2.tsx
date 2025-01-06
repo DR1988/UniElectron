@@ -29,6 +29,7 @@ import {
   Cover,
   Line
 } from './CanvasElements';
+import {Options} from './Options/Options';
 
 export type Props = {
   distance: number,
@@ -801,32 +802,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         </div>
       </ClickOutHandler>
       : null}
-    <ClickOutHandler onClickOut={() => toggleOptions(false)}>
-      <div style={{
-        position: 'absolute',
-        right: 0,
-        top: 5,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'flex-end'
-      }}>
-        <button style={{
-          height: 20,
-          padding: 2,
-          fontSize: 12
-        }} onClick={() => toggleOptions(!isOptionsOpen)}>options
-        </button>
-        {isOptionsOpen ? <div style={{
-          backgroundColor: 'white',
-          padding: 3
-        }}>
-          <div style={{display: 'flex', alignItems: 'start'}}>
-            <input id={'setMovement'} onChange={(event) => setMovement(!isMovement)} style={{height: 16, width: 16}} type="checkbox"/>
-            <label style={{marginLeft: 5}} htmlFor={'setMovement'}>Follow time line</label>
-          </div>
-        </div> : null}
-      </div>
-    </ClickOutHandler>
+    <Options
+      toggleOptions={toggleOptions}
+      setMovement={setMovement}
+      isOptionsOpen={isOptionsOpen}
+      isMovement={isMovement}
+    />
     <button onClick={() => tryStart()}>Start Test</button>
     <button onClick={() => tryStop()}>Stop Test</button>
   </div>
