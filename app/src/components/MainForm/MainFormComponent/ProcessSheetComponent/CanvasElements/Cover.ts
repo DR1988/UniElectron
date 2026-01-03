@@ -2,6 +2,7 @@ import {Draggable, DRAW_RECT_PARAMS, DrawingElement} from './CanvasTypes';
 
 export class Cover extends DrawingElement<'COVER'> implements Draggable {
   isDragging = false
+  deltaX = 0
 
   constructor(params: DRAW_RECT_PARAMS) {
     super('COVER', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
@@ -31,6 +32,10 @@ export class Cover extends DrawingElement<'COVER'> implements Draggable {
 
   setDragging = (dragging: boolean) => {
     this.isDragging = dragging
+  }
+
+  setDeltaX = (deltaX: number) => {
+    this.deltaX = deltaX
   }
 
 }

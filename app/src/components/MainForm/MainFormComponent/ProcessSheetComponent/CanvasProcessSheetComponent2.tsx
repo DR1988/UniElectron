@@ -128,7 +128,6 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         if(screenSpaceRef && containerRect) {
           for (const entry of entries) {
             const containerWidth = entry.contentBoxSize[0].inlineSize
-            console.log('containerWidth', containerWidth)
             velocityRef.current = containerWidth / allTime /// 1000 // per ms
             let width = 0
             if (process.env.NODE_ENV === 'development') {
@@ -137,7 +136,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
               const maxWidth = window.screen.width - 420 - 95 // 400 - width of the left side with text area and 20 is a margin and 95 - left side with adding and valves names
               width = Math.max(MIN_CANVAS_WIDTH, maxWidth);
             }
-            console.log('width', width)
+
             setScreenSpaceRefWidth(width)
             screenSpaceRef.canvas.width = width
             screenSpaceRef.canvas.height = canvasHeight;
@@ -324,6 +323,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }, [screenSpaceRef, container, elements.current])
 
+  // pan - moving the sheet itself
   const onPanMove = (event: React.MouseEvent) => {
     if (moving.current) {
       const newOffset = offsetXRef.current - (event.movementX) / scaleRef.current
@@ -341,14 +341,15 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }
 
+  // move cover inside legend under the main sheet
   const onCoverMove = (event: React.MouseEvent) => {
-    if (selectedElementRef.current instanceof Cover && selectedElementRef.current.isDragging) {
-      const {width} = selectedElementRef.current.sizeOpt
+    if (selectedElementRef.current instanceof Cover && selectedElementRef.current.isDragging && container) {
+      const {sizeOpt: {width}, deltaX} = selectedElementRef.current
+      const containerRect = container.getBoundingClientRect()
+      const xPositon = event.clientX - containerRect.left; //x position within the element.
 
-      const newOffsetX = offsetXRef.current + event.movementX
-
-
-      offsetXRef.current = Math.min(Math.max(0, newOffsetX), width - width / scaleRef.current)
+      const newOffsetX = xPositon - deltaX; //offsetXRef.current + event.movementX
+      offsetXRef.current = Math.max(0, Math.min(newOffsetX, width - width / scaleRef.current))
 
       // can be optimized - check for change coordinate
       if (!useAnimationFrame) {
@@ -481,6 +482,9 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
       if (selectedElement instanceof Cover && !isMovement) {
         selectedElement.setDragging(true)
+        const containerRect = container.getBoundingClientRect()
+        const xPositon = event.clientX - containerRect.left; //x position within the element.
+        selectedElement.setDeltaX(xPositon - offsetXRef.current)
       }
     }
 
