@@ -1358,6 +1358,10 @@ class MainForm extends Component<Props, MainFormState> {
     this.props.socket.emit(socketConfig.switchValves, {shorName, value})
   }
 
+  checkValves = () => {
+    this.props.socket.emit(socketConfig.checkValves)
+  }
+
   render() {
     const {showEditModal, chosenElement} = this.state
     return (
@@ -1519,6 +1523,8 @@ class MainForm extends Component<Props, MainFormState> {
               sendRPMValue={this.sendRPMValueToController}
               closeModal={this.closeManualControlModal}
               toggleValve={this.toggleManualControlValves}
+              checkValves={this.checkValves}
+              socket={this.props.socket}
             />
           }
         />

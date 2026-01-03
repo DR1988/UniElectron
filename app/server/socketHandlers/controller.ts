@@ -14,7 +14,7 @@ interface Counter {
 
 const shortNamesToActionMapper = (name: ShortNames, value: boolean) => {
   console.log('name', name, value);
-  
+
   switch (name) {
     case 'GV1':
       if (value) {
@@ -219,7 +219,6 @@ export default class Controller {
   }
 
   rpmStart = (data: number) => {
-    
     if (data > 0) {
       this.Serial.sendData(`R9${data}|\n`)
     } else {
@@ -227,13 +226,17 @@ export default class Controller {
     }
   }
 
-  switchValves = ({shorName, value}: {shorName: ShortNames, value: boolean}) => {
+  switchValves = ({ shorName, value }: { shorName: ShortNames, value: boolean }) => {
     const result = shortNamesToActionMapper(shorName, value)
     console.log('sww', `${result}\n`);
-    
+
     if (result) {
       this.Serial.sendData(`${result}\n`)
     }
+  }
+
+  checkValves = () => {
+    this.Serial.sendData(`C0|C1|C2|C3|C4|C5|CS0|CS1|CS2|\n`)
   }
 
   startGettingTemperature() {
@@ -365,7 +368,7 @@ export default class Controller {
         this.Serial.sendData('S\n')
         // this.Serial.sendData('V0N|V1N|V2N|V3N|V4N|V5N|V6N|V7N|V8N|R90|A11N|A12N|\n') // close pinch valves
         this.currentTime = 0
-        
+
         this.io.emit(socketConfig.protocolFinish)
         clearInterval(this.intervalId)
       }
@@ -376,7 +379,7 @@ export default class Controller {
   }
 
   connect = () => {
-    this.initializeThermostat()
+    // this.initializeThermostat()
     this.io.emit(socketConfig.searchingSerial, true)
     this.Serial.findSerialPort()
   }

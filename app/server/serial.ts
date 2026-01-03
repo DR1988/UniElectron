@@ -2,9 +2,11 @@ import SerialPort from 'serialport'
 import Readline from '@serialport/parser-readline'
 import socketConfig from '../config/socket.config'
 import socket from 'socket.io'
+import { ValveActions, VALVES } from './socketHandlers/serialMessages'
+
 let serialPort: SerialPort
 
-let loadScriptPromise = function(src, fn) {
+let loadScriptPromise = function (src, fn) {
   return new Promise((resolve, reject) => {
     fn('data', (script) => {
       resolve(script);
@@ -18,7 +20,7 @@ export default class Serial {
   parser: any
   private connected: boolean
   private rpmValue: number = 0
-  private serialList:  SerialPort.PortInfo[];
+  private serialList: SerialPort.PortInfo[];
 
   constructor(private io: socket.Server) {
     this.io = io
@@ -28,7 +30,7 @@ export default class Serial {
   private async connectToPort(path: string) {
     let receivedData = '';
     let counter = 0;
-    let interval;
+    let interval: NodeJS.Timer;
 
     this.serialPort = new SerialPort(path, {
       baudRate: 500000,
@@ -40,7 +42,8 @@ export default class Serial {
       console.log('ERROR:', err)
     })
 
-    const parser = this.serialPort.pipe(new Readline({ delimiter: '\n' }))
+    const parser = this.serialPort.pipe(new Readline({ delimiter: '\n\r' })) // cause transmitting "next line" and than "carriage return"
+    const valveActions = new ValveActions(this.io)
 
     this.serialPort.on('open', () => {
       this.connected = true
@@ -58,10 +61,12 @@ export default class Serial {
       if (data === 'CONNECTED') {
         receivedData = data;
         clearInterval(interval);
-        console.log('arduion found')
+        console.log(`arduion found, data: ${data}`)
         this.io.emit(socketConfig.searchingSerial, false)
       } else {
-        console.log('data', data);
+        if (data in valveActions.actions) {
+          valveActions.actions[data]?.action(data)
+        }
       }
     })
 
@@ -69,7 +74,7 @@ export default class Serial {
       interval = setInterval(() => {
         if (counter > 3 && receivedData === '') {
 
-          if(this.serialPort.isOpen) {
+          if (this.serialPort.isOpen) {
             this.serialPort.close();
           }
 

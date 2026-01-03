@@ -21,7 +21,9 @@ const socketConfig = {
   switchHV: 'SWITCH_HV',
   protocolFinish: 'protocolFinish',
   setRPMValue: 'SET_RPM_VALUE',
-  switchValves: 'SWITCH_VALVES'
+  switchValves: 'SWITCH_VALVES',
+  checkValves: 'CHECK_VALVES',
+  valveAction: 'VALVE_ACTION',
 }
 
 export interface startSignal {

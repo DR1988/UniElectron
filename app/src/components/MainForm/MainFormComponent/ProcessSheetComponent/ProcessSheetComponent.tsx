@@ -151,7 +151,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
         setContainerElement(containerRef.current)
     }
   }, [containerRef.current])
-  console.log('containerElement', containerElement)
+  
   return (
     <section className={s.container} ref={mainContainerRef}>
       <div className={s.valveAdderAndLineNamesContainer}>

@@ -26,5 +26,6 @@ export default (socket, io) => {
   socket.on(socketConfig.connect, () => controller.connect())
   socket.on(socketConfig.switchHV, (data: string) => controller.switchHV(data))
   socket.on(socketConfig.setRPMValue, (data: number) => controller.rpmStart(data))
-  socket.on(socketConfig.switchValves, (data: {shorName: ShortNames, value: boolean}) => controller.switchValves(data))
+  socket.on(socketConfig.switchValves, (data: { shorName: ShortNames, value: boolean }) => controller.switchValves(data))
+  socket.on(socketConfig.checkValves, () => controller.checkValves())
 }

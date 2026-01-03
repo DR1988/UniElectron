@@ -1,5 +1,7 @@
 import React, {Component, useEffect, useState} from 'react'
 import { ShortNames } from '../../MainForm/MainFormInterfaces'
+import socketConfig from '../../../../config/socket.config';
+import {VALVES} from '../../../../server/socketHandlers/serialMessages';
 
 type CustomInputProps = {
     // defaultValue: number,
@@ -7,7 +9,7 @@ type CustomInputProps = {
     value: number,
     changeValue: (value: number) => void,
   }
-  
+
 class CustomInput extends Component<CustomInputProps> { // eslint-disable-line
     constructor(props: CustomInputProps) { // eslint-disable-line
         super(props)
@@ -18,7 +20,7 @@ class CustomInput extends Component<CustomInputProps> { // eslint-disable-line
           console.log('e.target.value', e.target.value);
           if (e.target.value.length <= 4) {
             changeValue(+e.target.value)
-          } 
+          }
         }
     }
     render() {
@@ -47,9 +49,11 @@ type Props = {
   sendRPMValue: (rpmValue: number) => void
   closeModal: () => void
   toggleValve: (shorName: ShortNames, value: boolean) => void
+  checkValves: () => void
+  socket: SocketIOClient.Socket
 }
 
-export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, toggleValve}) => {
+export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, checkValves, socket}: Props) => {
     const [RMPValue, changeRmpValue] = useState(0)
     const [RPMState, toggleRPMState] = useState(false)
     const [GV1State, toggleGV1] = useState(false)
@@ -61,6 +65,75 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
     const [HV1State, toggleHV1] = useState(false)
     const [HV2State, toggleHV2] = useState(false)
     const [HV3State, toggleHV3] = useState(false)
+
+
+    useEffect(() => {
+        socket.on(socketConfig.valveAction, (valve: VALVES) => {
+          console.log('valvevalve', valve)
+          switch (valve) {
+            case 'C0C':
+              toggleGV1(false);
+              break;
+            case 'C0O':
+              toggleGV1(true);
+              break;
+            case 'C1C':
+              toggleGV2(false);
+              break;
+            case 'C1O':
+              toggleGV2(true);
+              break;
+            case 'C2C':
+              toggleGV3(false);
+              break;
+            case 'C2O':
+              toggleGV3(true);
+              break;
+            case 'C3C':
+              toggleGV4(false);
+              break;
+            case 'C3O':
+              toggleGV4(true);
+              break;
+            case 'C4C':
+              toggleGV5(false);
+              break;
+            case 'C4O':
+              toggleGV5(true);
+              break;
+            case 'C5C':
+              toggleGV6(false);
+              break;
+            case 'C5O':
+              toggleGV6(true);
+              break;
+            case 'CS0C':
+              toggleHV1(false);
+              break;
+            case 'CS0O':
+              toggleHV1(true);
+              break;
+            case 'CS1C':
+              toggleHV2(false);
+              break;
+            case 'CS1O':
+              toggleHV2(true);
+              break;
+            case 'CS2C':
+              toggleHV3(false);
+              break;
+            case 'CS2O':
+              toggleHV3(true);
+              break;
+          }
+        })
+
+        checkValves()
+        return () => {
+          socket.off(socketConfig.valveAction)
+          console.log('DESTROY')
+        }
+    }, [socket])
 
     const handleStirerClick = () => {
       if (!RPMState) {
@@ -105,7 +178,7 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
       toggleValve('HV1', !HV1State)
       toggleHV1(!HV1State)
     }
-    
+
     const _toggleHV2 = () => {
       toggleValve('HV2', !HV2State)
       toggleHV2(!HV2State)
@@ -115,7 +188,7 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
       toggleValve('HV3', !HV3State)
       toggleHV3(!HV3State)
     }
-    
+
 
     return (
         <div style={{ backgroundColor: 'white', width: 550, height: 700}}>
@@ -431,9 +504,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={GV1State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="599" y="400" 
+                 <foreignObject x="599" y="400"
                 width="50" height="80">
-                    <button 
+                    <button
                       onClick={_toggleGV1}
                       style={{
                         // backgroundColor: 'red',
@@ -593,9 +666,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={HV1State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="110" y="445" 
+                 <foreignObject x="110" y="445"
                 width="50" height="80">
-                    <button 
+                    <button
                       onClick={_toggleHV1}
                       style={{
                         backgroundColor: 'transparent',
@@ -651,9 +724,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={HV2State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="256" y="445" 
+                 <foreignObject x="256" y="445"
                 width="50" height="80">
-                    <button 
+                    <button
                       onClick={_toggleHV2}
                       style={{
                         backgroundColor: 'transparent',
@@ -709,9 +782,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={GV3State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="138" y="87" 
+                 <foreignObject x="138" y="87"
                 width="50" height="80">
-                    <button 
+                    <button
                       onClick={_toggleGV3}
                       style={{
                         backgroundColor: 'transparent',
@@ -767,9 +840,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={GV5State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="286" y="87" 
+                 <foreignObject x="286" y="87"
                 width="50" height="80">
-                    <button 
+                    <button
                       onClick={_toggleGV5}
                       style={{
                         backgroundColor: 'transparent',
@@ -825,9 +898,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={GV6State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="216" y="87" 
+                 <foreignObject x="216" y="87"
                 width="50" height="80">
-                    <button 
+                    <button
                       onClick={_toggleGV6}
                       style={{
                         backgroundColor: 'transparent',
@@ -883,9 +956,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={GV4State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="70" y="87" 
+                 <foreignObject x="70" y="87"
                 width="50" height="80">
-                    <button 
+                    <button
                       onClick={_toggleGV4}
                       style={{
                         backgroundColor: 'transparent',
@@ -901,7 +974,7 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                 }}
             >
                 {/* GV2 клапан */}
-               
+
                 <path
                     d="m110.349 520.918 18.193-31.512 18.193 31.512z"
                     style={{
@@ -942,9 +1015,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={GV2State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="410" y="400" 
+                 <foreignObject x="410" y="400"
                 width="50" height="80">
-                    <button 
+                    <button
                       onClick={_toggleGV2}
                       style={{backgroundColor: 'transparent', width: 50, height: 80}}
                     />
@@ -1175,13 +1248,13 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                 {"chamber"}
                 </tspan>
             </text>
-            <foreignObject x="473.511" y="193.604" 
+            <foreignObject x="473.511" y="193.604"
                 width="100" height="48">
-                  <div 
+                  <div
                     style={{
                         width: 100,
                         height: 42,
-                    
+
                     }}>
                       <CustomInput id="RMPVALUE" value={RMPValue} changeValue={changeRmpValue} />
                   </div>
@@ -1735,9 +1808,9 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                   r="12"
                   fill={HV3State ? 'limegreen' : 'red'}
                 />
-                 <foreignObject x="190" y="670" 
+                 <foreignObject x="190" y="670"
                 width="80" height="50">
-                    <button 
+                    <button
                       onClick={_toggleHV3}
                       style={{
                         backgroundColor: 'transparent',
@@ -1746,7 +1819,7 @@ export const ManualControlModal: React.FC<Props> = ({sendRPMValue, closeModal, t
                     />
                   </foreignObject>
             </g>
-            
+
             <text
                 xmlSpace="preserve"
                 style={{
