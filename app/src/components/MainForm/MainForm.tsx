@@ -994,7 +994,8 @@ class MainForm extends Component<Props, MainFormState> {
 
       return insertedLineFormer as Array<ValveLineType>
 
-    } else if (mode === 'remove_all') {
+    }
+    else if (mode === 'remove_all') {
       const period = endTime - startTime
 
       const insertedLineFormer = lineFormer.map(lf => {
@@ -1058,7 +1059,8 @@ class MainForm extends Component<Props, MainFormState> {
 
       return insertedLineFormer as Array<ValveLineType>
 
-    } else if (mode === 'insert_space') {
+    }
+    else if (mode === 'insert_space') {
       const period = endTime - startTime
 
       const insertedLineFormer = lineFormer.map(lf => {

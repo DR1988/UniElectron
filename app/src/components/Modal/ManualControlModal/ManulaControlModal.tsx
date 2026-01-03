@@ -14,7 +14,7 @@ class CustomInput extends Component<CustomInputProps> { // eslint-disable-line
     constructor(props: CustomInputProps) { // eslint-disable-line
         super(props)
     }
-    _changeValue = (e: SyntheticInputEvent<HTMLInputElement>) => {
+    _changeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { changeValue } = this.props
         if (Number.isInteger(+e.target.value.trim()) && +e.target.value.trim() >= 0 && +e.target.value.trim() <= 2500) {
           console.log('e.target.value', e.target.value);
@@ -553,11 +553,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -591,11 +589,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1069,11 +1065,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1210,11 +1204,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1298,11 +1290,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1326,9 +1316,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: "37.5px",
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1365,11 +1354,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1394,9 +1381,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 25,
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1412,11 +1398,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1441,9 +1425,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 25,
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1459,11 +1442,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1488,9 +1469,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 25,
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1506,11 +1486,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1535,9 +1513,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 25,
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1553,11 +1530,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1581,9 +1556,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 25,
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1599,11 +1573,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1627,9 +1599,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 25,
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1645,11 +1616,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1673,9 +1642,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 25,
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1691,11 +1659,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontStretch: "normal",
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1719,9 +1685,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 25,
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     }}
                 >
@@ -1830,11 +1795,9 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: 12,
                     lineHeight: "0%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
                     letterSpacing: 0,
                     wordSpacing: 0,
-                    writingMode: "lr-tb",
                     textAnchor: "start",
                     fill: "#000",
                     fillOpacity: 1,
@@ -1858,9 +1821,8 @@ export const ManualControlModal = ({sendRPMValue, closeModal, toggleValve, check
                     fontSize: "25.00000191px",
                     lineHeight: "100%",
                     fontFamily: "Arial",
-                    InkscapeFontSpecification: "'Arial, Normal'",
                     textAlign: "start",
-                    writingMode: "lr-tb",
+
                     textAnchor: "start",
                     strokeWidth: 1,
                     }}

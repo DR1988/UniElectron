@@ -1,5 +1,4 @@
 import React, {CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {Props} from './ProcessSheetComponent';
 import {ValveLineType} from '../../MainFormInterfaces';
 import {RemoveSpaceOption} from '../../../CommonTypes';
 import {Canvas} from '../../../Canvas/Canvas';
@@ -38,7 +37,7 @@ export type Props = {
   showModal: () => void,
   setChosenValveTime: (lineID: number, changeId: number) => void,
   lineFormer: Array<ValveLineType>,
-  changeTime: (startTime: number, endTime: number) => void
+  // changeTime: (startTime: number, endTime: number) => void
   addNewValveTime: (chosenLine: ValveLineType) => void,
   removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
   container: HTMLDivElement | null
@@ -124,6 +123,31 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   useEffect(() => {
+    const resizeObserver = new ResizeObserver((entries) => {
+      requestAnimationFrame(() => {
+        if(screenSpaceRef && containerRect) {
+          for (const entry of entries) {
+            const containerWidth = entry.contentBoxSize[0].inlineSize
+            console.log('containerWidth', containerWidth)
+            velocityRef.current = containerWidth / allTime /// 1000 // per ms
+            let width = 0
+            if (process.env.NODE_ENV === 'development') {
+              width = Math.max(MIN_CANVAS_WIDTH, containerWidth);
+            } else {
+              const maxWidth = window.screen.width - 420 - 95 // 400 - width of the left side with text area and 20 is a margin and 95 - left side with adding and valves names
+              width = Math.max(MIN_CANVAS_WIDTH, maxWidth);
+            }
+            console.log('width', width)
+            setScreenSpaceRefWidth(width)
+            screenSpaceRef.canvas.width = width
+            screenSpaceRef.canvas.height = canvasHeight;
+          }
+        }
+      });
+    });
+
+    resizeObserver.observe(container)
+
     const containerRect = container?.getBoundingClientRect()
 
     if (screenSpaceRef && containerRect) {
@@ -135,6 +159,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         const maxWidth = window.screen.width - 420 - 95 // 400 - width of the left side with text area and 20 is a margin and 95 - left side with adding and valves names
         width = Math.max(MIN_CANVAS_WIDTH, maxWidth);
       }
+      console.log('width', width)
       setScreenSpaceRefWidth(width)
       screenSpaceRef.canvas.width = width
       screenSpaceRef.canvas.height = canvasHeight;
@@ -748,19 +773,20 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }, [changeTimeModal])
 
-  return <div style={{position: 'relative'}}><Canvas
-    screenSpaceRef={screenSpaceRef}
-    setScreenSpaceRef={setScreenSpaceRef}
-    onMouseDown={handleMouseDown}
-    onMouseMove={handleMouseMove}
-    onClick={handleClick}
-    onMouseUp={handleMouseUp}
-    onMouseLeave={handleLeave}
-    changeScale={changeScale}
-    onDoubleClick={handleDoubleClick}
-    draw={draw}
-    useAnimationFrame={useAnimationFrame}
-  />
+  return <div style={{position: 'relative'}}>
+    <Canvas
+      screenSpaceRef={screenSpaceRef}
+      setScreenSpaceRef={setScreenSpaceRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onClick={handleClick}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleLeave}
+      changeScale={changeScale}
+      onDoubleClick={handleDoubleClick}
+      draw={draw}
+      useAnimationFrame={useAnimationFrame}
+    />
     {changeTimeModal ?
       <ClickOutHandler onClickOut={closeChangeTimeModal}>
         <div

@@ -151,7 +151,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
         setContainerElement(containerRef.current)
     }
   }, [containerRef.current])
-  
+
   return (
     <section className={s.container} ref={mainContainerRef}>
       <div className={s.valveAdderAndLineNamesContainer}>
@@ -211,7 +211,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
         {/*    {lineFormer.map(elem => <ValveLineComponent*/}
         {/*        key={elem.name + elem.id}*/}
         {/*        line={elem}*/}
-        {/*        allTime={allTime}*/} 
+        {/*        allTime={allTime}*/}
         {/*        showModal={showModal}*/}
         {/*        setChosenValveTime={setChosenValveTime}*/}
         {/*        scale={scale}*/}
