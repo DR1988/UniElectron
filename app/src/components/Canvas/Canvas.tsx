@@ -87,6 +87,7 @@ export const Canvas: FunctionComponent<CanvasProp> = (props) => {
   }, [draw])
 
   return <canvas
+    id="canvas"
     // style={{width:'100%', maxWidth: 600}}
     onMouseDown={onMouseDown}
     onMouseUp={onMouseUp}

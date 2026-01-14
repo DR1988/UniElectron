@@ -1,3 +1,4 @@
+export const DPR =  1// window.devicePixelRatio || 1
 
 export const STEP = 1
 export const MAX_SCALE_FACTOR = 15

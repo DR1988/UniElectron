@@ -11,7 +11,7 @@ import {
   TimeView,
   SideCover,
   Cover,
-  Line
+  Line,
 } from './CanvasElements';
 import {DrawingElement, ELEMENT_TYPES} from './CanvasElements/CanvasTypes';
 
@@ -67,7 +67,8 @@ export const useElements = (
               color: `rgba(209, 216, 209, 0.5)`,
               shouldSkipSizing: true
             }
-          }))
+          })
+        )
       })
 
       lineFormer.forEach((lf, index) => {

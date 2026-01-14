@@ -1,12 +1,14 @@
 import {DRAW_RECT_PARAMS, Point, DrawingElement} from './CanvasTypes';
 import {getTime} from '../../../../../utils';
-import {RECT_HEIGHT} from '../CanvasConstants';
+import {DPR, RECT_HEIGHT} from '../CanvasConstants';
 
 export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   widthSetIsComplete: boolean
   isMoving: boolean
   changingLeftBorder: boolean
   changingRightBorder: boolean
+  deltaX = 0
+  originStartPoint = 0
 
   private focusColor = 'rgba(0, 0, 0, 0.3)'
   private timeTextOffsetX = 3
@@ -35,6 +37,8 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
 
   private startTimeTextWidth: number = 0
   private endTimeTextWidth: number = 0
+  public  startTime = 0
+  public  endTime = 0
 
   constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
@@ -45,6 +49,7 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.drawOpt = drawOpt
     this.initialWidth = sizeOpt.width
     this.initialXPosition = sizeOpt.xPosition
+    this.originStartPoint = sizeOpt.xPosition
     this.defaultColor = this.drawOpt?.color || 'red'
     this.order = 2
     this.widthSetIsComplete = false
@@ -76,17 +81,17 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
       this.ctx.textAlign = "start";
       this.ctx.scale(1 / zoom, 1)
 
-      const textLeft = Math.round(this.sizeOpt.xPosition / this.ctx.canvas.width * this.allTime)
-      const textRight = Math.round((this.sizeOpt.xPosition + this.sizeOpt.width) / this.ctx.canvas.width * this.allTime)
+      this.startTime = Math.round(this.sizeOpt.xPosition / this.ctx.canvas.width * DPR * this.allTime)
+      this.endTime = Math.round((this.sizeOpt.xPosition + this.sizeOpt.width) / this.ctx.canvas.width * DPR * this.allTime)
 
-      const startTime = getTime(textLeft)
-      const endTime = getTime(textRight)
+      const startTime = getTime(this.startTime)
+      const endTime = getTime(this.endTime)
 
       this.startTimeTextWidth = this.ctx.measureText(startTime).width
       this.endTimeTextWidth = this.ctx.measureText(endTime).width
 
-      const startTimeTextXPosition = Math.min(this.ctx.canvas.width * zoom - this.startTimeTextWidth - this.timePositionPadding - this.timeTextOffsetX - this.endTimeTextWidth - this.timeMargin, Math.max(0, xPosition * zoom - this.startTimeTextWidth - this.timeTextOffsetX))
-      const endTimeTextXPosition = Math.max(this.endTimeTextWidth + this.timePositionPadding + this.timeMargin, Math.min((this.ctx.canvas.width * zoom - this.endTimeTextWidth), (xPosition + width) * zoom + this.timeTextOffsetX))
+      const startTimeTextXPosition = Math.min(this.ctx.canvas.width * DPR * zoom - this.startTimeTextWidth - this.timePositionPadding - this.timeTextOffsetX - this.endTimeTextWidth - this.timeMargin, Math.max(0, xPosition * zoom - this.startTimeTextWidth - this.timeTextOffsetX))
+      const endTimeTextXPosition = Math.max(this.endTimeTextWidth + this.timePositionPadding + this.timeMargin, Math.min((this.ctx.canvas.width * DPR * zoom - this.endTimeTextWidth), (xPosition + width) * zoom + this.timeTextOffsetX))
       const startTimeTextYPosition = height + this.timeTextFontSize + this.timePositionPadding
       const endTimeTextYPosition = height + this.timeTextFontSize + this.timePositionPadding
 
@@ -129,6 +134,14 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
 
   setStartPoint = (startPoint: number) => {
     this.sizeOpt.xPosition = startPoint
+  }
+
+  setOriginStartPoint = (startPoint: number) => {
+    this.originStartPoint = startPoint
+  }
+
+  setDeltaX = (deltaX: number) => {
+    this.deltaX = deltaX
   }
 
   setWidth = (width: number) => {
