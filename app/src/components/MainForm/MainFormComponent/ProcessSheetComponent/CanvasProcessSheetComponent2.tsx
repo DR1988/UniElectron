@@ -1,4 +1,4 @@
-import React, {CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
+import React, {CSSProperties, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {ValveLineType} from '../../MainFormInterfaces';
 import {RemoveSpaceOption} from '../../../CommonTypes';
 import {Canvas} from '../../../Canvas/Canvas';
@@ -30,6 +30,7 @@ import {
   Line
 } from './CanvasElements';
 import {Options} from './Options/Options';
+import { ThemeContext } from '../../../Main/Context';
 
 export type Props = {
   distance: number,
@@ -62,6 +63,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 ) => {
 
+  const {theme} = useContext(ThemeContext)
+
   const useAnimationFrame = true
 
   const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT
@@ -86,6 +89,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const contextMenu = useRef<ContextMenu | null>(null)
   const hoverLine = useRef<HoverLine | null>(null)
   const changeTimeRef = useRef<HTMLDivElement | null>(null)
+  const showCoordTimeRef = useRef<HTMLDivElement | null>(null) // удали - просто для отладки
   const timeLineOffset = useRef<number>(100)
 
   const [startTime, setStartTime] = useState(0)
@@ -271,7 +275,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         screenSpaceRef.save()
         screenSpaceRef.translate(-offsetXRef.current * scaleRef.current, 0)
         screenSpaceRef.scale(scaleRef.current, 1)
-        element.drawElement(scaleRef.current)
+        element.drawElement(scaleRef.current, theme)
         screenSpaceRef.restore()
         return
       }
@@ -335,9 +339,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       }
 
     })
-
-
-  }, [screenSpaceRef, lineFormer, isMovement])
+  }, [screenSpaceRef, lineFormer, isMovement, theme])
 
   useEffect(() => {
     if (!useAnimationFrame) {
@@ -389,6 +391,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         const width = worldX - processSelection.current.sizeOpt.xPosition
         if (width > 1) {
           processSelection.current.setWidth(width)
+          processSelection.current.setVaryingWidth(width)
           // processSelection.current.setStartPoint(processSelection.current.sizeOpt.xPosition)
         }
 
@@ -548,14 +551,14 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const onProcessSelectionMove = (event: React.MouseEvent) => {
     if (selectedElementRef.current instanceof ProcessSelection && selectedElementRef.current.isMoving) {
 
-      const {deltaX} = selectedElementRef.current
+      const {deltaX, originStartPoint, sizeOpt} = selectedElementRef.current
       const containerRect = container.getBoundingClientRect()
       const xPosition = event.clientX - containerRect.left; //x position within the element.
       const newOffsetX = xPosition - deltaX;
 
-      const newOffset = selectedElementRef.current.originStartPoint  + (newOffsetX - offsetXRef.current ) / scaleRef.current
+      const newOffset = originStartPoint  + (newOffsetX - offsetXRef.current ) / scaleRef.current
 
-      const rightBorder = screenSpaceRef.canvas.width - selectedElementRef.current.sizeOpt.width
+      const rightBorder = screenSpaceRef.canvas.width - sizeOpt.width
       if (newOffset > rightBorder || newOffset < 0) {
         return
       }
@@ -565,27 +568,27 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   const onProcessSelectionBorder = (event: React.MouseEvent) => {
     if (processSelection.current) {
-      const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
 
       const {width, xPosition} = processSelection.current.sizeOpt
+      const {originStartPoint, varyingWidth} = processSelection.current
+      const {worldX} = screenToWorld(event.nativeEvent.offsetX, varyingWidth)
+
+      const containerRect = container.getBoundingClientRect()
+      const xMousePosition = event.clientX - containerRect.left;
 
       if (processSelection.current.changingLeftBorder || processSelection.current.changingRightBorder) {
+
         if (processSelection.current.changingLeftBorder) {
-          const offset = event.movementX / scaleRef.current
-          const newOffset = xPosition + offset
-
-          const newWidth = width - offset
-
-
-          if (newWidth > 5 && worldX < xPosition + width - 5 && newOffset >= 0) {
-            processSelection.current.setStartPoint(newOffset)
+          const offset = originStartPoint -  worldX
+          const newWidth = varyingWidth + offset
+          if (newWidth > 5 && worldX < xPosition + width - 5 && xMousePosition >= 0) {
+            processSelection.current.setStartPoint(worldX)
             processSelection.current.setWidth(newWidth)
           }
-
         }
+
         if (processSelection.current.changingRightBorder) {
-          const offset = event.movementX / scaleRef.current
-          const newWidth = width + offset
+          const newWidth = worldX - originStartPoint
 
           if (newWidth > 5 && worldX > xPosition + 5) {
             processSelection.current.setWidth(newWidth)
@@ -652,7 +655,13 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     onChangeElementHover(event)
 
     onTimeElementsHover(event)
+    // onTimShow(event) // для отладки
   }
+
+  const onTimShow = (event: React.MouseEvent) => {
+      setTimeShowPosition({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY + 10})
+  }
+
 
   const handleMouseUp = (event: React.MouseEvent) => {
     moving.current = false
@@ -694,6 +703,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         selectedElementRef.current.setChangingLeftBorder(false)
         selectedElementRef.current.setChangingRightBorder(false)
         processSelection.current.setOriginStartPoint(processSelection.current.sizeOpt.xPosition )
+        processSelection.current.setVaryingWidth(processSelection.current.sizeOpt.width )
 
       } else if (selectedElement instanceof ProcessSelection) {
 
@@ -718,7 +728,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const handleClick = (event: React.MouseEvent) => {
-
+console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX', offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX)
     const isClickedOnTime = processSelection.current.clickedOnTime({
       x: offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX,
       y: event.nativeEvent.offsetY
@@ -802,6 +812,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     y: 0,
   })
 
+  const [changeTimeShowPosition, setTimeShowPosition] = useState<{ x: number, y: number }>({ // удали - просто для отладки
+    x: 0,
+    y: 0,
+  })
+
   const closeChangeTimeModal = useCallback(() => {
     setChangeTimeModal(false)
   }, [])
@@ -834,7 +849,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       onDoubleClick={handleDoubleClick}
       draw={draw}
       useAnimationFrame={useAnimationFrame}
-    />
+    /> 
     {changeTimeModal ?
       <ClickOutHandler onClickOut={closeChangeTimeModal}>
         <div
@@ -861,6 +876,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
                 setStartTime(value)
                 processSelection.current.setStartPoint(newXPosition)
                 processSelection.current.setWidth(newWidth)
+                processSelection.current.setVaryingWidth(newWidth)
 
               }
             }}
@@ -869,9 +885,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
               if (value >= 0) {
                 const {width, xPosition} = processSelection.current.sizeOpt
                 const newXPosition = value / allTime * screenSpaceRef.canvas.width / DPR
+                console.log('newXPositionnewXPositionnewXPosition', )
                 const newWidth = newXPosition - xPosition
                 setEndTime(value)
                 processSelection.current.setWidth(newWidth)
+                processSelection.current.setVaryingWidth(newWidth)
               }
             }}
           />
@@ -886,6 +904,27 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         isMovement={isMovement}
       />
     </ClickOutHandler>
+
+{/* ДЛЯ ОТЛАДКИ */}
+    {/* <div
+      ref={showCoordTimeRef}
+      style={{
+        // visibility: changeTimeVisibility,
+        zIndex: 3,
+        position: 'absolute',
+        color:'white',
+        left: changeTimeShowPosition.x,
+        top: changeTimeShowPosition.y,
+        boxShadow: '4px 4px 4px 4px rgba(34, 60, 80, 0.2)',
+      }}
+        >
+      <div>Time: {(screenSpaceRef ? changeTimeShowPosition.x * allTime / screenSpaceRef.canvas.width * DPR : 0).toFixed(1)}</div>
+      <div>Xcoord: { changeTimeShowPosition.x}</div>
+
+      <div>Time: {(screenSpaceRef ? screenToWorld(changeTimeShowPosition.x, 0).worldX* allTime / screenSpaceRef.canvas.width * DPR : 0).toFixed(1)}</div>
+      <div>coordOWrldx: {screenToWorld(changeTimeShowPosition.x, 0).worldX.toFixed(2)}</div>
+    </div> */}
+
     <button onClick={() => tryStart()}>Start Test</button>
     <button onClick={() => tryStop()}>Stop Test</button>
   </div>

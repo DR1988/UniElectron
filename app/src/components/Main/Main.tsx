@@ -8,6 +8,7 @@ import s from './style.css'
 
 import FormChoserComponent from '../FormChoserComponent/FormChoserComponent'
 import AppForms from '../AppForms/AppForms'
+import { ThemeProvider } from './Context'
 
 export interface Props {}
 
@@ -34,10 +35,12 @@ export default class Main extends Component<Props, State> {
   render() {
     const { currentForm } = this.state
     return (
-      <div className={s.root}>
-        <FormChoserComponent updateForm={this.choseForm} />
-        <AppForms currentForm={currentForm} />
-      </div>
+      <ThemeProvider>
+        <div className={s.root}>
+          <FormChoserComponent updateForm={this.choseForm} />
+          <AppForms currentForm={currentForm} />
+        </div>
+      </ThemeProvider>
     )
   }
 }

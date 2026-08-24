@@ -1,4 +1,5 @@
-import {Change} from '../../../MainFormInterfaces';
+import { Theme } from '../../../../Main/Context';
+import { Change } from '../../../MainFormInterfaces';
 
 export type SIZE_OPT = {
   xPosition: number, yPosition: number, width: number, height: number,
@@ -76,7 +77,7 @@ export abstract class DrawingElement<Type extends ELEMENT_TYPES> {
     this.order = 1
   }
 
-  abstract drawElement(): void
+  abstract drawElement(zoom: number, theme?: Theme): void
 
   setWidth = (width: number) => {
     this.sizeOpt.width = width

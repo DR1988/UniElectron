@@ -1,6 +1,6 @@
-import {DRAW_RECT_PARAMS, Point, DrawingElement} from './CanvasTypes';
-import {getTime} from '../../../../../utils';
-import {DPR, RECT_HEIGHT} from '../CanvasConstants';
+import { DRAW_RECT_PARAMS, Point, DrawingElement } from './CanvasTypes';
+import { getTime } from '../../../../../utils';
+import { DPR, RECT_HEIGHT } from '../CanvasConstants';
 
 export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   widthSetIsComplete: boolean
@@ -9,6 +9,7 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   changingRightBorder: boolean
   deltaX = 0
   originStartPoint = 0
+  varyingWidth = 0
 
   private focusColor = 'rgba(0, 0, 0, 0.3)'
   private timeTextOffsetX = 3
@@ -31,25 +32,26 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
       height: number
     },
   } = {
-    startTimeText: {xPosition: 0, yPosition: 0, width: 0, height: 0},
-    endTimeText: {xPosition: 0, yPosition: 0, width: 0, height: 0}
-  }
+      startTimeText: { xPosition: 0, yPosition: 0, width: 0, height: 0 },
+      endTimeText: { xPosition: 0, yPosition: 0, width: 0, height: 0 }
+    }
 
   private startTimeTextWidth: number = 0
   private endTimeTextWidth: number = 0
-  public  startTime = 0
-  public  endTime = 0
+  public startTime = 0
+  public endTime = 0
 
   constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('PROCESS_SELECTION', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
 
-    const {ctx, sizeOpt, drawOpt} = params
+    const { ctx, sizeOpt, drawOpt } = params
     this.ctx = ctx
     this.sizeOpt = sizeOpt
     this.drawOpt = drawOpt
     this.initialWidth = sizeOpt.width
     this.initialXPosition = sizeOpt.xPosition
     this.originStartPoint = sizeOpt.xPosition
+    this.varyingWidth = sizeOpt.width
     this.defaultColor = this.drawOpt?.color || 'red'
     this.order = 2
     this.widthSetIsComplete = false
@@ -59,8 +61,8 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   }
 
   drawElement = (zoom: number = 1) => {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
-    const {color} = this.drawOpt || {}
+    const { xPosition, yPosition, width, height } = this.sizeOpt
+    const { color } = this.drawOpt || {}
 
     this.ctx.beginPath()
     this.ctx.fillStyle = color || 'rgba(0, 0, 0, 0.2)'
@@ -144,8 +146,16 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
     this.deltaX = deltaX
   }
 
+
   setWidth = (width: number) => {
     this.sizeOpt.width = width
+    // if (changeVaryingWidth) {
+    //   this.varyingWidth = width
+    // }
+  }
+
+  setVaryingWidth = (width: number) => {
+    this.varyingWidth = width
   }
 
   setWidthSetIsComplete = (value: boolean) => {
@@ -182,16 +192,16 @@ export class ProcessSelection extends DrawingElement<'PROCESS_SELECTION'> {
   }
 
   clickedOnTime = (point: Point) => {
-    const {startTimeText, endTimeText} = this.elementsPosition
+    const { startTimeText, endTimeText } = this.elementsPosition
 
     return (point.x > startTimeText.xPosition
       && point.x < startTimeText.xPosition + startTimeText.width
       && point.y > startTimeText.yPosition
       && point.y < startTimeText.yPosition + startTimeText.height) || (point.x > endTimeText.xPosition
-      && point.x < endTimeText.xPosition + endTimeText.width
-      && point.y > endTimeText.yPosition
-      && point.y < endTimeText.yPosition + startTimeText.height
-    )
+        && point.x < endTimeText.xPosition + endTimeText.width
+        && point.y > endTimeText.yPosition
+        && point.y < endTimeText.yPosition + startTimeText.height
+      )
   }
 
 }

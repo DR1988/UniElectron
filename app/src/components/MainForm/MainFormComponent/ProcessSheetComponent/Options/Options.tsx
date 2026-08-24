@@ -1,5 +1,6 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useContext} from 'react';
 import styles from './Options.css'
+import { ThemeContext } from '../../../../Main/Context';
 
 type Props = {
   toggleOptions: (value: boolean) => void
@@ -16,6 +17,7 @@ export const Options: React.FC<Props> = (
     isMovement,
   }) => {
 
+  const {theme, toggleTheme} = useContext(ThemeContext)
 
   const _toggleOptions = useCallback(() => {
     toggleOptions(!isOptionsOpen)
@@ -25,18 +27,34 @@ export const Options: React.FC<Props> = (
     setMovement(event.target.checked)
   }, [])
 
+   const clickChangeTheme = useCallback(() => {
+    toggleTheme()
+  }, [])
+
   return <div className={styles.container}>
     <button className={styles.button} onClick={_toggleOptions}>options
     </button>
     {isOptionsOpen ? <div className={styles.content}>
       <div className={styles.innerContent}>
-        <input
-          checked={isMovement}
-          id='setMovement'
-          onChange={clickCheckBox}
-          className={styles.input}
-          type="checkbox"/>
-        <label className={styles.label} htmlFor={'setMovement'}>Follow time line</label>
+        <div>
+          <input
+            checked={isMovement}
+            id='setMovement'
+            onChange={clickCheckBox}
+            className={styles.input}
+            type="checkbox"/>
+          <label className={styles.label} htmlFor={'setMovement'}>Follow time line</label>
+        </div>
+        <div>
+          <input
+            checked={theme === 'dark'}
+            id='setDarkTheme'
+            onChange={clickChangeTheme}
+            className={styles.input}
+            type="checkbox"/>
+          <label className={styles.label} htmlFor={'setDarkTheme'}>Dark Theme</label>
+        </div>
+        
       </div>
     </div> : null}
   </div>
