@@ -1,10 +1,11 @@
-import {DRAW_RECT_PARAMS, DrawingElement} from './CanvasTypes';
+import { Theme } from '../../../../Main/Context';
+import { DRAW_RECT_PARAMS, DrawingElement } from './CanvasTypes';
 
 export class TimeView extends DrawingElement<'TIME_VIEW'> {
   constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('TIME_VIEW', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
 
-    const {ctx, sizeOpt, drawOpt} = params
+    const { ctx, sizeOpt, drawOpt } = params
     this.ctx = ctx
     this.sizeOpt = sizeOpt
     this.drawOpt = drawOpt
@@ -13,14 +14,23 @@ export class TimeView extends DrawingElement<'TIME_VIEW'> {
     this.defaultColor = this.drawOpt?.color || 'red'
   }
 
-  drawElement(zoom: number = 1) {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
+  drawElement(zoom: number = 1, theme: Theme) {
+    let color = this.drawOpt.color
+    if (theme === 'dark') {
+      color = 'red'
+    }
+
+    if (theme === 'light') {
+      color = this.defaultColor
+    }
+
+    const { xPosition, yPosition, width, height } = this.sizeOpt
     this.ctx.save()
 
     this.ctx.scale(1 / zoom, 1)
 
     this.ctx.beginPath();
-    this.ctx.fillStyle = this.drawOpt.color
+    this.ctx.fillStyle = color
 
     // const xInitialOffset = -7.3* ( width / 2) *zoom
     const xInitialOffset = (width / 2) * zoom
@@ -34,7 +44,7 @@ export class TimeView extends DrawingElement<'TIME_VIEW'> {
     this.ctx.beginPath();
     this.ctx.moveTo((xPosition + width) / 2 * zoom - xInitialOffset, yPosition - height + 1);
     this.ctx.lineTo((xPosition + width) / 2 * zoom - xInitialOffset, 5);
-    this.ctx.strokeStyle = this.drawOpt.color
+    this.ctx.strokeStyle = color
 
     this.ctx.lineWidth = 1;
     this.ctx.stroke();

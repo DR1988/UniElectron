@@ -39,7 +39,7 @@ export type Props = {
   showModal: () => void,
   setChosenValveTime: (lineID: number, changeId: number) => void,
   lineFormer: Array<ValveLineType>,
-  // changeTime: (startTime: number, endTime: number) => void
+  changeTime: (startTime: number, endTime: number) => void
   addNewValveTime: (chosenLine: ValveLineType) => void,
   removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
   container: HTMLDivElement | null
@@ -60,6 +60,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     showModal,
     setChosenValveTime,
     removeSelectedTimeElements,
+    changeTime,
   }
 ) => {
 
@@ -301,7 +302,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         screenSpaceRef.translate((-offsetXRef.current + timeLineOffsetRef.current) * scaleRef.current, 0)
         screenSpaceRef.scale(scaleRef.current, 1)
 
-        element.drawElement(scaleRef.current)
+        element.drawElement(scaleRef.current, theme)
         screenSpaceRef.restore()
 
         return
@@ -480,9 +481,21 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     if (!rightClick) {
       if (selectedElement instanceof ChangeElement) {
-        selectedElementRef.current = selectedElement
-        showModal()
+        processSelection.current.resetToDefault();
         setChosenValveTime(selectedElement.Data.lineId, +selectedElement.Data.changeElement.changeId)
+        selectedElementRef.current = selectedElement
+        const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
+        const {worldX: initialXposiitonWorldX} =screenToWorld(selectedElementRef.current.initialXPosition, 0)
+        const deltaX = worldX - initialXposiitonWorldX
+        selectedElement.setDeltaX(deltaX)
+        selectedElement.setOrder(2)
+        
+        elements.current.sort((a, b) => {
+          if (a instanceof ChangeElement && b instanceof ChangeElement) {
+            return a.order - b.order
+          }
+        })
+
         if (!useAnimationFrame) {
           draw()
         }
@@ -655,8 +668,52 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     onChangeElementHover(event)
 
     onTimeElementsHover(event)
+
+    onMoveChangeElement(event)
     // onTimShow(event) // для отладки
   }
+
+  // moving time selection move
+  const onMoveChangeElement = (event: React.MouseEvent) => {
+
+    if (selectedElementRef.current instanceof ChangeElement ) {
+      const currentElement = selectedElementRef.current
+
+      currentElement.setIsMoving(true)
+      const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
+      const {deltaX, sizeOpt: {xPosition: currentElementXPosition, width: currentElementWidth}} = currentElement
+      const newOffsetX = worldX - deltaX;
+
+
+      for (const element of elements.current) {
+        if (element instanceof ChangeElement && currentElement.isMoving) {
+          const {yPosition, xPosition, width} = element.sizeOpt
+          if (yPosition === currentElement.sizeOpt.yPosition) {
+            const rightBorder = screenSpaceRef.canvas.width - currentElementWidth
+            if (Math.floor(currentElementXPosition) > rightBorder || currentElementXPosition < 0) {
+              // currentElement.setStartPoint(0)
+              currentElement.setOverBound(currentElementXPosition > rightBorder ? 'right' : 'left')
+              console.log(123123)
+              return
+            }
+            if (
+                xPosition < currentElementXPosition && xPosition + width > currentElementXPosition || 
+                xPosition > currentElementXPosition  && xPosition < currentElementXPosition + currentElementWidth
+            ) {
+              currentElement.setColor('red')
+              currentElement.setIsCollide(true)
+              break
+            } else {
+              currentElement.setDefaultColor()
+              currentElement.setIsCollide(false)
+            }
+          }
+        }
+      }
+      currentElement.setStartPoint(newOffsetX)
+    }
+  }
+
 
   const onTimShow = (event: React.MouseEvent) => {
       setTimeShowPosition({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY + 10})
@@ -712,6 +769,36 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         selectedElement.setChangingRightBorder(false)
       }
 
+    } 
+
+    console.log('selectedElementRef.current',selectedElementRef.current)
+    if (selectedElementRef.current instanceof ChangeElement) {
+      if (!selectedElementRef.current.isMoving) {
+        showModal()
+        if (!useAnimationFrame) {
+          draw()
+        }
+      } else {
+        const isCollide = selectedElementRef.current.getIsCollide()
+        selectedElementRef.current.setOrder(1)
+        selectedElementRef.current.setIsMoving(false)
+        screenSpaceRef.canvas.style.cursor = 'default'
+        selectedElementRef.current.setDefaultColor()
+        if (!isCollide) { 
+          selectedElementRef.current.setInitialXPosition(selectedElementRef.current.sizeOpt.xPosition)
+          const startTime = Math.abs(Math.round(selectedElementRef.current.sizeOpt.xPosition *  allTime / screenSpaceRef.canvas.width * DPR))
+          const endTime = Math.round((selectedElementRef.current.sizeOpt.xPosition + selectedElementRef.current.sizeOpt.width) *  allTime / screenSpaceRef.canvas.width * DPR)
+
+          // console.log('startTimestartTimev', startTime)
+          changeTime(startTime, endTime)
+        } else {
+          selectedElementRef.current.setInitialXPosition(selectedElementRef.current.initialXPosition)
+          selectedElementRef.current.setStartPoint(selectedElementRef.current.initialXPosition)
+
+        }
+        selectedElementRef.current = null
+
+      }
     }
 
     if (!selectedElement) {
@@ -722,17 +809,28 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const handleDoubleClick = (event: React.MouseEvent) => {
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
+    if (selectedElement === undefined) {
+      processSelection.current?.resetToDefault()
+    }
+
     if (selectedElement instanceof TimeLine) {
       processSelection.current?.resetToDefault()
     }
   }
 
   const handleClick = (event: React.MouseEvent) => {
+    const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
+
 console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX', offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX)
     const isClickedOnTime = processSelection.current.clickedOnTime({
       x: offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX,
       y: event.nativeEvent.offsetY
     })
+
+    if (selectedElement instanceof ChangeElement) {
+      processSelection.current?.resetToDefault()
+    }
+
     if (isClickedOnTime) {
       setStartTime(processSelection.current.startTime)
       setEndTime(processSelection.current.endTime)
@@ -803,6 +901,38 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
       processSelection.current.setChangingRightBorder(false)
       processSelection.current.setWidthSetIsComplete(true)
     }
+
+    if (selectedElementRef.current instanceof ChangeElement) {
+      selectedElementRef.current.setIsMoving(false)
+      const isCollide = selectedElementRef.current.getIsCollide()
+      
+       if (selectedElementRef.current.overBound && !isCollide) {
+          if (selectedElementRef.current.overBound === 'left') {
+            selectedElementRef.current.setInitialXPosition(0)
+            const endTime = Math.round(selectedElementRef.current.sizeOpt.width *  allTime / screenSpaceRef.canvas.width * DPR)
+            changeTime(0, endTime)
+          } else {
+            const xposition = screenSpaceRef.canvas.width - selectedElementRef.current.sizeOpt.width
+            selectedElementRef.current.setInitialXPosition(xposition)
+            const startTime = Math.abs(Math.round(xposition *  allTime / screenSpaceRef.canvas.width * DPR))
+            changeTime(startTime, allTime)
+          }
+         
+          selectedElementRef.current.setOverBound(null)
+        } else if (!isCollide) {
+          selectedElementRef.current.setInitialXPosition(selectedElementRef.current.sizeOpt.xPosition)
+          const startTime = Math.abs(Math.round(selectedElementRef.current.sizeOpt.xPosition *  allTime / screenSpaceRef.canvas.width * DPR))
+          const endTime = Math.round((selectedElementRef.current.sizeOpt.xPosition + selectedElementRef.current.sizeOpt.width) *  allTime / screenSpaceRef.canvas.width * DPR)
+          // console.log('startTimestartTimev', startTime)
+          changeTime(startTime, endTime)
+        } else {
+          selectedElementRef.current.setDefaultColor()
+          selectedElementRef.current.setInitialXPosition(selectedElementRef.current.initialXPosition)
+          selectedElementRef.current.setStartPoint(selectedElementRef.current.initialXPosition)
+        }
+      selectedElementRef.current = null
+    }
+
   }
 
   const [changeTimeModal, setChangeTimeModal] = useState(false)

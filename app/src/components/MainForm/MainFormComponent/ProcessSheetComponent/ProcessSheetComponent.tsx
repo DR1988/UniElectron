@@ -132,7 +132,8 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
     setChosenValveTime,
     lineFormer,
     addNewValveTime,
-    removeSelectedTimeElements
+    removeSelectedTimeElements,
+    changeTime,
   } = props
 
   const mousePosition = useRef(0)
@@ -186,6 +187,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
             removeSelectedTimeElements={removeSelectedTimeElements}
             lineFormer={lineFormer}
             container={containerElement}
+            changeTime={changeTime}
           />
             : null
         }

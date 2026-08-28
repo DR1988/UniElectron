@@ -1,24 +1,63 @@
-import {ChangeElementData, DRAW_RECT_PARAMS, DrawingElement, TEXT_DRAW_OPT} from './CanvasTypes';
-import {RECT_HEIGHT} from '../CanvasConstants';
+import { ChangeElementData, DRAW_RECT_PARAMS, DrawingElement, TEXT_DRAW_OPT } from './CanvasTypes';
+import { RECT_HEIGHT } from '../CanvasConstants';
 
 export class ChangeElement extends DrawingElement<'CHANGE_ELEMENT'> {
+  isMoving: boolean
+  isCollide: boolean
+  overBound: 'right' | 'left' | null
+  deltaX = 0
+  originStartPoint = 0
+
   constructor(params: DRAW_RECT_PARAMS, private data: ChangeElementData) {
     super('CHANGE_ELEMENT', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
 
-    const {ctx, sizeOpt, drawOpt} = params
+    const { ctx, sizeOpt, drawOpt } = params
     this.ctx = ctx
     this.sizeOpt = sizeOpt
     this.drawOpt = drawOpt
+    this.isMoving = false
+    this.isCollide = false
+    this.overBound = null
 
     this.initialWidth = sizeOpt.width
     this.initialXPosition = sizeOpt.xPosition
     this.defaultColor = this.drawOpt?.color || 'rgba(171, 193, 197, 1)'
   }
 
+  setStartPoint = (startPoint: number) => {
+    this.sizeOpt.xPosition = startPoint
+  }
+
+  setIsMoving = (value: boolean) => {
+    this.isMoving = value
+  }
+
+  setInitialXPosition = (posion: number) => {
+    this.initialXPosition = posion
+  }
+
+
+  /* для того чтобы начать двигать элемент вслед за движением мышки 
+     надо 
+     1) в обработчике onMouseDown зафиксировать дельту от нажатия на текущую 
+     позицию мышки и левого края элемента  
+     2) в обработчик onMouseMove от текущего положения мышки отнять дельту - 
+        это и будет смещение относительно начально положения 
+     3) в обработчике onMouseUp зафиксировать новое начальное положение левого края,
+        иначе при следующей попытке двигать элементы отчет будет вестись от предыдущего
+        начально положения  
+  */
+  setDeltaX = (deltaX: number) => {
+    this.deltaX = deltaX
+  }
+
+  setOverBound = (value: 'right' | 'left' | null) => {
+    this.overBound = value
+  }
 
   drawElement = (zoom: number = 1) => {
-    const {xPosition, yPosition, width, height, crossingValueEndWidth, crossingValueStartWidth} = this.sizeOpt
-    const {color, text} = this.drawOpt || {}
+    const { xPosition, yPosition, width, height, crossingValueEndWidth, crossingValueStartWidth } = this.sizeOpt
+    const { color, text } = this.drawOpt || {}
 
     if (crossingValueEndWidth || crossingValueStartWidth) {
       // log('crossingValueStartWidth', crossingValueEndWidth, crossingValueStartWidth)
@@ -65,9 +104,25 @@ export class ChangeElement extends DrawingElement<'CHANGE_ELEMENT'> {
     if (text !== undefined) {
       this.ctx.save()
       this.ctx.scale(1 / zoom, 1)
-      drawText(this.ctx, text, {rectWidth: width * zoom, rectX: xPosition * zoom, rectY: yPosition})
+      drawText(this.ctx, text, { rectWidth: width * zoom, rectX: xPosition * zoom, rectY: yPosition })
       this.ctx.restore()
     }
+  }
+
+  setColor = (color: string) => {
+    this.drawOpt.color = color
+  }
+
+  setIsCollide = (value: boolean) => {
+    this.isCollide = value
+  }
+
+  getIsCollide = () => {
+    return this.isCollide
+  }
+
+  setDefaultColor = () => {
+    this.drawOpt.color = this.defaultColor
   }
 
   public get Data(): ChangeElementData {
@@ -77,7 +132,7 @@ export class ChangeElement extends DrawingElement<'CHANGE_ELEMENT'> {
 }
 
 export const drawText = (ctx: CanvasRenderingContext2D, text: string | number, textDraw: TEXT_DRAW_OPT) => {
-  const {rectWidth, rectX, rectY, color = '#000000'} = textDraw
+  const { rectWidth, rectX, rectY, color = '#000000' } = textDraw
 
   let textToShow = text.toString()
 

@@ -1,5 +1,5 @@
-import {RemoveSpaceOption} from '../../../../CommonTypes';
-import {DRAW_RECT_PARAMS, DrawingElement, Point} from './CanvasTypes';
+import { RemoveSpaceOption } from '../../../../CommonTypes';
+import { DRAW_RECT_PARAMS, DrawingElement, Point } from './CanvasTypes';
 
 export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   private shouldDraw: boolean = false
@@ -35,25 +35,25 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
       yPosition: number
     }>
   } = {
-    drawSheet: {
-      xPosition: 0,
-      yPosition: 0
-    },
-    drawRadioButtons: {
-      remove_all: {xPosition: 0, yPosition: 0},
-      remove_changes: {xPosition: 0, yPosition: 0},
-      insert_space: {xPosition: 0, yPosition: 0},
-    },
-    drawButtons: {
-      Cancel: {xPosition: 0, yPosition: 0},
-      OK: {xPosition: 0, yPosition: 0},
+      drawSheet: {
+        xPosition: 0,
+        yPosition: 0
+      },
+      drawRadioButtons: {
+        remove_all: { xPosition: 0, yPosition: 0 },
+        remove_changes: { xPosition: 0, yPosition: 0 },
+        insert_space: { xPosition: 0, yPosition: 0 },
+      },
+      drawButtons: {
+        Cancel: { xPosition: 0, yPosition: 0 },
+        OK: { xPosition: 0, yPosition: 0 },
+      }
     }
-  }
 
   constructor(params: DRAW_RECT_PARAMS, private allTime: number) {
     super('CONTEXT_MENU', !!params.drawOpt?.shouldSkipSizing, !!params.drawOpt?.selectable);
 
-    const {ctx, sizeOpt, drawOpt} = params
+    const { ctx, sizeOpt, drawOpt } = params
     this.ctx = ctx
     this.sizeOpt = sizeOpt
     this.drawOpt = drawOpt
@@ -74,8 +74,8 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   private drawSheet = () => {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
-    const {color, text} = this.drawOpt || {}
+    const { xPosition, yPosition, width, height } = this.sizeOpt
+    const { color, text } = this.drawOpt || {}
 
     let signX = 0
     let signY = 0
@@ -109,7 +109,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   private drawRadioButtons = () => {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const { xPosition, yPosition, width, height } = this.sizeOpt
     let sign = 0
     let signY = 0
     if (xPosition + width < this.ctx.canvas.width) {
@@ -186,7 +186,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   private drawButtons = () => {
-    const {xPosition, yPosition, width, height} = this.sizeOpt
+    const { xPosition, yPosition, width, height } = this.sizeOpt
     let sign = 0
     let signY = 0
     if (xPosition + width < this.ctx.canvas.width) {
@@ -273,8 +273,8 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   public isClickOnElement(point: Point): boolean {
-    const {width, height} = this.sizeOpt
-    const {xPosition, yPosition} = this.elementsPosition.drawSheet
+    const { width, height } = this.sizeOpt
+    const { xPosition, yPosition } = this.elementsPosition.drawSheet
 
     return this.shouldDraw && (
       point.x > xPosition
@@ -285,8 +285,8 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   public clickedRadioElement(point: Point) {
-    const {remove_all, remove_changes, insert_space} = this.elementsPosition.drawRadioButtons
-    const {width} = this.sizeOpt
+    const { remove_all, remove_changes, insert_space } = this.elementsPosition.drawRadioButtons
+    const { width } = this.sizeOpt
 
     if (this.shouldDraw) {
       if (
@@ -315,7 +315,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   public clickedCancel(point: Point) {
-    const {xPosition, yPosition} = this.elementsPosition.drawButtons.Cancel
+    const { xPosition, yPosition } = this.elementsPosition.drawButtons.Cancel
     if (this.shouldDraw) {
       if (
         point.x > xPosition
@@ -330,7 +330,7 @@ export class ContextMenu extends DrawingElement<'CONTEXT_MENU'> {
   }
 
   public clickedOk(point: Point): RemoveSpaceOption | undefined {
-    const {xPosition, yPosition} = this.elementsPosition.drawButtons.OK
+    const { xPosition, yPosition } = this.elementsPosition.drawButtons.OK
 
     if (this.shouldDraw && this.okIsActive) {
 

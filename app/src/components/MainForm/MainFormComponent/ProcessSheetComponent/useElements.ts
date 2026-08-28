@@ -1,7 +1,7 @@
-import {useMemo} from 'react';
+import { useMemo } from 'react';
 
-import {LEGEND_HEIGHT, LINE_GAP, LINE_HEIGHT, RECT_HEIGHT, TIME_LINE_HEIGHT} from './CanvasConstants';
-import {ValveLineType} from '../../MainFormInterfaces';
+import { LEGEND_HEIGHT, LINE_GAP, LINE_HEIGHT, RECT_HEIGHT, TIME_LINE_HEIGHT } from './CanvasConstants';
+import { ValveLineType } from '../../MainFormInterfaces';
 import {
   ProcessSelection,
   ContextMenu,
@@ -13,7 +13,7 @@ import {
   Cover,
   Line,
 } from './CanvasElements';
-import {DrawingElement, ELEMENT_TYPES} from './CanvasElements/CanvasTypes';
+import { DrawingElement, ELEMENT_TYPES } from './CanvasElements/CanvasTypes';
 
 export const useElements = (
   containerWidth: number,
@@ -42,19 +42,20 @@ export const useElements = (
     if (screenSpace && containerWidth) {
       lineFormer.forEach((lf, index) => {
         elementsArray.push(new Line({
-            ctx: screenSpace,
-            sizeOpt: {
-              width: containerWidth,
-              xPosition: 0,
-              yPosition: 5 * (index + 1) + 30 * index,
-              height: RECT_HEIGHT
-            },
-            drawOpt: {
-              color: `rgba(209, 216, 209, 0.5)`,
-              shouldSkipSizing: true,
-            },
+          ctx: screenSpace,
+          sizeOpt: {
+            width: containerWidth,
+            xPosition: 0,
+            yPosition: 5 * (index + 1) + 30 * index,
+            height: RECT_HEIGHT
+          },
+          drawOpt: {
+            color: `rgba(209, 216, 209, 0.5)`,
+            shouldSkipSizing: true,
+          },
 
-          }),
+        }),
+          // линии на легенде внизу
           new Line({
             ctx: screenSpace,
             sizeOpt: {
@@ -73,10 +74,11 @@ export const useElements = (
 
       lineFormer.forEach((lf, index) => {
         lf.changes.forEach(change => {
-          const {startTime, endTime, value, crossingValueEnd, crossingValueStart} = change
+          const { startTime, endTime, value, crossingValueEnd, crossingValueStart, changeId } = change
           const duration = endTime - startTime
           const width = containerWidth * duration / allTime
           const xPosition = containerWidth * startTime / allTime
+
           const crossingValueStartWidth = containerWidth * crossingValueStart / allTime
           const crossingValueEndWidth = containerWidth * crossingValueEnd / allTime
 
@@ -93,21 +95,21 @@ export const useElements = (
           // }
 
           elementsArray.push(new ChangeElement({
-              ctx: screenSpace,
-              sizeOpt: {
-                width: width,
-                xPosition: xPosition,
-                yPosition: 5 * (index + 1) + 30 * index,
-                height: RECT_HEIGHT,
-                crossingValueStartWidth,
-                crossingValueEndWidth,
-              },
-              drawOpt: {
-                color: 'rgba(171, 193, 197, 1)',
-                text: value || duration,
-                selectable: true
-              }
-            }, {lineId: lf.id, changeElement: change}),
+            ctx: screenSpace,
+            sizeOpt: {
+              width: width,
+              xPosition: xPosition,
+              yPosition: 5 * (index + 1) + 30 * index,
+              height: RECT_HEIGHT,
+              crossingValueStartWidth,
+              crossingValueEndWidth,
+            },
+            drawOpt: {
+              color: 'rgba(171, 193, 197, 1)',
+              text: value || duration,
+              selectable: true
+            }
+          }, { lineId: lf.id, changeElement: change }),
             new ChangeElement({
               ctx: screenSpace,
               sizeOpt: {
@@ -120,49 +122,49 @@ export const useElements = (
                 color: 'rgba(171, 193, 197, 1)',
                 shouldSkipSizing: true
               },
-            }, {lineId: lf.id, changeElement: change})
+            }, { lineId: lf.id, changeElement: change })
           )
         })
       })
 
 
       const sideCoverLeft = new SideCover({
-          ctx: screenSpace,
-          sizeOpt: {
-            width: containerWidth,
-            xPosition: 0,
-            yPosition: canvasHeight - LEGEND_HEIGHT + 2,
-            height: LEGEND_HEIGHT
-          },
-
+        ctx: screenSpace,
+        sizeOpt: {
+          width: containerWidth,
+          xPosition: 0,
+          yPosition: canvasHeight - LEGEND_HEIGHT + 2,
+          height: LEGEND_HEIGHT
         },
+
+      },
         'sideCoverLeft'
       )
 
       const sideCoverRight = new SideCover({
-          ctx: screenSpace,
-          sizeOpt: {
-            width: containerWidth,
-            xPosition: 0,
-            yPosition: canvasHeight - LEGEND_HEIGHT + 2,
-            height: LEGEND_HEIGHT
-          },
+        ctx: screenSpace,
+        sizeOpt: {
+          width: containerWidth,
+          xPosition: 0,
+          yPosition: canvasHeight - LEGEND_HEIGHT + 2,
+          height: LEGEND_HEIGHT
         },
+      },
         'sideCoverRight'
       )
 
       const cover = new Cover({
-          ctx: screenSpace,
-          sizeOpt: {
-            width: containerWidth,
-            xPosition: 0,
-            yPosition: canvasHeight - LEGEND_HEIGHT + 2,
-            height: LEGEND_HEIGHT
-          },
-          drawOpt: {
-            selectable: true
-          }
+        ctx: screenSpace,
+        sizeOpt: {
+          width: containerWidth,
+          xPosition: 0,
+          yPosition: canvasHeight - LEGEND_HEIGHT + 2,
+          height: LEGEND_HEIGHT
+        },
+        drawOpt: {
+          selectable: true
         }
+      }
       )
 
       elementsArray.push(sideCoverLeft, cover, sideCoverRight)
@@ -220,20 +222,20 @@ export const useElements = (
 
 
       const contextMenu = new ContextMenu({
-          ctx: screenSpace,
-          sizeOpt: {
-            width: 180,
-            xPosition: -10,
-            yPosition: 105, //canvasHeight - LEGEND_HEIGHT,
-            height: 135
-          },
-          drawOpt: {
-            selectable: true,
-            // color: 'rgba(0, 0, 0, 0.2)'
-            color: 'rgba(171, 193, 197, 1)',
-            shouldSkipSizing: true
-          }
+        ctx: screenSpace,
+        sizeOpt: {
+          width: 180,
+          xPosition: -10,
+          yPosition: 105, //canvasHeight - LEGEND_HEIGHT,
+          height: 135
         },
+        drawOpt: {
+          selectable: true,
+          // color: 'rgba(0, 0, 0, 0.2)'
+          color: 'rgba(171, 193, 197, 1)',
+          shouldSkipSizing: true
+        }
+      },
         allTime)
 
       result.contextMenuElement = contextMenu
