@@ -1,46 +1,32 @@
 import * as React from 'react'
-import { Component } from 'react'
+import { useState } from 'react'
 import io from 'socket.io-client'
-import 'normalize.css'
 
+import 'normalize.css'
 import '../../common.css'
+
 import s from './style.css'
 
 import FormChoserComponent from '../FormChoserComponent/FormChoserComponent'
 import AppForms from '../AppForms/AppForms'
 import { ThemeProvider } from './Context'
 
-export interface Props {}
+interface Props {}
 
-interface State {
-  currentForm: string,
-}
+export default function Main(props: Props) {
+  const [currentForm, setCurrentForm] = useState<string>('MainForm')
 
-export default class Main extends Component<Props, State> {
-  constructor(props: Props) {
-    super(props)
-    this.state = {
-      currentForm: 'MainForm',
-      // currentForm: 'Graphs',
-    }
-  }
-
-  choseForm = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const choseForm = (e: React.MouseEvent<HTMLButtonElement>) => {
     const currentForm = e.currentTarget.name
-    this.setState({
-      currentForm
-    })
+    setCurrentForm(currentForm)
   }
 
-  render() {
-    const { currentForm } = this.state
-    return (
-      <ThemeProvider>
-        <div className={s.root}>
-          <FormChoserComponent updateForm={this.choseForm} />
-          <AppForms currentForm={currentForm} />
-        </div>
-      </ThemeProvider>
-    )
-  }
+  return (
+    <ThemeProvider>
+      <div className={s.root}>
+        <FormChoserComponent updateForm={choseForm} />
+        <AppForms currentForm={currentForm} />
+      </div>
+    </ThemeProvider>
+  )
 }
