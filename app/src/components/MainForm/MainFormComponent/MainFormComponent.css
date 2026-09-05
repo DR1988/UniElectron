@@ -47,6 +47,12 @@
   max-height: 150px;
 }
 
+/* Тёмная тема редактора (класс .dark вешается на body) */
+:global(.dark) .wrapperClassName :global(.public-DraftEditor-content) {
+  color: #ffffff;
+  caret-color: #ffffff;
+}
+
 .temporaryContainer {
   display: flex;
   align-items: center;
