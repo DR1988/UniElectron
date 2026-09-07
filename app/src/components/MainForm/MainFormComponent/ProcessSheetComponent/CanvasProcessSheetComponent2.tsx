@@ -681,24 +681,30 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
       currentElement.setIsMoving(true)
       const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
-      const {deltaX, sizeOpt: {xPosition: currentElementXPosition, width: currentElementWidth}} = currentElement
-      const newOffsetX = worldX - deltaX;
+      const {deltaX, sizeOpt: {width: currentElementWidth}} = currentElement
+      let newOffsetX = worldX - deltaX;
 
+      // clamp the NEW position to the canvas bounds: with a fast mouse the target
+      // can jump past the border in one frame, so checking the old position is not enough
+      const rightBorder = screenSpaceRef.canvas.width - currentElementWidth
+      if (newOffsetX < 0) {
+        newOffsetX = 0
+        currentElement.setOverBound('left')
+      } else if (newOffsetX > rightBorder) {
+        newOffsetX = rightBorder
+        currentElement.setOverBound('right')
+      } else {
+        currentElement.setOverBound(null)
+      }
 
       for (const element of elements.current) {
+        if (element === currentElement) continue
         if (element instanceof ChangeElement && currentElement.isMoving) {
           const {yPosition, xPosition, width} = element.sizeOpt
           if (yPosition === currentElement.sizeOpt.yPosition) {
-            const rightBorder = screenSpaceRef.canvas.width - currentElementWidth
-            if (Math.floor(currentElementXPosition) > rightBorder || currentElementXPosition < 0) {
-              // currentElement.setStartPoint(0)
-              currentElement.setOverBound(currentElementXPosition > rightBorder ? 'right' : 'left')
-              console.log(123123)
-              return
-            }
             if (
-                xPosition < currentElementXPosition && xPosition + width > currentElementXPosition || 
-                xPosition > currentElementXPosition  && xPosition < currentElementXPosition + currentElementWidth
+                xPosition < newOffsetX && xPosition + width > newOffsetX ||
+                xPosition > newOffsetX  && xPosition < newOffsetX + currentElementWidth
             ) {
               currentElement.setColor('red')
               currentElement.setIsCollide(true)
@@ -784,12 +790,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         selectedElementRef.current.setIsMoving(false)
         screenSpaceRef.canvas.style.cursor = 'default'
         selectedElementRef.current.setDefaultColor()
-        if (!isCollide) { 
+        if (!isCollide) {
           selectedElementRef.current.setInitialXPosition(selectedElementRef.current.sizeOpt.xPosition)
-          const startTime = Math.abs(Math.round(selectedElementRef.current.sizeOpt.xPosition *  allTime / screenSpaceRef.canvas.width * DPR))
-          const endTime = Math.round((selectedElementRef.current.sizeOpt.xPosition + selectedElementRef.current.sizeOpt.width) *  allTime / screenSpaceRef.canvas.width * DPR)
+          const canvasWidth = screenSpaceRef.canvas.width
+          const startTime = Math.max(0, Math.min(allTime, Math.round(selectedElementRef.current.sizeOpt.xPosition *  allTime / canvasWidth * DPR)))
+          const endTime = Math.max(startTime, Math.min(allTime, Math.round((selectedElementRef.current.sizeOpt.xPosition + selectedElementRef.current.sizeOpt.width) *  allTime / canvasWidth * DPR)))
 
-          // console.log('startTimestartTimev', startTime)
           changeTime(startTime, endTime)
         } else {
           selectedElementRef.current.setInitialXPosition(selectedElementRef.current.initialXPosition)
@@ -921,9 +927,9 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
           selectedElementRef.current.setOverBound(null)
         } else if (!isCollide) {
           selectedElementRef.current.setInitialXPosition(selectedElementRef.current.sizeOpt.xPosition)
-          const startTime = Math.abs(Math.round(selectedElementRef.current.sizeOpt.xPosition *  allTime / screenSpaceRef.canvas.width * DPR))
-          const endTime = Math.round((selectedElementRef.current.sizeOpt.xPosition + selectedElementRef.current.sizeOpt.width) *  allTime / screenSpaceRef.canvas.width * DPR)
-          // console.log('startTimestartTimev', startTime)
+          const canvasWidth = screenSpaceRef.canvas.width
+          const startTime = Math.max(0, Math.min(allTime, Math.round(selectedElementRef.current.sizeOpt.xPosition *  allTime / canvasWidth * DPR)))
+          const endTime = Math.max(startTime, Math.min(allTime, Math.round((selectedElementRef.current.sizeOpt.xPosition + selectedElementRef.current.sizeOpt.width) *  allTime / canvasWidth * DPR)))
           changeTime(startTime, endTime)
         } else {
           selectedElementRef.current.setDefaultColor()

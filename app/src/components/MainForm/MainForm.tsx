@@ -452,18 +452,24 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeTime = (startTime: number, endTime: number): void => {
-    const {chosenElement, lineFormer} = this.state
+    const {chosenElement, lineFormer, allTime} = this.state
     const {changeId, chosenLine} = chosenElement
+
+    // canvas pixel position can slightly exceed the sheet bounds - keep times inside [0, allTime]
+    startTime = Math.max(0, Math.min(allTime, startTime))
+    endTime = Math.max(startTime, Math.min(allTime, endTime))
 
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
 
     const newlineFormer = cloneDeep(lineFormer)
     newlineFormer[chosenLine.id].changes[index].startTime = startTime
     newlineFormer[chosenLine.id].changes[index].endTime = endTime
+    newlineFormer[chosenLine.id].changes[index].duration = endTime - startTime
     const newChosenLine: ValveLineType = cloneDeep(chosenLine)
     console.log('startTimestartTime', startTime)
     newChosenLine.changes[index].startTime = startTime
     newChosenLine.changes[index].endTime = endTime
+    newChosenLine.changes[index].duration = endTime - startTime
     this.setState({
       ...this.state,
       lineFormer: newlineFormer,
