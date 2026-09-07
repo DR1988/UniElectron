@@ -89,6 +89,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const processSelection = useRef<ProcessSelection | null>(null)
   const contextMenu = useRef<ContextMenu | null>(null)
   const hoverLine = useRef<HoverLine | null>(null)
+  const returnAnimationFrameRef = useRef<number | null>(null)
+  const returnAnimatingElementRef = useRef<ChangeElement | null>(null)
   const changeTimeRef = useRef<HTMLDivElement | null>(null)
   const showCoordTimeRef = useRef<HTMLDivElement | null>(null) // удали - просто для отладки
   const timeLineOffset = useRef<number>(100)
@@ -451,6 +453,9 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     //   return
     // }
 
+    // a new interaction must not fight with an in-progress return animation
+    cancelReturnAnimation()
+
     const clickOnContextMenu = contextMenu.current.isClickOnElement({
       x: event.nativeEvent.offsetX,
       y: event.nativeEvent.offsetY
@@ -725,6 +730,50 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       setTimeShowPosition({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY + 10})
   }
 
+  // smoothly returns a collided element to its last valid position
+  const animateReturnToInitialPosition = (element: ChangeElement) => {
+    const fromX = element.sizeOpt.xPosition
+    const toX = element.initialXPosition
+    if (fromX === toX) {
+      return
+    }
+
+    const duration = 250
+    const animationStart = performance.now()
+
+    const step = (now: number) => {
+      const progress = Math.min(1, (now - animationStart) / duration)
+      const easedProgress = 1 - Math.pow(1 - progress, 3) // easeOutCubic
+      element.setStartPoint(fromX + (toX - fromX) * easedProgress)
+
+      if (progress < 1) {
+        returnAnimationFrameRef.current = requestAnimationFrame(step)
+      } else {
+        element.setStartPoint(toX)
+        returnAnimationFrameRef.current = null
+        returnAnimatingElementRef.current = null
+      }
+    }
+
+    cancelReturnAnimation()
+    returnAnimatingElementRef.current = element
+    returnAnimationFrameRef.current = requestAnimationFrame(step)
+  }
+
+  const cancelReturnAnimation = () => {
+    if (returnAnimationFrameRef.current !== null) {
+      cancelAnimationFrame(returnAnimationFrameRef.current)
+      returnAnimationFrameRef.current = null
+    }
+    // do not leave the element frozen in an intermediate position
+    if (returnAnimatingElementRef.current) {
+      returnAnimatingElementRef.current.setStartPoint(returnAnimatingElementRef.current.initialXPosition)
+      returnAnimatingElementRef.current = null
+    }
+  }
+
+  useEffect(() => () => cancelReturnAnimation(), [])
+
 
   const handleMouseUp = (event: React.MouseEvent) => {
     moving.current = false
@@ -799,8 +848,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
           changeTime(startTime, endTime)
         } else {
           selectedElementRef.current.setInitialXPosition(selectedElementRef.current.initialXPosition)
-          selectedElementRef.current.setStartPoint(selectedElementRef.current.initialXPosition)
-
+          animateReturnToInitialPosition(selectedElementRef.current)
         }
         selectedElementRef.current = null
 
@@ -934,7 +982,7 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
         } else {
           selectedElementRef.current.setDefaultColor()
           selectedElementRef.current.setInitialXPosition(selectedElementRef.current.initialXPosition)
-          selectedElementRef.current.setStartPoint(selectedElementRef.current.initialXPosition)
+          animateReturnToInitialPosition(selectedElementRef.current)
         }
       selectedElementRef.current = null
     }
