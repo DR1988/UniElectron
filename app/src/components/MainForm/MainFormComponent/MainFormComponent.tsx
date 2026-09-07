@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import cn from 'classnames'
 // import fs from 'fs'
 import electron from 'electron'
@@ -39,11 +39,14 @@ interface Props extends ProcessSheetComponentProps {
   openRemoveSpaceModal: () => void
   openManualControlModal: () => void
   removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
+  changeAllTime: (value: number) => void
+  allTimeError: string
 }
 
 const MainFormComponent = ({
   lineFormer,
   time,
+  allTime,
   showModal,
   resetState,
   addNewValveTime,
@@ -67,8 +70,25 @@ const MainFormComponent = ({
   openInsertSpaceModal,
   openRemoveSpaceModal,
   openManualControlModal,
+  changeAllTime,
+  allTimeError,
   ...ProcessSheetComponentProps
 }: Props) => {
+
+  const [allTimeInput, setAllTimeInput] = useState(String(allTime))
+
+  useEffect(() => {
+    setAllTimeInput(String(allTime))
+  }, [allTime])
+
+  const handleAllTimeChange = (e: React.FormEvent<HTMLInputElement>) => {
+    const rawValue = e.currentTarget.value
+    setAllTimeInput(rawValue)
+    const value = +rawValue.trim()
+    if (Number.isInteger(value) && value >= 0) {
+      changeAllTime(value)
+    }
+  }
 
   const openDialogForTemporaryButtons = (name: TemporaryProtocolButtonPosition) => {
       dialog.showOpenDialog(null, {
@@ -113,11 +133,23 @@ const MainFormComponent = ({
               lineFormer={lineFormer}
               showModal={showModal}
               time={time}
+              allTime={allTime}
               changeTime={changeTime}
               addNewValveTime={addNewValveTime}
               {...ProcessSheetComponentProps}
             />
           </section>
+          <div className={s.allTimeRow}>
+            <label htmlFor="all-time">All time (sec)</label>
+            <input
+              id="all-time"
+              type="text"
+              value={allTimeInput}
+              onChange={handleAllTimeChange}
+            />
+            {allTimeError ?
+              <span className={s.allTimeError}>{allTimeError}</span> : null}
+          </div>
           <div className={cn(s.spaceButtonsContainer)}>
             <button
               className={s.spaceButton}

@@ -32,6 +32,8 @@ import {RemoveSpaceOption} from '../CommonTypes';
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
+const OVER_ALL_TIME_MESSAGE = 'End time should not exceed All time. Change All time first.'
+
 interface Props {
   socket: SocketIOClient.Socket
 }
@@ -296,18 +298,10 @@ class MainForm extends Component<Props, MainFormState> {
     const newlineFormer = cloneDeep(lineFormer)
     newlineFormer[chosenLine.id].changes = changes
 
-    const maxTime = Math.max(...newlineFormer.map(lines => {
-      if (lines.changes.length) {
-        return lines.changes[lines.changes.length - 1].endTime
-      }
-      return 0
-    }))
-
     const newState = {
       ...this.state,
       lineFormer: newlineFormer,
       showEditModal: false,
-      allTime: maxTime || this.state.allTime,
       chosenElement: newChosenElement,
     }
     // this.props.socket.emit(socketConfig.makeChange, newState)
@@ -324,9 +318,47 @@ class MainForm extends Component<Props, MainFormState> {
     }, () => this.emitChanges())
   }
 
+  getMaxEndTime = (lines: Array<ValveLineType>): number => {
+    return Math.max(0, ...lines.map(line => {
+      if (line.changes.length) {
+        return line.changes[line.changes.length - 1].endTime
+      }
+      return 0
+    }))
+  }
+
+  changeAllTime = (value: number): void => {
+    const maxEndTime = this.getMaxEndTime(this.state.lineFormer)
+
+    if (value < maxEndTime) {
+      this.setState({
+        ...this.state,
+        allTimeError: `All time should be greater or equal to the maximum end time (${maxEndTime} sec). Shorten or remove changes first.`,
+      })
+      return
+    }
+
+    this.setState({
+      ...this.state,
+      allTime: value,
+      allTimeError: '',
+    })
+  }
+
   changeEndTime = (value: number): void => {
-    const {chosenElement, lineFormer} = this.state
+    const {chosenElement, lineFormer, allTime} = this.state
     const {changeId, chosenLine, previousChanges} = chosenElement
+
+    if (value > allTime) {
+      this.setState({
+        ...this.state,
+        chosenElement: {
+          ...this.state.chosenElement,
+          wrongSign: OVER_ALL_TIME_MESSAGE,
+        },
+      })
+      return
+    }
 
     const index = lineFormer[chosenLine.id].changes.findIndex(change => change.changeId === changeId)
     const startTime = lineFormer[chosenLine.id].changes[index].startTime
@@ -362,20 +394,12 @@ class MainForm extends Component<Props, MainFormState> {
       return
     }
 
-    const maxTime = Math.max(...newlineFormer.map(lines => {
-      if (lines.changes.length) {
-        return lines.changes[lines.changes.length - 1].endTime
-      }
-      return 0
-    }))
-    const allTime = value > maxTime ? value : maxTime
-
     this.setState({
       ...this.state,
       lineFormer: newlineFormer,
-      allTime,
       chosenElement: {
         ...this.state.chosenElement,
+        wrongSign: this.state.chosenElement.wrongSign === OVER_ALL_TIME_MESSAGE ? '' : this.state.chosenElement.wrongSign,
         chosenLine: newChosenLine,
       },
     })
@@ -456,16 +480,9 @@ class MainForm extends Component<Props, MainFormState> {
 
     const newlineFormer: Array<ValveLineType> = cloneDeep(lineFormer)
     newlineFormer[chosenLine.id].changes = [...chosenElement.previousChanges]
-    const maxTime = Math.max(...newlineFormer.map((lines) => {
-      if (lines.changes.length) {
-        return lines.changes[lines.changes.length - 1].endTime
-      }
-      return 0
-    }))
     this.setState({
       ...this.state,
       lineFormer: newlineFormer,
-      allTime: maxTime,
     })
   }
 
@@ -483,9 +500,21 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeNewStartTime = (newStartTime: number): void => {
-    const {chosenElement, lineFormer} = this.state
+    const {chosenElement, lineFormer, allTime} = this.state
     const {chosenLine, previousChanges, newEndTime, changeId} = chosenElement
     const {changes} = chosenLine
+
+    if (newEndTime > allTime) {
+      this.setState({
+        ...this.state,
+        chosenElement: {
+          ...chosenElement,
+          wrongSign: OVER_ALL_TIME_MESSAGE,
+        },
+      })
+      return
+    }
+
     if (!previousChanges.length) {
       const currentItemIndex = 0
       const filteredChange = changes.filter(change => change.changeId !== changeId)
@@ -508,6 +537,7 @@ class MainForm extends Component<Props, MainFormState> {
         lineFormer: newlineFormer,
         chosenElement: {
           ...chosenElement,
+          wrongSign: chosenElement.wrongSign === OVER_ALL_TIME_MESSAGE ? '' : chosenElement.wrongSign,
           chosenLine: newChosenLine,
           newStartTime,
         },
@@ -547,17 +577,9 @@ class MainForm extends Component<Props, MainFormState> {
           }
 
           newlineFormer[chosenLine.id].changes.sort((a,b) => a.endTime - b.endTime) // sort for canvas
-          const maxTime = Math.max(...newlineFormer.map((lines) => {
-            if (lines.changes.length) {
-              return lines.changes[lines.changes.length - 1].endTime
-            }
-            return 0
-          }))
-          const allTime = newEndTime > maxTime ? newEndTime : maxTime
           this.setState({
             ...this.state,
             lineFormer: newlineFormer,
-            allTime,
             chosenElement: {
               ...chosenElement,
               chosenLine: newChosenLine,
@@ -572,9 +594,21 @@ class MainForm extends Component<Props, MainFormState> {
   }
 
   changeNewEndTime = (newEndTime: number): void => {
-    const {chosenElement, lineFormer} = this.state
+    const {chosenElement, lineFormer, allTime} = this.state
     const {chosenLine, previousChanges, newStartTime, changeId} = chosenElement
     const {changes} = chosenLine
+
+    if (newEndTime > allTime) {
+      this.setState({
+        ...this.state,
+        chosenElement: {
+          ...chosenElement,
+          wrongSign: OVER_ALL_TIME_MESSAGE,
+        },
+      })
+      return
+    }
+
     if (!previousChanges.length) {
       const currentItemIndex = 0
       const filteredChange = changes.filter(change => change.changeId !== changeId)
@@ -592,20 +626,13 @@ class MainForm extends Component<Props, MainFormState> {
       const newChosenLine: ValveLineType = cloneDeep(chosenLine)
       newChosenLine.changes = newChanges
       newChosenLine.changes[currentItemIndex].duration = newEndTime - newStartTime
-      const maxTime = Math.max(...newlineFormer.map((lines) => {
-        if (lines.changes.length) {
-          return lines.changes[lines.changes.length - 1].endTime
-        }
-        return 0
-      }))
-      const allTime = newEndTime > maxTime ? newEndTime : maxTime
       newlineFormer[chosenLine.id].changes.sort((a,b) => a.endTime - b.endTime) // sort for canvas
       this.setState({
         ...this.state,
         lineFormer: newlineFormer,
-        allTime,
         chosenElement: {
           ...chosenElement,
+          wrongSign: chosenElement.wrongSign === OVER_ALL_TIME_MESSAGE ? '' : chosenElement.wrongSign,
           chosenLine: newChosenLine,
           newEndTime,
         },
@@ -647,18 +674,9 @@ class MainForm extends Component<Props, MainFormState> {
           }
 
           newlineFormer[chosenLine.id].changes.sort((a,b) => a.endTime - b.endTime) // sort for canvas
-          const maxTime = Math.max(...newlineFormer.map((lines) => {
-            if (lines.changes.length) {
-              return lines.changes[lines.changes.length - 1].endTime
-            }
-            return 0
-          }))
-
-          const allTime = newEndTime > maxTime ? newEndTime : maxTime
           this.setState({
             ...this.state,
             lineFormer: newlineFormer,
-            allTime,
             chosenElement: {
               ...chosenElement,
               chosenLine: newChosenLine,
@@ -697,18 +715,9 @@ class MainForm extends Component<Props, MainFormState> {
       newChosenLine.changes[currentItemIndex].crossingValueStart = NaN
       newlineFormer[chosenLine.id].changes[currentItemIndex].crossingValueStart = NaN
     }
-    const maxTime = Math.max(...newlineFormer.map((lines) => {
-      if (lines.changes.length) {
-        return lines.changes[lines.changes.length - 1].endTime
-      }
-      return 0
-    }))
-    const allTime = newEndTime > maxTime ? newEndTime : maxTime
-
     this.setState({
       ...this.state,
       lineFormer: newlineFormer,
-      allTime,
       chosenElement: {
         ...chosenElement,
         wrongSign,
@@ -1393,6 +1402,7 @@ class MainForm extends Component<Props, MainFormState> {
           openRemoveSpaceModal={this.openRemoveSpaceModal}
           openManualControlModal={this.openManualControlModal}
           removeSelectedTimeElements={this.removeSelectedTimeElements}
+          changeAllTime={this.changeAllTime}
           {...this.state}
         />
         <ModalWithCondition

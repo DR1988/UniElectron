@@ -99,6 +99,27 @@
   background-color: rgba(221, 237, 243, 1);
 }
 
+.allTimeRow {
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+}
+
+.allTimeRow label {
+  margin-right: 8px;
+}
+
+.allTimeRow input {
+  width: 90px;
+  padding: 5px 10px;
+}
+
+.allTimeError {
+  margin-left: 10px;
+  color: red;
+}
+
 .spaceButtonsContainer {
   margin-top: 5px;
   display: flex;

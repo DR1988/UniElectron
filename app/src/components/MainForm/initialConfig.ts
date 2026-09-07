@@ -6,6 +6,7 @@ export interface MainFormState {
     distance: number,
     time: number,
     allTime: number,
+    allTimeError: string,
     showEditModal: boolean,
     lineFormer: Array<ValveLineType>,
     HVOpen: boolean,
@@ -40,6 +41,7 @@ export const resetedState: MainFormState = {
   time: 0,
   showEditModal: false,
   allTime: 0,
+  allTimeError: '',
   lineFormer: [
     {
       name: 'ValveLine',
@@ -190,6 +192,7 @@ export const initialState: MainFormState = {
   time: 0,
   showEditModal: false,
   allTime: 350,
+  allTimeError: '',
   HVOpen: false,
   serialConnected: false,
   lineFormer: [
