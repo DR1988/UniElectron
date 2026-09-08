@@ -207,7 +207,9 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       setScreenSpaceRefWidth(width)
 
     }
-  }, [container, canvasHeight, screenSpaceRef])
+
+    return () => resizeObserver.disconnect()
+  }, [container, canvasHeight, screenSpaceRef, allTime])
 
   const {
     elementsArray,
