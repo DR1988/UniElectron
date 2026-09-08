@@ -4,6 +4,8 @@ import {RemoveSpaceOption} from '../../../CommonTypes';
 import {Canvas} from '../../../Canvas/Canvas';
 import {DRAW_RECT, DrawingElement, ELEMENT_TYPES, Point, TEXT_DRAW_OPT} from './CanvasElements/CanvasTypes';
 import {
+  AUTO_PAN_MARGIN,
+  AUTO_PAN_STEP,
   DPR,
   LEGEND_HEIGHT,
   LINE_GAP,
@@ -558,9 +560,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       }
 
       selectedElementRef.current = selectedElement
-      const containerRect = container.getBoundingClientRect()
-      const xPositon = event.clientX - containerRect.left; //x position within the element.
-      selectedElement.setDeltaX(xPositon - offsetXRef.current)
+      // grab offset in world units: keeps the move calculation correct while auto-panning
+      selectedElement.setDeltaX(worldX - xPosition)
     }
 
   }
@@ -569,18 +570,25 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const onProcessSelectionMove = (event: React.MouseEvent) => {
     if (selectedElementRef.current instanceof ProcessSelection && selectedElementRef.current.isMoving) {
 
-      const {deltaX, originStartPoint, sizeOpt} = selectedElementRef.current
-      const containerRect = container.getBoundingClientRect()
-      const xPosition = event.clientX - containerRect.left; //x position within the element.
-      const newOffsetX = xPosition - deltaX;
+      const element = selectedElementRef.current
+      const canvasWidth = screenSpaceRef.canvas.width
+      const xPosition = event.nativeEvent.offsetX
 
-      const newOffset = originStartPoint  + (newOffsetX - offsetXRef.current ) / scaleRef.current
-
-      const rightBorder = screenSpaceRef.canvas.width - sizeOpt.width
-      if (newOffset > rightBorder || newOffset < 0) {
-        return
+      // auto-pan when the mouse is close to a canvas edge so the selection can be dragged
+      // all the way to the sheet border even when zoomed in (no-op at scale 1: maxOffset is 0)
+      const maxOffset = canvasWidth - canvasWidth / scaleRef.current
+      if (xPosition > canvasWidth - AUTO_PAN_MARGIN) {
+        offsetXRef.current = Math.min(maxOffset, offsetXRef.current + AUTO_PAN_STEP / scaleRef.current)
+      } else if (xPosition < AUTO_PAN_MARGIN) {
+        offsetXRef.current = Math.max(0, offsetXRef.current - AUTO_PAN_STEP / scaleRef.current)
       }
-      selectedElementRef.current.setStartPoint(newOffset)
+
+      const {worldX} = screenToWorld(xPosition, 0)
+      const targetX = worldX - element.deltaX
+
+      // clamp to the sheet bounds: the selection sticks to the border instead of stopping short
+      const rightBorder = canvasWidth - element.sizeOpt.width
+      element.setStartPoint(Math.max(0, Math.min(rightBorder, targetX)))
     }
   }
 
