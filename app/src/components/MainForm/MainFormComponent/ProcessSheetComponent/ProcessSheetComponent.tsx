@@ -13,7 +13,7 @@ import cn from 'classnames'
 import TimeLine from './TimeLineComponent'
 import ValveLineComponent from './ValveLineComponent'
 
-import {ValveLineType} from './../../MainFormInterfaces'
+import {TemporaryProtocolButtonPosition, ValveLineType} from './../../MainFormInterfaces'
 
 import s from './ProcessSheetComponent.css'
 import {render} from 'react-dom'
@@ -32,6 +32,14 @@ export interface Props {
   changeTime: (startTime: number, endTime: number) => void
   addNewValveTime: (chosenLine: ValveLineType) => void,
   removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
+  // owned by MainFormComponent state, optional so they do not leak into its public Props
+  setContainerElement?: (element: HTMLDivElement | null) => void
+  containerElement?: HTMLDivElement | null
+  captureProtocol?: (protocol: "" | TemporaryProtocolButtonPosition) => void
+  capturedProtocol?: TemporaryProtocolButtonPosition | ''
+  setProtocol: (name: TemporaryProtocolButtonPosition) => void
+  screenSpaceWidth: number
+  setScreenSpaceRefWidth: (value: number) => void
 }
 
 interface State {
@@ -50,7 +58,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
   const [translateX, setTranslateX] = useState(0)
   const [isMoving, setIsMoving] = useState(false)
   const [formHeight, setFormHeight] = useState(0)
-  const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
+  // const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
 
   const formRef = useRef<HTMLDivElement | null>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -134,6 +142,13 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
     addNewValveTime,
     removeSelectedTimeElements,
     changeTime,
+    setContainerElement,
+    containerElement,
+    captureProtocol,
+    capturedProtocol,
+    setProtocol,
+    screenSpaceWidth,
+    setScreenSpaceRefWidth,
   } = props
 
   const mousePosition = useRef(0)
@@ -188,6 +203,11 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
             lineFormer={lineFormer}
             container={containerElement}
             changeTime={changeTime}
+            captureProtocol={captureProtocol}
+            capturedProtocol={capturedProtocol}
+            setProtocol={setProtocol}
+            screenSpaceWidth={screenSpaceWidth}
+            setScreenSpaceRefWidth={setScreenSpaceRefWidth}
           />
             : null
         }

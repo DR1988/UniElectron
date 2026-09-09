@@ -1,5 +1,5 @@
 import React, {CSSProperties, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {ValveLineType} from '../../MainFormInterfaces';
+import {TemporaryProtocolButtonPosition, ValveLineType} from '../../MainFormInterfaces';
 import {RemoveSpaceOption} from '../../../CommonTypes';
 import {Canvas} from '../../../Canvas/Canvas';
 import {DRAW_RECT, DrawingElement, ELEMENT_TYPES, Point, TEXT_DRAW_OPT} from './CanvasElements/CanvasTypes';
@@ -45,6 +45,11 @@ export type Props = {
   addNewValveTime: (chosenLine: ValveLineType) => void,
   removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
   container: HTMLDivElement | null
+  captureProtocol: (protocol: "" | TemporaryProtocolButtonPosition) => void
+  capturedProtocol: TemporaryProtocolButtonPosition | ''
+  setProtocol: (name: TemporaryProtocolButtonPosition) => void
+  screenSpaceWidth: number
+  setScreenSpaceRefWidth: (value: number) => void
 }
 
 
@@ -63,6 +68,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     setChosenValveTime,
     removeSelectedTimeElements,
     changeTime,
+    captureProtocol,
+    capturedProtocol,
+    setProtocol,
+    screenSpaceWidth,
+    setScreenSpaceRefWidth,
   }
 ) => {
 
@@ -73,7 +83,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   const canvasHeight = (LINE_HEIGHT + LINE_GAP) * lineFormer.length + TIME_LINE_HEIGHT + LEGEND_HEIGHT
 
   const [screenSpaceRef, setScreenSpaceRef] = useState<CanvasRenderingContext2D | null>(null)
-  const [screenSpaceWidth, setScreenSpaceRefWidth] = useState(0)
+  // const [screenSpaceWidth, setScreenSpaceRefWidth] = useState(0)
 
 
   const selectedElementRef = useRef<DrawingElement<ELEMENT_TYPES> | null>(null)
@@ -836,6 +846,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     } 
 
+    if (capturedProtocol) {
+    console.log('capturedProtocol', capturedProtocol)
+    setProtocol(capturedProtocol)
+    }
+    // captureProtocol
+// capturedProtocol
     console.log('selectedElementRef.current',selectedElementRef.current)
     if (selectedElementRef.current instanceof ChangeElement) {
       if (!selectedElementRef.current.isMoving) {
