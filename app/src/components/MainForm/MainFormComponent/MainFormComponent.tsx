@@ -16,6 +16,13 @@ import { DnDProtocol } from './DnDProtocol/DnDProtocol';
 
 const { dialog } = electron.remote
 const EmptyName = ''
+
+// splits a total duration in seconds into hours / minutes / seconds strings
+const decomposeAllTime = (totalSeconds: number) => ({
+  hours: String(Math.floor(totalSeconds / 3600)),
+  minutes: String(Math.floor((totalSeconds % 3600) / 60)),
+  seconds: String(totalSeconds % 60),
+})
 interface Props extends ProcessSheetComponentProps {
   resetState: () => void,
   start: () => void,
@@ -77,7 +84,7 @@ const MainFormComponent = ({
 }: Props) => {
   
   const protocolRef = useRef<HTMLDivElement | null>(null)
-  const [allTimeInput, setAllTimeInput] = useState(String(allTime))
+  const [allTimeInputs, setAllTimeInputs] = useState(() => decomposeAllTime(allTime))
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
   const [capturedProtocol, captureProtocol] = useState<TemporaryProtocolButtonPosition | ''>('')
   const [screenSpaceWidth, setScreenSpaceRefWidth] = useState(0)
@@ -94,15 +101,22 @@ const MainFormComponent = ({
   }, [])
 
   useEffect(() => {
-    setAllTimeInput(String(allTime))
+    setAllTimeInputs(decomposeAllTime(allTime))
   }, [allTime])
 
-  const handleAllTimeChange = (e: React.FormEvent<HTMLInputElement>) => {
+  const handleAllTimeFieldChange = (field: 'hours' | 'minutes' | 'seconds') => (e: React.FormEvent<HTMLInputElement>) => {
     const rawValue = e.currentTarget.value
-    setAllTimeInput(rawValue)
-    const value = +rawValue.trim()
-    if (Number.isInteger(value) && value >= 0) {
-      changeAllTime(value)
+    const next = {...allTimeInputs, [field]: rawValue}
+    setAllTimeInputs(next)
+
+    // apply only when all three fields are valid: hours - any non-negative integer, minutes/seconds - 0..59
+    if (/^\d+$/.test(next.hours) && /^\d+$/.test(next.minutes) && /^\d+$/.test(next.seconds)) {
+      const hours = +next.hours
+      const minutes = +next.minutes
+      const seconds = +next.seconds
+      if (minutes <= 59 && seconds <= 59) {
+        changeAllTime(hours * 3600 + minutes * 60 + seconds)
+      }
     }
   }
 
@@ -125,7 +139,7 @@ const MainFormComponent = ({
     <div id="containerForm"
       onMouseMove={(event) => {
         if (capturedProtocol && protocolRef.current) {
-          const data = JSON.parse(window.localStorage.getItem(name))
+          const data = JSON.parse(window.localStorage.getItem(capturedProtocol))
           // clientX/clientY are viewport-relative, so convert them to containerForm's
           // coordinate space (its containing block) - otherwise the element is shifted
           // by the page scroll / offset of any positioned ancestor
@@ -191,13 +205,28 @@ const MainFormComponent = ({
             />
           </section>
           <div className={s.allTimeRow}>
-            <label htmlFor="all-time">All time (sec)</label>
+            <label htmlFor="all-time-hours">All time</label>
             <input
-              id="all-time"
+              id="all-time-hours"
               type="text"
-              value={allTimeInput}
-              onChange={handleAllTimeChange}
+              value={allTimeInputs.hours}
+              onChange={handleAllTimeFieldChange('hours')}
             />
+            <span className={s.allTimeUnit}>h</span>
+            <input
+              id="all-time-minutes"
+              type="text"
+              value={allTimeInputs.minutes}
+              onChange={handleAllTimeFieldChange('minutes')}
+            />
+            <span className={s.allTimeUnit}>m</span>
+            <input
+              id="all-time-seconds"
+              type="text"
+              value={allTimeInputs.seconds}
+              onChange={handleAllTimeFieldChange('seconds')}
+            />
+            <span className={s.allTimeUnit}>s</span>
             {allTimeError ?
               <span className={s.allTimeError}>{allTimeError}</span> : null}
           </div>

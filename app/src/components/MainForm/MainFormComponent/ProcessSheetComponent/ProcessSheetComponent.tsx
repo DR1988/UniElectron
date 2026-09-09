@@ -38,8 +38,9 @@ export interface Props {
   captureProtocol?: (protocol: "" | TemporaryProtocolButtonPosition) => void
   capturedProtocol?: TemporaryProtocolButtonPosition | ''
   setProtocol: (name: TemporaryProtocolButtonPosition) => void
-  screenSpaceWidth: number
-  setScreenSpaceRefWidth: (value: number) => void
+  // owned by MainFormComponent state, optional so they do not leak into its public Props
+  screenSpaceWidth?: number
+  setScreenSpaceRefWidth?: (value: number) => void
 }
 
 interface State {
