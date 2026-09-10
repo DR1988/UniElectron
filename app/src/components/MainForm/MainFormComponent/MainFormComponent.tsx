@@ -88,6 +88,8 @@ const MainFormComponent = ({
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
   const [capturedProtocol, captureProtocol] = useState<TemporaryProtocolButtonPosition | ''>('')
   const [screenSpaceWidth, setScreenSpaceRefWidth] = useState(0)
+  // canvas zoom from CanvasProcessSheetComponent2 (scaleRef) - keeps the DnD preview in sync with it
+  const [canvasScale, setCanvasScale] = useState(1)
 
   const onCaptureProtocol = useCallback((event: React.MouseEvent<HTMLButtonElement, MouseEvent>, protocol: TemporaryProtocolButtonPosition) => {
     captureProtocol(protocol)
@@ -202,6 +204,7 @@ const MainFormComponent = ({
               setProtocol={setProtocol}
               screenSpaceWidth={screenSpaceWidth}
               setScreenSpaceRefWidth={setScreenSpaceRefWidth}
+              onScaleChange={setCanvasScale}
             />
           </section>
           <div className={s.allTimeRow}>
@@ -230,7 +233,7 @@ const MainFormComponent = ({
             {allTimeError ?
               <span className={s.allTimeError}>{allTimeError}</span> : null}
           </div>
-          <div className={cn(s.spaceButtonsContainer)}>
+          {/* <div className={cn(s.spaceButtonsContainer)}>
             <button
               className={s.spaceButton}
               onClick={openInsertSpaceModal}
@@ -250,7 +253,7 @@ const MainFormComponent = ({
             >
               Manual Control
             </button>
-          </div>
+          </div> */}
         </section>
       </div>
       <div className={s.buttons} >
@@ -436,7 +439,7 @@ const MainFormComponent = ({
           </div>
       </div>
 
-      <DnDProtocol allTime={allTime} screenSpaceWidth={screenSpaceWidth} protocolRef={protocolRef} capturedProtocol={capturedProtocol}/>
+      <DnDProtocol allTime={allTime} screenSpaceWidth={screenSpaceWidth} scale={canvasScale} protocolRef={protocolRef} capturedProtocol={capturedProtocol}/>
     </div>
   )
 }

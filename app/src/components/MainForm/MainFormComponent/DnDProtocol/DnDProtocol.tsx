@@ -6,10 +6,11 @@ export type Props = {
     protocolRef: React.MutableRefObject<HTMLDivElement | null>,
     capturedProtocol: TemporaryProtocolButtonPosition | '',
     allTime: number,
-    screenSpaceWidth: number
+    screenSpaceWidth: number,
+    scale?: number
 }
 
-export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProtocolAlltime, screenSpaceWidth}: Props) => {
+export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProtocolAlltime, screenSpaceWidth, scale = 1}: Props) => {
     const data = JSON.parse(window.localStorage.getItem(capturedProtocol)) as TemporaryFileLoaded
     console.log('datadata', data)
 
@@ -23,10 +24,11 @@ export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProt
     const {protocol: {lineFormer, allTime}} = data
 
     const protocolRation = Math.min(1, allTime / currentProtocolAlltime)
-    return <div ref={protocolRef} 
+    // the canvas sheet is drawn horizontally scaled by scaleRef, so the preview must be too
+    return <div ref={protocolRef}
         style={{
             position: 'absolute',
-            width: screenSpaceWidth * protocolRation,
+            width: screenSpaceWidth * protocolRation * scale,
             height: 450,
             backgroundColor: theme === 'dark' ? '#123456' :'red',
             opacity: 0.4,

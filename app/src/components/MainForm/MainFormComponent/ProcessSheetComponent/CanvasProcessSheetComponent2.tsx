@@ -50,6 +50,7 @@ export type Props = {
   setProtocol: (name: TemporaryProtocolButtonPosition) => void
   screenSpaceWidth: number
   setScreenSpaceRefWidth: (value: number) => void
+  onScaleChange?: (scale: number) => void
 }
 
 
@@ -73,6 +74,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     setProtocol,
     screenSpaceWidth,
     setScreenSpaceRefWidth,
+    onScaleChange,
   }
 ) => {
 
@@ -930,6 +932,9 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
     }
 
     scaleRef.current = scale
+    if (onScaleChange) {
+      onScaleChange(scale)
+    }
 
     const {worldX: worldXAfterZoom} = screenToWorld(event.nativeEvent.offsetX, 0)
     const newOffset = (offsetXRef.current + worldXBeforeZoom - worldXAfterZoom)

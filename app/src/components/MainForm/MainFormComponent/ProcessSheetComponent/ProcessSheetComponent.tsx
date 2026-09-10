@@ -41,6 +41,7 @@ export interface Props {
   // owned by MainFormComponent state, optional so they do not leak into its public Props
   screenSpaceWidth?: number
   setScreenSpaceRefWidth?: (value: number) => void
+  onScaleChange?: (scale: number) => void
 }
 
 interface State {
@@ -150,6 +151,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
     setProtocol,
     screenSpaceWidth,
     setScreenSpaceRefWidth,
+    onScaleChange,
   } = props
 
   const mousePosition = useRef(0)
@@ -209,6 +211,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
             setProtocol={setProtocol}
             screenSpaceWidth={screenSpaceWidth}
             setScreenSpaceRefWidth={setScreenSpaceRefWidth}
+            onScaleChange={onScaleChange}
           />
             : null
         }
