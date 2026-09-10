@@ -316,135 +316,34 @@ const MainFormComponent = ({
       <div className={s.temporaryContainer}>
         <span className={s.temporaryTitle}>Protocol Set Buttons</span>
             <div className={s.loadingProtocolButtons}>
-                <button
-                title= {temporaryButtonNames.firstTemporaryButton || EmptyName}
-                    onMouseDown={(event) => {
-                      if (event.nativeEvent.button === 0) {
-                        onCaptureProtocol(event, 'firstTemporaryButton')
-                      }
-                    }}
-                    onMouseUp={(event) => {
-                      if (event.nativeEvent.button === 2) {
-                          openDialogForTemporaryButtons('firstTemporaryButton')
-                      }
-                    }}
-                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.firstTemporaryButton && s.emptyProtocolButton)}
-                >
-                    {temporaryButtonNames.firstTemporaryButton || EmptyName}
-                </button>
-                <button
-                title= {temporaryButtonNames.secondTemporaryButton || EmptyName}
-                    onMouseDown={(event) => {
-                      if (event.nativeEvent.button === 0) {
-                        onCaptureProtocol(event, 'secondTemporaryButton')
-                      }
-                    }}
-                    onMouseUp={(event) => {
-                        if (event.nativeEvent.button === 2) {
-                            openDialogForTemporaryButtons('secondTemporaryButton')
-                        }
-                    }}
-                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.secondTemporaryButton && s.emptyProtocolButton)}
-                >
-                    {temporaryButtonNames.secondTemporaryButton || EmptyName}
-                </button>
-                <button
-                title={temporaryButtonNames.thirdTemporaryButton || EmptyName}
-                    onMouseDown={(event) => {
-                        if (event.nativeEvent.button === 0) {
-                            onCaptureProtocol(event, 'thirdTemporaryButton')
-                        }
-                    }}
-                    onMouseUp={(event) => {
-                        if (event.nativeEvent.button === 2) {
-                            openDialogForTemporaryButtons('thirdTemporaryButton')
-                        }
-                    }}
-                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
-                >
-                    {temporaryButtonNames.thirdTemporaryButton || EmptyName}
-                </button>
-                <button
-                title= {temporaryButtonNames.fourthTemporaryButton || EmptyName}
-                    onMouseDown={(event) => {
-                        if (event.nativeEvent.button === 0) {
-                            onCaptureProtocol(event, 'fourthTemporaryButton')
-                        }
-                    }}
-                    onMouseUp={(event) => {
-                        if (event.nativeEvent.button === 2) {
-                            openDialogForTemporaryButtons('fourthTemporaryButton')
-                        }
-                    }}
-                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
-                >
-                    {temporaryButtonNames.fourthTemporaryButton || EmptyName}
-                </button>
-                <button
-                title= {temporaryButtonNames.fifthTemporaryButton || EmptyName}
-                    onMouseDown={(event) => {
-                        if (event.nativeEvent.button === 0) {
-                            onCaptureProtocol(event, 'fifthTemporaryButton')
-                        }
-                    }}
-                    onMouseUp={(event) => {
-                        if (event.nativeEvent.button === 2) {
-                            openDialogForTemporaryButtons('fifthTemporaryButton')
-                        }
-                    }}
-                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
-                >
-                    {temporaryButtonNames.fifthTemporaryButton || EmptyName}
-                </button>
-                <button
-                title= {temporaryButtonNames.sixthTemporaryButton || EmptyName}
-                    onMouseDown={(event) => {
-                        if (event.nativeEvent.button === 0) {
-                            onCaptureProtocol(event, 'sixthTemporaryButton')
-                        }
-                    }}
-                    onMouseUp={(event) => {
-                        if (event.nativeEvent.button === 2) {
-                            openDialogForTemporaryButtons('sixthTemporaryButton')
-                        }
-                    }}
-                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
-                >
-                    {temporaryButtonNames.sixthTemporaryButton || EmptyName}
-                </button>
-                <button
-                title={temporaryButtonNames.seventhTemporaryButton || EmptyName}
-                    onMouseDown={(event) => {
-                        if (event.nativeEvent.button === 0) {
-                            onCaptureProtocol(event, 'seventhTemporaryButton')
-                        }
-                    }}
-                    onMouseUp={(event) => {
-                        if (event.nativeEvent.button === 2) {
-                            openDialogForTemporaryButtons('seventhTemporaryButton')
-                        }
-                    }}
-                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
-                >
-                    {temporaryButtonNames.seventhTemporaryButton || EmptyName}
-                </button>
-                <button
-                    title={temporaryButtonNames.eigthTemporaryButton || EmptyName}
-                    onMouseDown={(event) => {
-                        if (event.nativeEvent.button === 0) {
-                            onCaptureProtocol(event, 'eigthTemporaryButton')
-                        }
-                    }}
-                    onMouseUp={(event) => {
-                        if (event.nativeEvent.button === 2) {
-                            openDialogForTemporaryButtons('eigthTemporaryButton')
-                        }
-                    }}
-                    className={cn(s.loadingProtocolButton, !temporaryButtonNames.thirdTemporaryButton && s.emptyProtocolButton)}
-                >
-                    {temporaryButtonNames.eigthTemporaryButton || EmptyName}
-                </button>
-
+                {(Object.keys(temporaryButtonNames) as TemporaryProtocolButtonPosition[]).map((position) => {
+                    const name = temporaryButtonNames[position]
+                    return (
+                        <button
+                            key={position}
+                            title={name || EmptyName}
+                            onMouseDown={(event) => {
+                                if (event.nativeEvent.button === 0) {
+                                    onCaptureProtocol(event, position)
+                                }
+                            }}
+                            onMouseUp={(event) => {
+                                if (event.nativeEvent.button === 2) {
+                                    openDialogForTemporaryButtons(position)
+                                }
+                            }}
+                            className={cn(s.loadingProtocolButton, !name && s.emptyProtocolButton)}
+                        >
+                            {name || EmptyName}
+                            <span
+                                className={s.protocolButtonDots}
+                                title="Загрузить протокол"
+                                onMouseDown={(event) => event.stopPropagation()}
+                                onClick={() => openDialogForTemporaryButtons(position)}
+                            >...</span>
+                        </button>
+                    )
+                })}
           </div>
       </div>
 

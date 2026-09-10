@@ -89,10 +89,31 @@
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  position: relative;
+  padding-right: 26px;
 }
 
 .loadingProtocolButtons .loadingProtocolButton:not(:first-child) {
   margin-left: 10px;
+}
+
+.loadingProtocolButtons .protocolButtonDots {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  letter-spacing: 1px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.loadingProtocolButtons .protocolButtonDots:hover {
+  background-color: rgba(0, 0, 0, 0.15);
 }
 
 .emptyProtocolButton {
