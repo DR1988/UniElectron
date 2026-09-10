@@ -16,6 +16,8 @@ import { DnDProtocol } from './DnDProtocol/DnDProtocol';
 
 const { dialog } = electron.remote
 const EmptyName = ''
+// max cursor travel (px) between mousedown and mouseup on a protocol button for it to count as a click, not a drag
+const CAPTURE_CLICK_THRESHOLD = 5
 
 // splits a total duration in seconds into hours / minutes / seconds strings
 const decomposeAllTime = (totalSeconds: number) => ({
@@ -83,6 +85,12 @@ const MainFormComponent = ({
   ...ProcessSheetComponentProps
 }: Props) => {
   
+  // where the capture (protocol grab) started - distinguishes a plain click from a drag
+  const captureStartPosRef = useRef<{x: number, y: number} | null>(null)
+  // which protocol button is pressed - a drag may start from it
+  const capturingSlotRef = useRef<TemporaryProtocolButtonPosition | null>(null)
+  // latest cursor position over the form - used to place the preview when a drag starts
+  const lastMousePosRef = useRef<{x: number, y: number} | null>(null)
   const protocolRef = useRef<HTMLDivElement | null>(null)
   const [allTimeInputs, setAllTimeInputs] = useState(() => decomposeAllTime(allTime))
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
@@ -92,15 +100,20 @@ const MainFormComponent = ({
   const [canvasScale, setCanvasScale] = useState(1)
 
   const onCaptureProtocol = useCallback((event: React.MouseEvent<HTMLButtonElement, MouseEvent>, protocol: TemporaryProtocolButtonPosition) => {
-    captureProtocol(protocol)
-
-    if (protocolRef.current) {
-
-          const protocolRefBound = protocolRef.current.getBoundingClientRect()
-          protocolRef.current.style.left = `${event.nativeEvent.clientX  - protocolRefBound.width/2}px`;
-          protocolRef.current.style.top = `${event.nativeEvent.clientY - protocolRefBound.height/2}px`;
-    }
+    // remember the grab only - the preview appears once a real drag starts (containerForm onMouseMove)
+    captureStartPosRef.current = {x: event.nativeEvent.clientX, y: event.nativeEvent.clientY}
+    capturingSlotRef.current = protocol
   }, [])
+
+  // place the preview right after it mounts: the drag-start mousemove sets capturedProtocol,
+  // but the element is not rendered yet inside that handler
+  useEffect(() => {
+    if (capturedProtocol && protocolRef.current && lastMousePosRef.current) {
+      const bound = protocolRef.current.getBoundingClientRect()
+      protocolRef.current.style.left = `${lastMousePosRef.current.x - bound.width/2}px`
+      protocolRef.current.style.top = `${lastMousePosRef.current.y - bound.height/2}px`
+    }
+  }, [capturedProtocol])
 
   useEffect(() => {
     setAllTimeInputs(decomposeAllTime(allTime))
@@ -149,6 +162,16 @@ const MainFormComponent = ({
   return (
     <div id="containerForm"
       onMouseMove={(event) => {
+        lastMousePosRef.current = {x: event.nativeEvent.clientX, y: event.nativeEvent.clientY}
+
+        // a press that moved beyond the threshold becomes a drag - show the preview now
+        if (!capturedProtocol && capturingSlotRef.current && captureStartPosRef.current) {
+          const start = captureStartPosRef.current
+          if (Math.hypot(event.nativeEvent.clientX - start.x, event.nativeEvent.clientY - start.y) > CAPTURE_CLICK_THRESHOLD) {
+            captureProtocol(capturingSlotRef.current)
+          }
+        }
+
         if (capturedProtocol && protocolRef.current) {
           const data = JSON.parse(window.localStorage.getItem(capturedProtocol))
           // clientX/clientY are viewport-relative, so convert them to containerForm's
@@ -165,13 +188,16 @@ const MainFormComponent = ({
         // }
       }}
       onMouseLeave={() => {
+        capturingSlotRef.current = null
         captureProtocol('')
       }}
       onMouseUp={(event) => {
+        capturingSlotRef.current = null
         captureProtocol('')
       }}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
+          capturingSlotRef.current = null
           captureProtocol('')
         }
       }}
@@ -330,6 +356,13 @@ const MainFormComponent = ({
                             onMouseUp={(event) => {
                                 if (event.nativeEvent.button === 2) {
                                     openDialogForTemporaryButtons(position)
+                                } else if (event.nativeEvent.button === 0 && !capturedProtocol) {
+                                    // a plain click (no drag started) loads the protocol right away;
+                                    // a drag ends on the canvas, which loads it there instead
+                                    const start = captureStartPosRef.current
+                                    if (start && Math.hypot(event.nativeEvent.clientX - start.x, event.nativeEvent.clientY - start.y) <= CAPTURE_CLICK_THRESHOLD) {
+                                        setProtocol(position)
+                                    }
                                 }
                             }}
                             className={cn(s.loadingProtocolButton, !name && s.emptyProtocolButton)}
