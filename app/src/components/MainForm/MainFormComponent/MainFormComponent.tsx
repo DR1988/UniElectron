@@ -107,7 +107,18 @@ const MainFormComponent = ({
   }, [allTime])
 
   const handleAllTimeFieldChange = (field: 'hours' | 'minutes' | 'seconds') => (e: React.FormEvent<HTMLInputElement>) => {
-    const rawValue = e.currentTarget.value
+    // minutes/seconds: empty falls back to 0, a leading zero is dropped on input ("05" -> "5")
+    const rawValue = (field === 'minutes' || field === 'seconds')
+      ? String(+e.currentTarget.value)
+      : e.currentTarget.value
+
+    // minutes/seconds cannot exceed 59: reject the keystroke entirely (controlled input keeps its previous value)
+    if (field === 'minutes' || field === 'seconds') {
+      if (!/^\d{1,2}$/.test(rawValue) || +rawValue > 59) {
+        return
+      }
+    }
+
     const next = {...allTimeInputs, [field]: rawValue}
     setAllTimeInputs(next)
 
@@ -116,9 +127,7 @@ const MainFormComponent = ({
       const hours = +next.hours
       const minutes = +next.minutes
       const seconds = +next.seconds
-      if (minutes <= 59 && seconds <= 59) {
-        changeAllTime(hours * 3600 + minutes * 60 + seconds)
-      }
+      changeAllTime(hours * 3600 + minutes * 60 + seconds)
     }
   }
 
@@ -218,7 +227,7 @@ const MainFormComponent = ({
             <span className={s.allTimeUnit}>h</span>
             <input
               id="all-time-minutes"
-              type="text"
+              type="number"
               value={allTimeInputs.minutes}
               onChange={handleAllTimeFieldChange('minutes')}
             />
