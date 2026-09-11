@@ -194,19 +194,13 @@ const MainFormComponent = ({
 
         // while the insert-time modal is open the preview is pinned to its time, not the mouse
         if (capturedProtocol && !insertModalOpenRef.current && protocolRef.current) {
-          const data = JSON.parse(window.localStorage.getItem(capturedProtocol))
           // clientX/clientY are viewport-relative, so convert them to containerForm's
           // coordinate space (its containing block) - otherwise the element is shifted
           // by the page scroll / offset of any positioned ancestor
-          const rect = event.currentTarget.getBoundingClientRect()
           const protocolRefBound = protocolRef.current.getBoundingClientRect()
           protocolRef.current.style.left = `${event.nativeEvent.clientX - protocolRefBound.width/2}px`;
           protocolRef.current.style.top = `${event.nativeEvent.clientY - protocolRefBound.height/2}px`;
         }
-        // if (capturedProtocol) {
-        //   console.log(event.nativeEvent.offsetX)
-        //   console.log(event.nativeEvent.offsetY)
-        // }
       }}
       onMouseLeave={() => {
         capturingSlotRef.current = null

@@ -976,8 +976,12 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
       const captured = getCapturedProtocolData()
       const time = getDropTime()
       if (captured && time !== null && isCapturedProtocolFits(time, captured.allTime)) {
+        if(capturedProtocolElement?.current) {
+          capturedProtocolElement.current.style.top = '5px'
+        }
+
         setInsertTimeInputs(decomposeToHMS(time))
-        setInsertModalPosition({x: event.nativeEvent.offsetX + 5, y: event.nativeEvent.offsetY + 10})
+        setInsertModalPosition({x: event.nativeEvent.offsetX + 5, y: capturedProtocolElement.current?.clientHeight + 10})
         setPendingInsert({slot: capturedProtocol})
         // keep the preview visible while the modal is open (before containerForm clears the capture)
         onInsertModalToggle?.(true)
