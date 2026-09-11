@@ -93,6 +93,8 @@ const MainFormComponent = ({
   const capturingSlotRef = useRef<TemporaryProtocolButtonPosition | null>(null)
   // latest cursor position over the form - used to place the preview when a drag starts
   const lastMousePosRef = useRef<{x: number, y: number} | null>(null)
+  // the insert-time modal is open - keep the captured protocol (and its preview) alive
+  const insertModalOpenRef = useRef(false)
   const protocolRef = useRef<HTMLDivElement | null>(null)
   const [allTimeInputs, setAllTimeInputs] = useState(() => decomposeAllTime(allTime))
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
@@ -124,6 +126,14 @@ const MainFormComponent = ({
       protocolRef.current.style.top = `${lastMousePosRef.current.y - bound.height/2}px`
     }
   }, [capturedProtocol])
+
+  // the insert-time modal keeps the preview visible; on close the capture is released
+  const handleInsertModalToggle = (open: boolean) => {
+    insertModalOpenRef.current = open
+    if (!open) {
+      captureProtocol('')
+    }
+  }
 
   useEffect(() => {
     setAllTimeInputs(decomposeAllTime(allTime))
@@ -182,7 +192,8 @@ const MainFormComponent = ({
           }
         }
 
-        if (capturedProtocol && protocolRef.current) {
+        // while the insert-time modal is open the preview is pinned to its time, not the mouse
+        if (capturedProtocol && !insertModalOpenRef.current && protocolRef.current) {
           const data = JSON.parse(window.localStorage.getItem(capturedProtocol))
           // clientX/clientY are viewport-relative, so convert them to containerForm's
           // coordinate space (its containing block) - otherwise the element is shifted
@@ -199,16 +210,23 @@ const MainFormComponent = ({
       }}
       onMouseLeave={() => {
         capturingSlotRef.current = null
-        captureProtocol('')
+        if (!insertModalOpenRef.current) {
+          captureProtocol('')
+        }
       }}
       onMouseUp={(event) => {
         capturingSlotRef.current = null
-        captureProtocol('')
+        // the canvas sets insertModalOpenRef before this handler runs when a drop opens the modal
+        if (!insertModalOpenRef.current) {
+          captureProtocol('')
+        }
       }}
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           capturingSlotRef.current = null
-          captureProtocol('')
+          if (!insertModalOpenRef.current) {
+            captureProtocol('')
+          }
         }
       }}
     >
@@ -253,6 +271,7 @@ const MainFormComponent = ({
               onCaptureFitChange={setCaptureFits}
               insertCapturedProtocol={insertCapturedProtocol}
               capturedProtocolElement={protocolRef}
+              onInsertModalToggle={handleInsertModalToggle}
             />
           </section>
           <div className={s.allTimeRow}>

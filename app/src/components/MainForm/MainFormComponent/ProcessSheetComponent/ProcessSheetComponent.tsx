@@ -45,6 +45,7 @@ export interface Props {
   onCaptureFitChange?: (fits: boolean) => void
   insertCapturedProtocol?: (lineFormer: Array<ValveLineType>) => void
   capturedProtocolElement?: React.MutableRefObject<HTMLDivElement | null>
+  onInsertModalToggle?: (open: boolean) => void
 }
 
 interface State {
@@ -158,6 +159,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
     onCaptureFitChange,
     insertCapturedProtocol,
     capturedProtocolElement,
+    onInsertModalToggle,
   } = props
 
   const mousePosition = useRef(0)
@@ -221,6 +223,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
             onCaptureFitChange={onCaptureFitChange}
             insertCapturedProtocol={insertCapturedProtocol}
             capturedProtocolElement={capturedProtocolElement}
+            onInsertModalToggle={onInsertModalToggle}
           />
             : null
         }

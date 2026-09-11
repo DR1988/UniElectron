@@ -57,12 +57,21 @@ export type Props = {
   insertCapturedProtocol?: (lineFormer: Array<ValveLineType>) => void
   // the dragged preview element - its actual position defines the insertion point
   capturedProtocolElement?: React.MutableRefObject<HTMLDivElement | null>
+  // tells the parent that the insert-time modal opened/closed (keeps the preview alive while open)
+  onInsertModalToggle?: (open: boolean) => void
 }
 
 
 const log = throttle(console.log, 500)
 const log2 = throttle(console.log, 500)
 const log3 = throttle(console.log, 500)
+
+// splits a total duration in seconds into hours / minutes / seconds strings
+const decomposeToHMS = (totalSeconds: number) => ({
+  hours: String(Math.floor(totalSeconds / 3600)),
+  minutes: String(Math.floor((totalSeconds % 3600) / 60)),
+  seconds: String(totalSeconds % 60),
+})
 
 export const CanvasProcessSheetComponent2: React.FC<Props> = (
   {
@@ -84,6 +93,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     onCaptureFitChange,
     insertCapturedProtocol,
     capturedProtocolElement,
+    onInsertModalToggle,
   }
 ) => {
 
@@ -695,7 +705,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     const canvasRect = screenSpaceRef.canvas.getBoundingClientRect()
     const leftEdgeScreenX = ghostRect.left - canvasRect.left
     const {worldX} = screenToWorld(leftEdgeScreenX, 0)
-    return Math.max(0, Math.min(allTime, worldX * allTime / screenSpaceRef.canvas.width))
+    // whole seconds only - times are integers everywhere else in the sheet
+    return Math.max(0, Math.min(allTime, Math.round(worldX * allTime / screenSpaceRef.canvas.width)))
   }
 
   // the free space on one line from time T until the next change; -1 if T falls inside a change
@@ -712,12 +723,16 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     return nextStart - time
   }
 
+  const getProtocolDataBySlot = (slot: TemporaryProtocolButtonPosition) => {
+    const data = JSON.parse(window.localStorage.getItem(slot)) as TemporaryFileLoaded | null
+    return data ? data.protocol : null
+  }
+
   const getCapturedProtocolData = () => {
     if (!capturedProtocol) {
       return null
     }
-    const data = JSON.parse(window.localStorage.getItem(capturedProtocol)) as TemporaryFileLoaded | null
-    return data ? data.protocol : null
+    return getProtocolDataBySlot(capturedProtocol)
   }
 
   // the protocol occupies [T, T + capturedAllTime] and fits if that range is free on every line
@@ -732,8 +747,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   // splices the captured protocol's changes into the gap at time T on each matching line;
   // the gap is guaranteed to be large enough, so nothing shifts and allTime stays unchanged
-  const insertCapturedProtocolAt = (time: number) => {
-    const captured = getCapturedProtocolData()
+  const insertCapturedProtocolAt = (time: number, slot: TemporaryProtocolButtonPosition) => {
+    const captured = getProtocolDataBySlot(slot)
     if (!captured || !insertCapturedProtocol) {
       return
     }
@@ -794,7 +809,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     // onTimShow(event) // для отладки
 
     // while dragging a captured protocol, report whether it fits at the current position
-    if (capturedProtocol && onCaptureFitChange) {
+    // (skipped while the insert-time modal is open - the preview is pinned to its time)
+    if (capturedProtocol && onCaptureFitChange && !pendingInsert) {
       const captured = getCapturedProtocolData()
       const time = getDropTime()
       if (captured && time !== null) {
@@ -955,12 +971,16 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     } 
 
-    // dropping the captured protocol: apply only if it fits into the gap at the drop point
+    // dropping the captured protocol: if it fits, open a modal to fine-tune the insertion time
     if (capturedProtocol) {
       const captured = getCapturedProtocolData()
       const time = getDropTime()
       if (captured && time !== null && isCapturedProtocolFits(time, captured.allTime)) {
-        insertCapturedProtocolAt(time)
+        setInsertTimeInputs(decomposeToHMS(time))
+        setInsertModalPosition({x: event.nativeEvent.offsetX + 5, y: event.nativeEvent.offsetY + 10})
+        setPendingInsert({slot: capturedProtocol})
+        // keep the preview visible while the modal is open (before containerForm clears the capture)
+        onInsertModalToggle?.(true)
       }
     }
     console.log('selectedElementRef.current',selectedElementRef.current)
@@ -1160,6 +1180,89 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
     }
   }, [changeTimeModal])
 
+  // ===== insert-protocol modal: fine-tune the drop time before merging =====
+
+  const [pendingInsert, setPendingInsert] = useState<{slot: TemporaryProtocolButtonPosition} | null>(null)
+  const [insertTimeInputs, setInsertTimeInputs] = useState({hours: '0', minutes: '0', seconds: '0'})
+  const [insertModalPosition, setInsertModalPosition] = useState<{x: number, y: number}>({x: 0, y: 0})
+
+  const handleInsertFieldChange = (field: 'hours' | 'minutes' | 'seconds') => (e: React.FormEvent<HTMLInputElement>) => {
+    // minutes/seconds: empty falls back to 0, a leading zero is dropped on input ("05" -> "5")
+    const rawValue = (field === 'minutes' || field === 'seconds')
+      ? String(+e.currentTarget.value)
+      : e.currentTarget.value
+
+    // minutes/seconds cannot exceed 59: reject the keystroke entirely
+    if (field === 'minutes' || field === 'seconds') {
+      if (!/^\d{1,2}$/.test(rawValue) || +rawValue > 59) {
+        return
+      }
+    }
+
+    setInsertTimeInputs({...insertTimeInputs, [field]: rawValue})
+  }
+
+  const getInsertTime = (): number | null => {
+    const {hours, minutes, seconds} = insertTimeInputs
+    if (/^\d+$/.test(hours) && /^\d+$/.test(minutes) && /^\d+$/.test(seconds)) {
+      return +hours * 3600 + +minutes * 60 + +seconds
+    }
+    return null
+  }
+
+  const pendingInsertFits = (): boolean => {
+    if (!pendingInsert) {
+      return false
+    }
+    const captured = getProtocolDataBySlot(pendingInsert.slot)
+    const time = getInsertTime()
+    return !!captured && time !== null && isCapturedProtocolFits(time, captured.allTime)
+  }
+
+  const confirmInsert = () => {
+    if (!pendingInsert || !pendingInsertFits()) {
+      return
+    }
+    insertCapturedProtocolAt(getInsertTime() as number, pendingInsert.slot)
+    setPendingInsert(null)
+    onInsertModalToggle?.(false)
+  }
+
+  const cancelInsert = () => {
+    setPendingInsert(null)
+    onInsertModalToggle?.(false)
+  }
+
+  // while the modal is open, pin the preview to the time chosen in it (left edge at that time)
+  useEffect(() => {
+    if (!pendingInsert) {
+      return
+    }
+    const ghost = capturedProtocolElement?.current
+    const time = getInsertTime()
+    if (!ghost || time === null) {
+      return
+    }
+
+    const worldX = time * screenSpaceRef.canvas.width / allTime
+    const {screenX} = worldToScreen(worldX, 0)
+    // shift the ghost by the delta to its target viewport X - works for any containing block
+    const oldLeft = parseFloat(ghost.style.left) || 0
+    const canvasRect = screenSpaceRef.canvas.getBoundingClientRect()
+    const delta = canvasRect.left + screenX - ghost.getBoundingClientRect().left
+    ghost.style.left = `${oldLeft + delta}px`
+
+    // reflect the fit at the chosen time in the preview color
+    const captured = getProtocolDataBySlot(pendingInsert.slot)
+    if (captured && onCaptureFitChange) {
+      const fits = isCapturedProtocolFits(time, captured.allTime)
+      if (fits !== captureFitsRef.current) {
+        captureFitsRef.current = fits
+        onCaptureFitChange(fits)
+      }
+    }
+  }, [pendingInsert, insertTimeInputs])
+
   return <div style={{position: 'relative'}}>
     <Canvas
       screenSpaceRef={screenSpaceRef}
@@ -1220,6 +1323,56 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
         </div>
       </ClickOutHandler>
       : null}
+
+    {pendingInsert ?
+      <ClickOutHandler onClickOut={cancelInsert}>
+        <div
+          style={{
+            zIndex: 4,
+            position: 'absolute',
+            left: insertModalPosition.x,
+            top: insertModalPosition.y,
+            boxShadow: '4px 4px 4px 4px rgba(34, 60, 80, 0.2)',
+            backgroundColor: theme === 'dark' ? '#1e1e1e' : 'white',
+            color: theme === 'dark' ? 'white' : 'black',
+            padding: 10,
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+          onMouseDown={e => e.stopPropagation()}
+        >
+          <span style={{marginBottom: 8}}>Insert protocol at time:</span>
+          <div style={{display: 'flex', alignItems: 'center', marginBottom: 8}}>
+            <input
+              type='number'
+              value={insertTimeInputs.hours}
+              onChange={handleInsertFieldChange('hours')}
+              style={{width: 50, marginRight: 4}}
+            /> h
+            <input
+              type='number'
+              value={insertTimeInputs.minutes}
+              onChange={handleInsertFieldChange('minutes')}
+              style={{width: 50, margin: '0 4px'}}
+            /> m
+            <input
+              type='number'
+              value={insertTimeInputs.seconds}
+              onChange={handleInsertFieldChange('seconds')}
+              style={{width: 50, marginLeft: 4}}
+            /> s
+          </div>
+          {!pendingInsertFits() && (
+            <span style={{color: 'red', marginBottom: 8}}>The protocol does not fit at this time</span>
+          )}
+          <div style={{display: 'flex', gap: 8}}>
+            <button onClick={confirmInsert} disabled={!pendingInsertFits()}>OK</button>
+            <button onClick={cancelInsert}>Cancel</button>
+          </div>
+        </div>
+      </ClickOutHandler>
+      : null}
+
     <ClickOutHandler onClickOut={() => toggleOptions(false)}>
       <Options
         toggleOptions={toggleOptions}
