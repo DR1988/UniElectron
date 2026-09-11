@@ -7,10 +7,12 @@ export type Props = {
     capturedProtocol: TemporaryProtocolButtonPosition | '',
     allTime: number,
     screenSpaceWidth: number,
-    scale?: number
+    scale?: number,
+    // false when the protocol does not fit into the gap under the cursor - highlighted red
+    fits?: boolean
 }
 
-export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProtocolAlltime, screenSpaceWidth, scale = 1}: Props) => {
+export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProtocolAlltime, screenSpaceWidth, scale = 1, fits = true}: Props) => {
     const data = JSON.parse(window.localStorage.getItem(capturedProtocol)) as TemporaryFileLoaded
     console.log('datadata', data)
 
@@ -30,7 +32,8 @@ export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProt
             position: 'absolute',
             width: screenSpaceWidth * protocolRation * scale,
             height: 450,
-            backgroundColor: theme === 'dark' ? '#123456' :'red',
+            backgroundColor: fits ? (theme === 'dark' ? '#123456' : 'red') : 'rgba(255, 0, 0, 0.5)',
+            border: fits ? 'none' : '2px solid red',
             opacity: 0.4,
             pointerEvents: 'none',
             // visibility: capturedProtocol ? 'visible' : 'hidden'

@@ -1,5 +1,5 @@
 import React, {CSSProperties, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
-import {TemporaryProtocolButtonPosition, ValveLineType} from '../../MainFormInterfaces';
+import {TemporaryFileLoaded, TemporaryProtocolButtonPosition, ValveLineType} from '../../MainFormInterfaces';
 import {RemoveSpaceOption} from '../../../CommonTypes';
 import {Canvas} from '../../../Canvas/Canvas';
 import {DRAW_RECT, DrawingElement, ELEMENT_TYPES, Point, TEXT_DRAW_OPT} from './CanvasElements/CanvasTypes';
@@ -51,6 +51,12 @@ export type Props = {
   screenSpaceWidth: number
   setScreenSpaceRefWidth: (value: number) => void
   onScaleChange?: (scale: number) => void
+  // reports whether the dragged captured protocol fits at the current cursor position
+  onCaptureFitChange?: (fits: boolean) => void
+  // applies a captured protocol inserted into the free gap of the current sheet
+  insertCapturedProtocol?: (lineFormer: Array<ValveLineType>) => void
+  // the dragged preview element - its actual position defines the insertion point
+  capturedProtocolElement?: React.MutableRefObject<HTMLDivElement | null>
 }
 
 
@@ -75,6 +81,9 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     screenSpaceWidth,
     setScreenSpaceRefWidth,
     onScaleChange,
+    onCaptureFitChange,
+    insertCapturedProtocol,
+    capturedProtocolElement,
   }
 ) => {
 
@@ -671,6 +680,91 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     }
   }
 
+  // ===== captured protocol drag & drop: fit check and insertion into the free gap =====
+
+  const captureFitsRef = useRef(true)
+
+  // sheet time of the preview's LEFT EDGE: the preview is centered on the cursor, so reading
+  // its actual rendered position (not the mouse) keeps the check in sync with what is visible
+  const getDropTime = (): number | null => {
+    const ghost = capturedProtocolElement?.current
+    if (!ghost) {
+      return null
+    }
+    const ghostRect = ghost.getBoundingClientRect()
+    const canvasRect = screenSpaceRef.canvas.getBoundingClientRect()
+    const leftEdgeScreenX = ghostRect.left - canvasRect.left
+    const {worldX} = screenToWorld(leftEdgeScreenX, 0)
+    return Math.max(0, Math.min(allTime, worldX * allTime / screenSpaceRef.canvas.width))
+  }
+
+  // the free space on one line from time T until the next change; -1 if T falls inside a change
+  const getFreeSpaceFrom = (line: ValveLineType, time: number): number => {
+    let nextStart = allTime
+    for (const ch of line.changes) {
+      if (ch.startTime < time && ch.endTime > time) {
+        return -1
+      }
+      if (ch.startTime >= time && ch.startTime < nextStart) {
+        nextStart = ch.startTime
+      }
+    }
+    return nextStart - time
+  }
+
+  const getCapturedProtocolData = () => {
+    if (!capturedProtocol) {
+      return null
+    }
+    const data = JSON.parse(window.localStorage.getItem(capturedProtocol)) as TemporaryFileLoaded | null
+    return data ? data.protocol : null
+  }
+
+  // the protocol occupies [T, T + capturedAllTime] and fits if that range is free on every line
+  const isCapturedProtocolFits = (time: number, capturedAllTime: number): boolean => {
+    for (const line of lineFormer) {
+      if (getFreeSpaceFrom(line, time) < capturedAllTime) {
+        return false
+      }
+    }
+    return true
+  }
+
+  // splices the captured protocol's changes into the gap at time T on each matching line;
+  // the gap is guaranteed to be large enough, so nothing shifts and allTime stays unchanged
+  const insertCapturedProtocolAt = (time: number) => {
+    const captured = getCapturedProtocolData()
+    if (!captured || !insertCapturedProtocol) {
+      return
+    }
+
+    const newLineFormer = lineFormer.map(line => {
+      const capturedLine = captured.lineFormer.find(cl => cl.shortName === line.shortName)
+      if (!capturedLine || !capturedLine.changes.length) {
+        return line
+      }
+
+      let maxId = 0
+      for (const ch of line.changes) {
+        if (typeof ch.changeId === 'number' && ch.changeId > maxId) {
+          maxId = ch.changeId
+        }
+      }
+
+      // shift the captured timeline so it starts at T and give the changes fresh unique ids
+      const inserted = capturedLine.changes.map((ch, i) => ({
+        ...ch,
+        startTime: ch.startTime + time,
+        endTime: ch.endTime + time,
+        changeId: maxId + i + 1
+      }))
+
+      return {...line, changes: [...line.changes, ...inserted].sort((a, b) => a.startTime - b.startTime)}
+    })
+
+    insertCapturedProtocol(newLineFormer)
+  }
+
   const handleMouseMove = (event: React.MouseEvent) => {
     // if (selectedElementRef.current) {
     //   log('selectedElementRef.current', selectedElementRef.current)
@@ -698,6 +792,19 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     onMoveChangeElement(event)
     // onTimShow(event) // для отладки
+
+    // while dragging a captured protocol, report whether it fits at the current position
+    if (capturedProtocol && onCaptureFitChange) {
+      const captured = getCapturedProtocolData()
+      const time = getDropTime()
+      if (captured && time !== null) {
+        const fits = isCapturedProtocolFits(time, captured.allTime)
+        if (fits !== captureFitsRef.current) {
+          captureFitsRef.current = fits
+          onCaptureFitChange(fits)
+        }
+      }
+    }
   }
 
   // moving time selection move
@@ -848,12 +955,14 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     } 
 
+    // dropping the captured protocol: apply only if it fits into the gap at the drop point
     if (capturedProtocol) {
-    console.log('capturedProtocol', capturedProtocol)
-    setProtocol(capturedProtocol)
+      const captured = getCapturedProtocolData()
+      const time = getDropTime()
+      if (captured && time !== null && isCapturedProtocolFits(time, captured.allTime)) {
+        insertCapturedProtocolAt(time)
+      }
     }
-    // captureProtocol
-// capturedProtocol
     console.log('selectedElementRef.current',selectedElementRef.current)
     if (selectedElementRef.current instanceof ChangeElement) {
       if (!selectedElementRef.current.isMoving) {

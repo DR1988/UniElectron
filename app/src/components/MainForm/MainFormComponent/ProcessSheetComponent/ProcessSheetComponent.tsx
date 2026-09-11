@@ -42,6 +42,9 @@ export interface Props {
   screenSpaceWidth?: number
   setScreenSpaceRefWidth?: (value: number) => void
   onScaleChange?: (scale: number) => void
+  onCaptureFitChange?: (fits: boolean) => void
+  insertCapturedProtocol?: (lineFormer: Array<ValveLineType>) => void
+  capturedProtocolElement?: React.MutableRefObject<HTMLDivElement | null>
 }
 
 interface State {
@@ -152,6 +155,9 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
     screenSpaceWidth,
     setScreenSpaceRefWidth,
     onScaleChange,
+    onCaptureFitChange,
+    insertCapturedProtocol,
+    capturedProtocolElement,
   } = props
 
   const mousePosition = useRef(0)
@@ -212,6 +218,9 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
             screenSpaceWidth={screenSpaceWidth}
             setScreenSpaceRefWidth={setScreenSpaceRefWidth}
             onScaleChange={onScaleChange}
+            onCaptureFitChange={onCaptureFitChange}
+            insertCapturedProtocol={insertCapturedProtocol}
+            capturedProtocolElement={capturedProtocolElement}
           />
             : null
         }

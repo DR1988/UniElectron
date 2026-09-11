@@ -51,6 +51,7 @@ interface Props extends ProcessSheetComponentProps {
   removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
   changeAllTime: (value: number) => void
   allTimeError: string
+  insertCapturedProtocol: (lineFormer: Array<ValveLineType>) => void
 }
 
 const MainFormComponent = ({
@@ -82,6 +83,7 @@ const MainFormComponent = ({
   openManualControlModal,
   changeAllTime,
   allTimeError,
+  insertCapturedProtocol,
   ...ProcessSheetComponentProps
 }: Props) => {
   
@@ -98,6 +100,14 @@ const MainFormComponent = ({
   const [screenSpaceWidth, setScreenSpaceRefWidth] = useState(0)
   // canvas zoom from CanvasProcessSheetComponent2 (scaleRef) - keeps the DnD preview in sync with it
   const [canvasScale, setCanvasScale] = useState(1)
+  // whether the dragged captured protocol fits into the gap under the cursor
+  const [captureFits, setCaptureFits] = useState(true)
+
+  useEffect(() => {
+    if (!capturedProtocol) {
+      setCaptureFits(true)
+    }
+  }, [capturedProtocol])
 
   const onCaptureProtocol = useCallback((event: React.MouseEvent<HTMLButtonElement, MouseEvent>, protocol: TemporaryProtocolButtonPosition) => {
     // remember the grab only - the preview appears once a real drag starts (containerForm onMouseMove)
@@ -240,6 +250,9 @@ const MainFormComponent = ({
               screenSpaceWidth={screenSpaceWidth}
               setScreenSpaceRefWidth={setScreenSpaceRefWidth}
               onScaleChange={setCanvasScale}
+              onCaptureFitChange={setCaptureFits}
+              insertCapturedProtocol={insertCapturedProtocol}
+              capturedProtocolElement={protocolRef}
             />
           </section>
           <div className={s.allTimeRow}>
@@ -380,7 +393,7 @@ const MainFormComponent = ({
           </div>
       </div>
 
-      <DnDProtocol allTime={allTime} screenSpaceWidth={screenSpaceWidth} scale={canvasScale} protocolRef={protocolRef} capturedProtocol={capturedProtocol}/>
+      <DnDProtocol allTime={allTime} screenSpaceWidth={screenSpaceWidth} scale={canvasScale} fits={captureFits} protocolRef={protocolRef} capturedProtocol={capturedProtocol}/>
     </div>
   )
 }

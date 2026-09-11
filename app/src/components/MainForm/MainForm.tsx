@@ -888,6 +888,13 @@ class MainForm extends Component<Props, MainFormState> {
 
   }
 
+  // applies a captured protocol that was spliced into the free gap of the current sheet
+  insertCapturedProtocol = (lineFormer: Array<ValveLineType>) => {
+    this.setState({
+      lineFormer
+    })
+  }
+
   openInsertSpaceModal = () => {
     const newlineFormer = cloneDeep(this.state.lineFormer)
     this.setState({
@@ -1404,6 +1411,7 @@ class MainForm extends Component<Props, MainFormState> {
           uploadTemporaryProtocol={this.uploadTemporaryProtocol}
           temporaryButtonNames={this.state.temporaryButtonNames}
           setProtocol={this.setProtocol}
+          insertCapturedProtocol={this.insertCapturedProtocol}
           openInsertSpaceModal={this.openInsertSpaceModal}
           openRemoveSpaceModal={this.openRemoveSpaceModal}
           openManualControlModal={this.openManualControlModal}
