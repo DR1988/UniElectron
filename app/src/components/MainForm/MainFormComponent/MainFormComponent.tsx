@@ -102,12 +102,13 @@ const MainFormComponent = ({
   const [screenSpaceWidth, setScreenSpaceRefWidth] = useState(0)
   // canvas zoom from CanvasProcessSheetComponent2 (scaleRef) - keeps the DnD preview in sync with it
   const [canvasScale, setCanvasScale] = useState(1)
-  // whether the dragged captured protocol fits into the gap under the cursor
-  const [captureFits, setCaptureFits] = useState(true)
+  // whether the dragged captured protocol fits into the gap under the cursor;
+  // starts false so the preview is red until a fit check proves it fits
+  const [captureFits, setCaptureFits] = useState(false)
 
   useEffect(() => {
     if (!capturedProtocol) {
-      setCaptureFits(true)
+      setCaptureFits(false)
     }
   }, [capturedProtocol])
 

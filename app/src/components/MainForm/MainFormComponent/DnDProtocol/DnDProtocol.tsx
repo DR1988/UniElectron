@@ -21,11 +21,12 @@ export type Props = {
     allTime: number,
     screenSpaceWidth: number,
     scale?: number,
-    // false when the protocol does not fit into the gap under the cursor - highlighted red
+    // false when the protocol does not fit into the gap under the cursor - highlighted red;
+    // defaults to false so a fresh drag is red until a fit check proves it fits
     fits?: boolean
 }
 
-export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProtocolAlltime, screenSpaceWidth, scale = 1, fits = true}: Props) => {
+export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProtocolAlltime, screenSpaceWidth, scale = 1, fits = false}: Props) => {
     const data = JSON.parse(window.localStorage.getItem(capturedProtocol)) as TemporaryFileLoaded
     console.log('datadata', data)
 

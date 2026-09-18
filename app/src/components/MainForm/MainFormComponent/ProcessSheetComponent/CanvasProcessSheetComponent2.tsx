@@ -692,7 +692,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   // ===== captured protocol drag & drop: fit check and insertion into the free gap =====
 
-  const captureFitsRef = useRef(true)
+  // last reported fit state; starts false so the first check always reports (preview starts red)
+  const captureFitsRef = useRef(false)
 
   // sheet time of the preview's LEFT EDGE: the preview is centered on the cursor, so reading
   // its actual rendered position (not the mouse) keeps the check in sync with what is visible
