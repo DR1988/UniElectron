@@ -44,7 +44,7 @@ export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProt
                         {line.changes.map(ch => {
                             const duration = ch.endTime-ch.startTime
 
-                            return <div style={{left: `${100 * ch.startTime/allTime}%`, width: `${100*duration / allTime}%`, backgroundColor: 'red', position: 'absolute', height: '100%'}}>{duration}</div>
+                            return <div style={{left: `${100 * ch.startTime/allTime}%`, width: `${100*duration / allTime}%`, backgroundColor: fits ? '#2bff00' : 'red', position: 'absolute', height: '100%'}}>{duration}</div>
                         })}
                       {/* <span>{line.shortName}</span> */}
                       {/* <div >{line.description}</div> */}
