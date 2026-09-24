@@ -4,12 +4,11 @@ import * as usb from 'usb'
 import { EventEmitter } from 'events';
 import { resolve } from 'dns';
 
-// probably can use it to detect if hid device(termex) connected
-// usb.on('attach', (d) => {
-//     console.log('d', d)
-// })
-
 const convertToASCII = (str: string) => {
+    if (os.platform() === 'linux') {
+        str = str + '\n'
+    }
+
     const arr = []
     if (os.platform() === 'win32') {
         arr.unshift(0)
