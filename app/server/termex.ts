@@ -1,32 +1,46 @@
 import * as HID from 'node-hid';
-import * as os from 'os';
-import * as usb from 'usb'
 import { EventEmitter } from 'events';
-import { resolve } from 'dns';
 
-const convertToASCII = (str: string) => {
-    if (os.platform() === 'linux') {
-        str = str + '\n'
-    }
+const READ_TIMEOUT_MS = 1000
+const REOPEN_TIMEOUT_MS = 15000
+const REOPEN_POLL_INTERVAL_MS = 300
 
-    const arr = []
-    if (os.platform() === 'win32') {
-        arr.unshift(0)
-    }
+// Протокол: запрос — строка ASCII, начинающаяся с ':' и заканчивающаяся
+// CR (13) или любым байтом меньше 13
+const convertToASCII = (str: string): number[] => {
+    const arr: number[] = []
     for (let i = 0; i < str.length; i++) {
         arr.push(str.charCodeAt(i))
     }
+    arr.push(13)
     return arr
 }
 
-const convertFromASCII = (numbers: Array<number>) => {
-    let i = -1;
+const convertFromASCII = (numbers: Array<number>): string => {
+    let i = -1
     const charArray: Array<string> = []
-    while (numbers[++i] !== 0) {
+    while (++i < numbers.length && numbers[i] !== 0) {
         charArray.push(String.fromCharCode(numbers[i]))
     }
     return charArray.join('')
 }
+
+// Коды статуса ответа (раздел 2.3 протокола)
+const STATUS_MESSAGES: Record<string, string> = {
+    '0x01': 'BAD REQUEST FORMAT',
+    '0x02': 'BAD VALUE FORMAT',
+    '0x03': 'UNKNOWN DESTINATION',
+    '0x04': 'UNKNOWN OPERATION',
+    '0x05': 'VALUE OUT OF RANGE',
+    '0x06': 'COMMAND NOT AVAILABLE WHEN THERMOSTAT IS OFF',
+}
+
+interface ThermostatResponse {
+    status: string
+    data?: string
+}
+
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 /** Class representing a HID device to controll TERMEX Thermostat. */
 export default class ThermostatController {
@@ -37,151 +51,168 @@ export default class ThermostatController {
         this.init()
     }
 
+    private findTermexDevice(): HID.Device | undefined {
+        return HID.devices().find(d => d.manufacturer === 'TERMEX')
+    }
+
     private init() {
-        const devices = HID.devices()
-        console.log('init termo!!!!!!!!')
-        // console.log('devices', devices)
-        const termexDevice = devices.find(d => d.manufacturer === 'TERMEX')
+        const termexDevice = this.findTermexDevice()
         if (!termexDevice) {
-            console.log('init error')
-            this.exeptionEmitter.emit('error', {
-                name: "ConnectionError",
-                message: 'THERMOSTAT NOT CONNETED. CHEK CONNECTION AND PLUG IN CABEL'
-            })
+            console.log('init error: TERMEX device not found')
+            this.emitConnectionError()
             return
         }
         this.termexDevice = termexDevice
-        this.termexHID = new HID.HID(termexDevice.path)
+        try {
+            this.openDevice(termexDevice)
+        } catch (error) {
+            console.log('init error:', error)
+            this.emitConnectionError()
+            return
+        }
+        this.checkConnection()
+    }
+
+    private openDevice(device: HID.Device) {
+        this.termexHID = new HID.HID(device.path)
         this.initExeptionHandler()
-        this.isRunning()
     }
 
     private initExeptionHandler() {
         this.termexHID.on('error', error => {
             if (error.toString() === 'Error: could not read from HID device') {
-                this.exeptionEmitter.emit('error', {
-                    name: "ConnectionError",
-                    message: 'THERMOSTAT NOT CONNETED. CHEK CONNECTION AND PLUG IN CABEL'
-                })
+                this.emitConnectionError()
             }
         })
-        // have to subscribe to that, cause without it errors not occuring
-        // this.termexHID.on('data', (data: Buffer) => {
-        //     console.log('TERMEX data:', data.toString())
-        // })
     }
 
-    private async dataPromise(): Promise<Buffer | String> {
-        return Promise.resolve(convertFromASCII(this.termexHID.readSync()))
-        // console.log('data termex', convertFromASCII(this.termexHID.readSync()))
-        // return new Promise((resolve, reject) => {
-        //     this.termexHID.on('data', (data: Buffer) => {
-        //         resolve(data)
-        //     })
-        // })
+    // SER доступен в любом состоянии, включая "выключено" — подходит для проверки связи
+    private checkConnection() {
+        const response = this.send(`:${this.termexDevice.serialNumber} SER RD`)
+        if (response.status !== '0x00') {
+            this.emitConnectionError()
+        }
     }
 
-    private statusHandler = (data: Buffer | string) => {
-        const response = data.toString().trim().split('\n')[0]
-        // console.log('statusHandler response', response)
-        if (this.checkIfStatusError(response)) {
-            this.exeptionEmitter.emit('error', {
-                name: 'StatusError',
-                message: "THERMOSTAT's STATUS ERROR. CHECK THERMOSTAT"
-            })
+    private emitConnectionError() {
+        this.exeptionEmitter.emit('error', {
+            name: "ConnectionError",
+            message: 'THERMOSTAT NOT CONNETED. CHEK CONNECTION AND PLUG IN CABEL'
+        })
+    }
+
+    private emitStatusError(status: string) {
+        this.exeptionEmitter.emit('error', {
+            name: 'StatusError',
+            message: `THERMOSTAT STATUS ERROR ${status}: ${STATUS_MESSAGES[status] || 'UNKNOWN STATUS'}`
+        })
+    }
+
+    // Отправка команды и разбор ответа ":ADDR STA [ДАННЫЕ]".
+    // Сбой связи (таймаут/несформированный ответ) — status 'ERROR', без emit.
+    // Статусы 0x01-0x06 возвращаются вызывающему — он решает, ошибка это или нет.
+    private send(command: string): ThermostatResponse {
+        if (!this.termexHID) {
+            return { status: 'ERROR' }
+        }
+        try {
+            while (this.termexHID.readTimeout(0).length > 0) {
+                // сбрасываем остатки предыдущих ответов, чтобы не сдвинуться
+            }
+            this.termexHID.write(convertToASCII(command))
+            const raw = convertFromASCII(this.termexHID.readTimeout(READ_TIMEOUT_MS))
+            const response = raw.trim().split('\n')[0].trim()
+            const match = response.match(/^:\S+ (0x[0-9A-Fa-f]{2})(?:\s+(.*))?$/)
+            if (!match) {
+                return { status: 'ERROR' }
+            }
+            return { status: match[1], data: match[2] ? match[2].trim() : undefined }
+        } catch (error) {
+            console.log('send error:', error)
+            return { status: 'ERROR' }
+        }
+    }
+
+    // После RUN WR блок перечисливается заново по USB и открытый дескриптор
+    // становится недействительным (раздел 2.4 протокола) — ждём появления
+    // устройства и открываем его заново
+    private async reopenDevice(): Promise<boolean> {
+        try {
+            this.termexHID.close()
+        } catch (error) {
+            console.log('close error:', error)
+        }
+        const deadline = Date.now() + REOPEN_TIMEOUT_MS
+        while (Date.now() < deadline) {
+            await sleep(REOPEN_POLL_INTERVAL_MS)
+            const device = this.findTermexDevice()
+            if (!device) {
+                continue
+            }
+            try {
+                this.termexDevice = device
+                this.openDevice(device)
+                return true
+            } catch (error) {
+                console.log('reopen error:', error)
+            }
+        }
+        return false
+    }
+
+    private async runWrite(value: '0' | '1') {
+        const response = this.send(`:${this.termexDevice.serialNumber} RUN WR ${value}`)
+        if (response.status !== 'ERROR' && response.status !== '0x00') {
+            // команда отклонена — состояние не изменилось, переподключения нет
+            this.emitStatusError(response.status)
             return
         }
-        const responseData = response.split('0x00')[1]
-        return responseData
-    }
-
-    private checkIfStatusError(response: string): boolean {
-        return !/0x00/.test(response)
+        // 0x00 или ответа не было (переподключение могло поглотить ответ) — открываем заново
+        if (!(await this.reopenDevice())) {
+            this.emitConnectionError()
+            return
+        }
+        this.checkConnection()
     }
 
     async turnOn() {
-        const command = convertToASCII(`:${this.termexDevice.serialNumber} RUN WR 1`)
-        // console.log('this.termexDevice', this.termexDevice)
-        try {
-            this.termexHID.write(command)
-            // const data = await this.dataPromise()
-            const data = convertFromASCII(this.termexHID.readSync())
-            this.exeptionEmitter.emit('error', {
-                name: 'StatusError',
-                message: "THERMOSTAT's STATUS ERROR. CHECK THERMOSTAT"
-            })
-            this.statusHandler(data)
-        } catch (error) {
-            console.log('turnOn Error', error)
-        }
+        await this.runWrite('1')
     }
 
     async turnOff() {
-        const command = convertToASCII(`:${this.termexDevice.serialNumber} RUN WR 0`)
-        try {
-            this.termexHID.write(command)
-            // const data = await this.dataPromise()
-            const data = convertFromASCII(this.termexHID.readSync())
-            this.statusHandler(data)
-        } catch (error) {
-            console.log('turnOff Error', error)
-            this.exeptionEmitter.emit('error', {
-                name: 'StatusError',
-                message: "THERMOSTAT's STATUS ERROR. CHECK THERMOSTAT"
-            })
+        await this.runWrite('0')
+    }
+
+    getTemperature(): string | undefined {
+        if (!this.termexHID) {
+            return undefined
         }
-    }
-
-    private async isRunning() {
-        const command = convertToASCII(`:${this.termexDevice.serialNumber} RUN RD`)
-        this.termexHID.write(command)
-        // const data = await this.dataPromise()
-        const data = convertFromASCII(this.termexHID.readSync())
-        console.log('isRunning')
-        return this.statusHandler(data)
-    }
-
-    private readCurrentSetTemp = () => {
-        const command = convertToASCII(`:${this.termexDevice.serialNumber} SET.VAL RD`)
-        this.termexHID.write(command)
-    }
-
-    async writeCurrentSetTemp(temperature: string | number) {
-        const command = convertToASCII(`:${this.termexDevice.serialNumber} SET.VAL WR ${temperature}`)
-        try {
-            this.termexHID.write(command)
-            // const data = await this.dataPromise()
-            const data = convertFromASCII(this.termexHID.readSync())
-            this.statusHandler(data)
-        } catch (error) {
-            console.log('writeCurrentSetTemp Error', error)
+        const response = this.send(`:${this.termexDevice.serialNumber} DAT.T.2 RD`)
+        if (response.status === 'ERROR') {
+            this.emitConnectionError()
+            return undefined
         }
+        return response.status === '0x00' ? response.data : undefined
     }
 
-    getTemperature() {
-        const command = convertToASCII(`:${this.termexDevice.serialNumber} DAT.T.2 RD`)
-        try {
-            this.termexHID.write(command)
-            // const data = await this.dataPromise()
-            const data = convertFromASCII(this.termexHID.readSync())
-            const responseData = this.statusHandler(data)
-            // console.log('responseData', responseData)
-            return responseData
-        } catch (error) {
-            console.log('getTemperature Error', error)
+    getAlarmStatus(): boolean {
+        if (!this.termexHID) {
+            return false
         }
+        const response = this.send(`:${this.termexDevice.serialNumber} ALM.STATUS RD`)
+        // fail-safe: любая неопределённость считается сработавшей защитой
+        return response.status === '0x00' && !!response.data && /^0+$/.test(response.data)
     }
 
-    getAlarmStatus() {
-        const command = convertToASCII(`:${this.termexDevice.serialNumber} ALM.STATUS RD`)
-        try {
-            this.termexHID.write(command)
-            // const data = await this.dataPromise()
-            const data = convertFromASCII(this.termexHID.readSync())
-            const responseData = this.statusHandler(data)
-            return /000000/.test(responseData.trim())
-        } catch (error) {
-            console.log('getAlarmStatus Error', error)
+    writeCurrentSetTemp(temperature: string | number) {
+        if (!this.termexHID) {
+            return
+        }
+        const response = this.send(`:${this.termexDevice.serialNumber} SET.VAL WR ${temperature}`)
+        if (response.status === 'ERROR') {
+            this.emitConnectionError()
+        } else if (response.status !== '0x00') {
+            this.emitStatusError(response.status)
         }
     }
 }

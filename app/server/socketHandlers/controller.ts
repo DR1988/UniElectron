@@ -379,7 +379,7 @@ export default class Controller {
   }
 
   connect = () => {
-    // this.initializeThermostat()
+    this.initializeThermostat()
     this.io.emit(socketConfig.searchingSerial, true)
     this.Serial.findSerialPort()
   }
