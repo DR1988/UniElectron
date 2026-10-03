@@ -15,6 +15,12 @@ export default (socket, io) => {
   if (currentState) {
     io.to(socket.id).emit(socketConfig.makeChange, currentState)
   }
+  const signalState = controller?.getSignalState()
+  if (signalState) {
+    // start — разовое событие; пересылаем его переподключившемуся клиенту,
+    // иначе Graphs останется с плейсхолдерным allTime
+    io.to(socket.id).emit(socketConfig.start, signalState.counter, signalState.data)
+  }
   socket.on(socketConfig.makeChange, (msg) => {
     currentState = msg
     socket.broadcast.emit(socketConfig.makeChange, msg)

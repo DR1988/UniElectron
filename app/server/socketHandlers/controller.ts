@@ -180,6 +180,7 @@ export default class Controller {
     console.log('pause')
     console.log(Date.now())
     clearInterval(this.intervalId)
+    clearInterval(this.temperatureInterval)
     this.io.emit(socketConfig.pause, { currentTime: this.currentTime })
   }
 
@@ -195,7 +196,7 @@ export default class Controller {
     // this.Serial.sendData('R80|\n')
     this.Serial.sendData('S\n')
     this.turningOff = true
-    this.hasTemperatureFormerChanges && this.ThermostatController.turnOff()
+    this.hasTemperatureFormerChanges && this.ThermostatController?.turnOff()
     //хак - термоконтроллер после того как перейдет в состояние выключено дискиптор HID устройства больше не доступен
     //и его надо инициализировать заново, но с задержкой
     setTimeout(() => {
@@ -240,6 +241,7 @@ export default class Controller {
   }
 
   startGettingTemperature() {
+    clearInterval(this.temperatureInterval)
     this.temperatureInterval = setInterval(async () => {
       this.io.emit(socketConfig.tempChange, {
         temperature: this.hasTemperatureFormerChanges && this.ThermostatController && this.ThermostatController.getTemperature() || 20,
@@ -257,6 +259,11 @@ export default class Controller {
       }, ms);
     })
   }
+  // Состояние для повторной отправки разового события start переподключившемуся клиенту
+  getSignalState = () => {
+    return this.data ? { counter: this.counter, data: this.data } : null
+  }
+
   initStart = async (data: startSignal) => {
     const hasTemperatureFormerChanges = data.lineFormer.find(lf => lf.name === 'TempSetter').changes.length > 0
     this.hasTemperatureFormerChanges = hasTemperatureFormerChanges
@@ -270,7 +277,7 @@ export default class Controller {
   start = async (data: startSignal) => {
     this.init(data)
     // this.hasTemperatureFormerChanges && await this.ThermostatController.turnOn()
-    // this.startGettingTemperature()
+    this.hasTemperatureFormerChanges && this.startGettingTemperature()
     this.counter.distance = 100
     this.intervalId = setInterval(() => {
       this.io.emit(socketConfig.rpmChange, {

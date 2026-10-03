@@ -46,6 +46,13 @@ interface State {
   rmpValues: Array<any>,
   startTime: number,
   endTime: number,
+  rmpsValues: Array<any>,
+  width: number,
+  dx: number,
+  isGrab?: boolean,
+  stepValues?: Array<any>,
+  tempStepValues?: Array<any>,
+  datas?: Array<any>,
 }
 
 interface Props {
@@ -57,6 +64,13 @@ class Graphs extends Component<Props, State> {
 
   }
 
+  private count: number
+  private lastX: number
+  private x: number
+  private data: any
+  private interval: NodeJS.Timeout
+  private trackWidth: number
+
   constructor(props) {
     super(props)
     this.count = 0
@@ -65,94 +79,192 @@ class Graphs extends Component<Props, State> {
     this.data = null
     this.state = {
       rmpsValues: [
-      //   {
-      //   RPMvalue: 425,
-      //   timeStamp: 0
-      // },
-      // {
-      //   RPMvalue: 225,
-      //   timeStamp: 1
-      // },
-      // {
-      //   RPMvalue: 325,
-      //   timeStamp: 2
-      // },
-      // {
-      //   RPMvalue: 455,
-      //   timeStamp: 3
-      // },
-      // {
-      //   RPMvalue: 125,
-      //   timeStamp: 4
-      // },
-      // {
-      //   RPMvalue: 335,
-      //   timeStamp: 5
-      // },
-      // {
-      //   RPMvalue: 215,
-      //   timeStamp: 6
-      // },
-      // {
-      //   RPMvalue: 115,
-      //   timeStamp: 7
-      // },
-      // {
-      //   RPMvalue: 85,
-      //   timeStamp: 8
-      // },
-      // {
-      //   RPMvalue: 285,
-      //   timeStamp: 9
-      // },
-      // {
-      //   RPMvalue: 15,
-      //   timeStamp: 10
-      // },
-      // {
-      //   RPMvalue: 115,
-      //   timeStamp: 11
-      // },
-      // {
-      //   RPMvalue: 335,
-      //   timeStamp: 12
-      // },
-      // {
-      //   RPMvalue: 266,
-      //   timeStamp: 13
-      // },
-      // {
-      //   RPMvalue: 432,
-      //   timeStamp: 14
-      // },
-      // {
-      //   RPMvalue: 234,
-      //   timeStamp: 15
-      // },
-      // {
-      //   RPMvalue: 123,
-      //   timeStamp: 16
-      // },
-      // {
-      //   RPMvalue: 169,
-      //   timeStamp: 17
-      // },
-      // {
-      //   RPMvalue: 65,
-      //   timeStamp: 18
-      // },
-      // {
-      //   RPMvalue: 35,
-      //   timeStamp: 19
-      // },
-      // {
-      //   RPMvalue: 85,
-      //   timeStamp: 20
-      // },
-      // {
-      //   RPMvalue: 270,
-      //   timeStamp: 21
-      // }
+    //     {
+    // temperature: 26,
+    //     RPMvalue: 425,
+    //     timeStamp: 0,
+    //   },
+    //   {
+    // temperature: 26,
+    //     RPMvalue: 225,
+    //     timeStamp: 1,
+    //   },
+    //   {
+    //     temperature: 26,
+    //     RPMvalue: 325,
+    //     timeStamp: 2
+    //   },
+    //   {
+    //     temperature: 27,
+    //     RPMvalue: 455,
+    //     timeStamp: 3
+    //   },
+    //   {
+    //     temperature: 28,
+    //     RPMvalue: 125,
+    //     timeStamp: 4
+    //   },
+    //   {
+    // temperature: 30,
+    //     RPMvalue: 335,
+    //     timeStamp: 5
+    //   },
+    //   {
+    // temperature: 31,
+    //     RPMvalue: 215,
+    //     timeStamp: 6
+    //   },
+    //   {
+    // temperature: 32,
+    //     RPMvalue: 115,
+    //     timeStamp: 7
+    //   },
+    //   {
+    // temperature: 32,
+    //     RPMvalue: 85,
+    //     timeStamp: 8
+    //   },
+    //   {
+    // temperature: 33,
+    //     RPMvalue: 285,
+    //     timeStamp: 9
+    //   },
+    //   {
+    // temperature: 33,
+    //     RPMvalue: 15,
+    //     timeStamp: 10
+    //   },
+    //   {
+    // temperature: 33,
+    //     RPMvalue: 115,
+    //     timeStamp: 11
+    //   },
+    //   {
+    // temperature: 33,
+    //     RPMvalue: 335,
+    //     timeStamp: 12
+    //   },
+    //   {
+    // temperature: 32,
+    //     RPMvalue: 266,
+    //     timeStamp: 13
+    //   },
+    //   {
+    // temperature: 32,
+    //     RPMvalue: 432,
+    //     timeStamp: 14
+    //   },
+    //   {
+    // temperature: 32,
+    //     RPMvalue: 234,
+    //     timeStamp: 15
+    //   },
+    //   {
+    // temperature: 32,
+    //     RPMvalue: 123,
+    //     timeStamp: 16
+    //   },
+    //   {
+    // temperature: 31,
+    //     RPMvalue: 169,
+    //     timeStamp: 17
+    //   },
+    //   {
+    // temperature: 31,
+    //     RPMvalue: 65,
+    //     timeStamp: 18
+    //   },
+    //   {
+    // temperature: 30,
+    //     RPMvalue: 35,
+    //     timeStamp: 19
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 85,
+    //     timeStamp: 20
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 21
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 22
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 23
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 24
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 25
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 26
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 27
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 28
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 29
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 30
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 31
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 32
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 33
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 34
+    //   },
+    //   {
+    // temperature: 29,
+    //     RPMvalue: 270,
+    //     timeStamp: 34
+    //   },
+    //   {
+    // temperature: 26,
+    //     RPMvalue: 470,
+    //     timeStamp: 35
+    //   },
+
     ],
       rmpSetValues: [
         { timeStamp: 0, 'RPM set value': 500 },
@@ -186,9 +298,9 @@ class Graphs extends Component<Props, State> {
       ],
       graphTicks: [],
       startTime: 0,
-      endTime: 21,
+      endTime: 35,
       width: 100,
-      allTime: 1,
+      allTime: 35,
       counts: 0,
       dx:0,
       commonArray: [],
@@ -201,50 +313,61 @@ class Graphs extends Component<Props, State> {
 
   componentDidMount() {
     this.props.socket.on(socketConfig.rpmChange, (socketData) => {
-      // const { rmpValue } = data
-      const { data, time, temperature } = socketData
-     // console.log('socketData', socketData)
-      // console.log('socketData', socketData)
-      // console.log('time', time)
+      const { data, time } = socketData
       this.data = data
       const datas = {
+    // temperature: this.state.,
         RPMvalue: data,
         timeStamp: time
       }
-      this.setState({
-        rmpsValues: [...this.state.rmpsValues, datas]
+      this.setState(({ rmpsValues }) => {
+        const index = rmpsValues.findIndex(el => el.timeStamp === time)
+        if (index !== -1) {
+          const updated = [...rmpsValues]
+          updated[index] = { ...updated[index], RPMvalue: data }
+          return { rmpsValues: updated }
+        }
+        return { rmpsValues: [...rmpsValues, datas] }
       })
     })
 
     this.props.socket.on(socketConfig.tempChange, socketData => {
-      console.log('socketDatasocketDatasocketData', socketData)
+      const { temperature, time } = socketData
+      if (temperature === undefined || temperature === null) return
+      const value = Number(temperature)
+      console.log('temperature, time }', temperature, time )
+      this.setState(({ rmpsValues }) => {
+        const index = rmpsValues.findIndex(el => el.timeStamp === time)
+        if (index !== -1) {
+          const updated = [...rmpsValues]
+          updated[index] = { ...updated[index], temperature: value }
+          return { rmpsValues: updated }
+        }
+        return { rmpsValues: [...rmpsValues, { timeStamp: time, temperature: value }] }
+      })
     })
 
     this.props.socket.on(socketConfig.start, (data, form: startSignal) => {
-      let counter = 0
-      // console.log('form', form);
-      const { allTime } = form
-      const { distance, time } = data
-      // console.log('time', time/allTime)
-      // let timer = setInterval(()=> {
-      //   console.log('this.data', this.data)
-      //   const datas = {
-      //     RPMvalue: this.data,
-      //     timeStamp: counter
-      //   }
-      //   counter++
-      //   this.setState({
-      //     rmpsValues: [...this.state.rmpsValues, datas]
-      //   })
-      // }, time/allTime * 1000)
-     
-      const RPMchanges = form.lineFormer.filter(el => el.shortName === 'RPM')[0].changes
-      // console.log('RPMchanges', RPMchanges)
-      const graphTicks = RPMchanges.reduce((acc, cur) => {
-        acc.push(cur.startTime, cur.endTime)
-        return acc
-      }, [])
-      const datas = []
+      this.applyForm(form)
+    })
+
+    // makeChange приходит и при переподключении (сервер шлёт currentState),
+    // поэтому это страховка от пропущенного разового события start
+    this.props.socket.on(socketConfig.makeChange, (form: startSignal) => {
+      this.applyForm(form)
+    })
+  }
+
+  applyForm = (form: startSignal) => {
+    const { allTime } = form || {}
+    if (!allTime || allTime <= 0 || !Array.isArray((form || {}).lineFormer)) return
+    const RPMchanges: Array<any> = (form.lineFormer.find(el => el.shortName === 'RPM') || { changes: [] }).changes
+    const graphTicks: Array<number> = RPMchanges.reduce((acc, cur) => {
+      acc.push(cur.startTime, cur.endTime)
+      return acc
+    }, [])
+    const datas: Array<any> = []
+    if (RPMchanges.length) {
       datas.push({
         ...RPMchanges[0],
         value: RPMchanges[0].value + 120
@@ -267,51 +390,70 @@ class Graphs extends Component<Props, State> {
         datas.push(curr)
         return curr
       })
-      // console.log('datas', datas);
-      // console.log('graphTicks', graphTicks)
-      const rmpSetValues = RPMchanges.reduce((acc, cur) => {
-        acc.push({
-          timeStamp: cur.startTime,
-          "RPM set value": cur.value,
+    }
+    const rmpSetValues: Array<any> = RPMchanges.reduce((acc, cur) => {
+      acc.push({
+        timeStamp: cur.startTime,
+        "RPM set value": cur.value,
+      })
+      acc.push({
+        timeStamp: cur.endTime,
+        "RPM set value": cur.value,
+      })
+      return acc
+    }, [])
+    const RPMcurrentValue = rmpSetValues.filter(el => el['RPM set value'])
+    const stepValues: Array<any> = []
+    RPMcurrentValue.reduce((acc, curr, ind) => {
+      if (curr['RPM set value'] === acc['RPM set value']) {
+        stepValues.push({
+          ts: acc.timeStamp,
+          tf: curr.timeStamp,
+          setValue: curr['RPM set value'],
+          name: ind,
         })
-        acc.push({
-          timeStamp: cur.endTime,
-          "RPM set value": cur.value,
-        })
-        // acc.push({
-        //   timeStamp: cur.endTime,
-        // })
+      }
+      return curr
+    })
+    const TCchanges: Array<any> = (form.lineFormer.find(el => el.shortName === 'TC') || { changes: [] }).changes
+    let tempStepValues: Array<any> = []
+    if (TCchanges.length) {
+      const tcSetValues = TCchanges.reduce((acc, cur) => {
+        acc.push({ timeStamp: cur.startTime, 'TC set value': cur.value })
+        acc.push({ timeStamp: cur.endTime, 'TC set value': cur.value })
         return acc
       }, [])
-      // console.log('rmpSetValues', rmpSetValues);
-      const RPMcurrentValue = rmpSetValues.filter(el => el['RPM set value'])
-      const stepValues = []
-      RPMcurrentValue.reduce((acc, curr, ind) => {
-        if (curr['RPM set value'] === acc['RPM set value']) {
-          stepValues.push({
+      const TCcurrentValue = tcSetValues.filter(el => el['TC set value'] !== undefined)
+      TCcurrentValue.reduce((acc, curr, ind) => {
+        if (curr['TC set value'] === acc['TC set value']) {
+          tempStepValues.push({
             ts: acc.timeStamp,
             tf: curr.timeStamp,
-            setValue: curr['RPM set value'],
+            setValue: curr['TC set value'],
             name: ind,
           })
         }
         return curr
       })
-      // console.log('stepValues', stepValues)
-      this.setState({
-        allTime,
-        endTime: allTime,
-        graphTicks,
-        rmpSetValues,
-        stepValues,
-        datas,
-      })
-      // this.interval = setInterval(this.increaseCounts, 20)
+    }
+    this.setState({
+      allTime,
+      startTime: 0,
+      endTime: allTime,
+      width: 100,
+      dx: 0,
+      graphTicks,
+      rmpSetValues,
+      stepValues,
+      tempStepValues,
+      datas,
     })
   }
 
   componentWillUnmount() {
     clearInterval(this.interval)
+    document.removeEventListener('mousemove', this.onDragMove)
+    document.removeEventListener('mouseup', this.onDragUp)
   }
 
   increaseCounts = () => {
@@ -377,87 +519,97 @@ class Graphs extends Component<Props, State> {
     })
   }
 
-  incr = () => {
-    const { rmpsValues, endTime, startTime, allTime } = this.state
-    if(this.state.endTime + 10 < allTime) {
-      const endTime = this.state.endTime + 10
-      this.setState({
-        endTime,
-        width: (endTime-startTime)/allTime * 100
-      })
+  zoomWindow = (delta: number) => {
+    const { startTime, endTime, allTime } = this.state
+    if (!allTime || allTime <= 0) return
+    const MIN_WINDOW = 10
+    if (delta < 0 && (endTime - startTime) + delta < MIN_WINDOW) return
+    const pinnedLeft = startTime <= 0.01
+    const pinnedRight = endTime >= allTime - 0.01
+
+    let startTimeNew: number
+    let endTimeNew: number
+    if ((pinnedLeft || pinnedRight) && !(pinnedLeft && pinnedRight)) {
+      // окно уткнулось в край: растём/сжимаемся только со свободной стороны,
+      // чтобы +/- оставались строго взаимно-обратными
+      if (pinnedLeft) {
+        startTimeNew = 0
+        endTimeNew = Math.min(endTime + delta, allTime)
+      } else {
+        endTimeNew = allTime
+        startTimeNew = Math.max(startTime - delta, 0)
+      }
     } else {
-      this.setState({
-        endTime: allTime,
-        width: (allTime-startTime)/allTime * 100
-      })
+      // свободное (или полное) окно: зум от центра
+      const center = (startTime + endTime) / 2
+      const half = (endTime - startTime) / 2 + delta / 2
+      startTimeNew = center - half
+      endTimeNew = center + half
+      if (startTimeNew < 0) {
+        endTimeNew = Math.min(endTimeNew - startTimeNew, allTime)
+        startTimeNew = 0
+      }
+      if (endTimeNew > allTime) {
+        startTimeNew = Math.max(startTimeNew - (endTimeNew - allTime), 0)
+        endTimeNew = allTime
+      }
     }
+    this.setState({
+      startTime: startTimeNew,
+      endTime: endTimeNew,
+      width: (endTimeNew - startTimeNew) / allTime * 100,
+      dx: startTimeNew / allTime * 100,
+    })
+  }
+
+  incr = () => {
+    this.zoomWindow(10)
   }
 
   decr = () => {
-    const { rmpsValues, endTime, startTime, allTime} = this.state
-    if(endTime > 10) {
-        const endTime = this.state.endTime - 10
-        this.setState({
-        endTime,
-        width: (endTime-startTime)/allTime * 100
-      })
-    }
+    this.zoomWindow(-10)
   }
 
-  grab = (e: React.MouseEvent) => {
+  grab = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (this.state.width >= 99.9) return
+    this.lastX = this.state.dx
+    this.x = e.clientX
+    this.trackWidth = e.currentTarget.parentElement ? e.currentTarget.parentElement.clientWidth : 0
     this.setState({
       isGrab: true,
     })
-    this.x = e.clientX
+    document.addEventListener('mousemove', this.onDragMove)
+    document.addEventListener('mouseup', this.onDragUp)
   }
 
   unGrab = () => {
+    document.removeEventListener('mousemove', this.onDragMove)
+    document.removeEventListener('mouseup', this.onDragUp)
     this.setState({
       isGrab: false
     })
-    this.lastX = this.state.dx
   }
 
-  move = (e: React.MouseEvent ) => {
-    if(this.state.isGrab){
-      const { endTime, startTime, width, rmpsValues, allTime } = this.state
-      // const width = (endTime-startTime)/21 * 100
-      // console.log('width', endTime-startTime)
-      // console.log('endTime', endTime)
-      // console.log('numberOfElements', numberOfElements)
-      const currentWidth = e.currentTarget.clientWidth
-      const initialWidth = currentWidth/width * 100
-      const offset = this.lastX + (e.clientX - this.x)/initialWidth*100
-      // console.log('startTimeNew', +(offset * numberOfElements / 100).toFixed(2));
-      const startTimeNew = +(offset * allTime / 100).toFixed(2)
-      if(offset + 2/initialWidth*100 < 100 - width && offset > 0 ){
-        const endTimeNew = /* endTime + */ +(width * allTime / 100 + startTimeNew).toFixed(2)
-        // console.log('endTimeNew', endTimeNew);
-        //  + +(endTime/initialWidth*100).toFixed(2)
-        // console.log('startTimeNew', startTimeNew)
-        // console.log('endTimeNew', endTimeNew)
-        // console.log('endTimeNew - startTimeNew =', endTimeNew - startTimeNew)
-        this.setState({
-          dx: offset,
-          startTime: startTimeNew,
-          endTime: endTimeNew
-        })
-      }
-    }
+  onDragMove = (e: MouseEvent) => {
+    if (!this.state.isGrab || !this.trackWidth) return
+    const { width, allTime } = this.state
+    const offset = this.lastX + (e.clientX - this.x) / this.trackWidth * 100
+    if (offset < 0 || offset + width > 100) return
+    const startTimeNew = +(offset * allTime / 100).toFixed(2)
+    const endTimeNew = +(startTimeNew + width * allTime / 100).toFixed(2)
+    this.setState({
+      dx: offset,
+      startTime: startTimeNew,
+      endTime: endTimeNew
+    })
+  }
+
+  onDragUp = () => {
+    this.unGrab()
   }
 
   render() {
-    const { isGrab, dx, rmpValues, width, rmpsValues, graphTicks, allTime, endTime, startTime, datas, rmpSetValues, stepValues, commonArray } = this.state
-    // console.log('endTime', endTime);
-    // console.log('rmpValues', rmpValues)
-    // console.log('stepValues', stepValues)
-    // console.log('rmpSetValues', rmpSetValues)
-    // const RPMcurrentValue = rmpSetValues.filter(el => el['RPM set value'])
-    // console.log('stepValues', stepValues)
-    // console.log('graphTicks', graphTicks)
-    // console.log('rmpSetValues', rmpSetValues);
-    // console.log('rmpValues', rmpValues);
-    // console.log('commonArray', commonArray);
+    const { isGrab, dx, rmpValues, width, rmpsValues, graphTicks, allTime, endTime, startTime, datas, rmpSetValues, stepValues, tempStepValues, commonArray } = this.state
     return (<div>
       <button onClick={this.clear}>Clear</button>
       <button onClick={this.incr}>+</button>
@@ -515,12 +667,13 @@ class Graphs extends Component<Props, State> {
           <Line type='monotone' dataKey='value' stroke='#ff7300' />
         </ComposedChart> */}
 
-        <LineChart
-          data={rmpsValues}
-          width={1200} height={300}
-          //  data={rmpValues}
-        // margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-        >
+        <div style={{ width: '95%', minWidth: 600, paddingTop: 20, backgroundColor: '#f5f5f5' }}>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart
+              data={rmpsValues}
+              //  data={rmpValues}
+            // margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
           <XAxis
             allowDataOverflow={true}
             // scale="ordinal"
@@ -530,7 +683,8 @@ class Graphs extends Component<Props, State> {
             dataKey="timeStamp"
           />
           {/* <YAxis dataKey="value" domain={[0, 3000]} hide yAxisId="setValue" /> */}
-          <YAxis dataKey="RPMvalue" domain={[0, 3000]} />
+          <YAxis yAxisId="rpm" dataKey="RPMvalue" domain={[0, 3000]} />
+          <YAxis yAxisId="temp" orientation="right" dataKey="temperature" domain={['auto', 'auto']} />
           {/* <YAxis /> */}
           <CartesianGrid strokeDasharray="3 3" />
           <Tooltip />
@@ -552,7 +706,7 @@ class Graphs extends Component<Props, State> {
           {stepValues && stepValues.map(el =>
             <ReferenceArea
               key={el.ts}
-              // yAxisId="setValue"
+              yAxisId="rpm"
               x1={el.ts}
               x2={el.tf}
               y1={el.setValue}
@@ -561,7 +715,21 @@ class Graphs extends Component<Props, State> {
               strokeOpacity={1}
             />,
           )}
+          {tempStepValues && tempStepValues.map(el =>
+            <ReferenceArea
+              key={`temp-${el.ts}`}
+              yAxisId="temp"
+              x1={el.ts}
+              x2={el.tf}
+              y1={el.setValue}
+              y2={el.setValue - 2}
+              stroke="orange"
+              strokeOpacity={1}
+            />,
+          )}
           <Line
+            yAxisId="rpm"
+            name="RPM"
             isAnimationActive={false}
             type='natural'
             dataKey="RPMvalue"
@@ -569,29 +737,35 @@ class Graphs extends Component<Props, State> {
             strokeWidth={2}
             fill="red"
             dot={false}
-            // connectNulls={true}
-            // yAxisId="currentValue"
+            connectNulls
           />
-          {/* <Brush onChange={this.changeScale} /> */}
-        </LineChart>
+          <Line
+            yAxisId="temp"
+            name="Temperature, °C"
+            isAnimationActive={false}
+            type='monotone'
+            dataKey="temperature"
+            stroke="blue"
+            strokeWidth={2}
+            dot={false}
+            connectNulls
+          />
+              {/* <Brush onChange={this.changeScale} /> */}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
         <div className={s.scale}>
-          <button>-</button>
           <div className={cn(s['mover-container'])}>
             <div
               style={{
-                cursor: !isGrab ? 'grab' : '-webkit-grabbing',
+                cursor: width >= 99.9 ? 'default' : (!isGrab ? 'grab' : '-webkit-grabbing'),
                 width: `${width}%`,
                 left: `${dx}%`
               }}
-              onMouseLeave={this.unGrab}
-              onMouseEnter={this.unGrab}
-              onMouseMove={this.move}
-              onMouseUp={this.unGrab}
               onMouseDown={this.grab}
               className={s.mover}>
             </div>
           </div>
-          <button>+</button>
         </div>
       {/* </ResponsiveContainer > */}
       {/* <Graph

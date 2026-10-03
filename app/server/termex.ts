@@ -4,6 +4,10 @@ import { EventEmitter } from 'events';
 const READ_TIMEOUT_MS = 1000
 const REOPEN_TIMEOUT_MS = 15000
 const REOPEN_POLL_INTERVAL_MS = 300
+// Сброс протухшего дескриптора на ошибочном пути: как долго ждать
+// перечисления устройства заново (раздел 2.4 протокола)
+const RECOVERY_TIMEOUT_MS = 3000
+const RECOVERY_POLL_INTERVAL_MS = 100
 
 // Протокол: запрос — строка ASCII, начинающаяся с ':' и заканчивающаяся
 // CR (13) или любым байтом меньше 13
@@ -46,6 +50,9 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 export default class ThermostatController {
     private termexHID: HID.HID
     private termexDevice: HID.Device
+    // node-hid 1.3.2: readTimeout на закрытом handle вызывает SIGSEGV,
+    // поэтому обращения к termexHID допускаются только при hidOpen = true
+    private hidOpen = false
 
     constructor(private exeptionEmitter: EventEmitter) {
         this.init()
@@ -70,11 +77,13 @@ export default class ThermostatController {
             this.emitConnectionError()
             return
         }
+        console.log('checkConnection init')
         this.checkConnection()
     }
 
     private openDevice(device: HID.Device) {
         this.termexHID = new HID.HID(device.path)
+        this.hidOpen = true
         this.initExeptionHandler()
     }
 
@@ -112,24 +121,86 @@ export default class ThermostatController {
     // Сбой связи (таймаут/несформированный ответ) — status 'ERROR', без emit.
     // Статусы 0x01-0x06 возвращаются вызывающему — он решает, ошибка это или нет.
     private send(command: string): ThermostatResponse {
-        if (!this.termexHID) {
-            return { status: 'ERROR' }
-        }
-        try {
-            while (this.termexHID.readTimeout(0).length > 0) {
-                // сбрасываем остатки предыдущих ответов, чтобы не сдвинуться
-            }
-            this.termexHID.write(convertToASCII(command))
-            const raw = convertFromASCII(this.termexHID.readTimeout(READ_TIMEOUT_MS))
-            const response = raw.trim().split('\n')[0].trim()
-            const match = response.match(/^:\S+ (0x[0-9A-Fa-f]{2})(?:\s+(.*))?$/)
-            if (!match) {
+        if (!this.termexHID || !this.hidOpen) {
+            // handle закрыт (init не удался или recovery ещё не дождался устройства).
+            // Без ожидания проверяем, не появилось ли устройство, — и открываем.
+            const device = this.findTermexDevice()
+            if (!device) {
                 return { status: 'ERROR' }
             }
-            return { status: match[1], data: match[2] ? match[2].trim() : undefined }
+            try {
+                this.termexDevice = device
+                this.openDevice(device)
+            } catch (error) {
+                console.log('open error:', error)
+                return { status: 'ERROR' }
+            }
+        }
+        const attempt = (): ThermostatResponse => {
+            try {
+                while (this.termexHID.readTimeout(0).length > 0) {
+                    // сбрасываем остатки предыдущих ответов, чтобы не сдвинуться
+                }
+
+                console.log('commandcommand', command)
+                const result = this.termexHID.write(convertToASCII(command))
+                console.log('resultresultresult', result)
+                const ddddd = this.termexHID.readTimeout(READ_TIMEOUT_MS)
+                console.log('ddddddddddddddd', ddddd)
+                const raw = convertFromASCII(ddddd)
+                console.log('rawraw', raw)
+                const response = raw.trim().split('\n')[0].trim()
+                const match = response.match(/^:\S+ (0x[0-9A-Fa-f]{2})(?:\s+(.*))?$/)
+                if (!match) {
+                    return { status: 'ERROR' }
+                }
+                return { status: match[1], data: match[2] ? match[2].trim() : undefined }
+            } catch (error) {
+                console.log('send error:', error)
+                return { status: 'ERROR' }
+            }
+        }
+        let response = attempt()
+        if (response.status === 'ERROR') {
+            // Раздел 2.4 протокола: блок мог сменить состояние сам
+            // (кнопка на панели, авто-вкл/выкл по RTC) — открытый дескриптор
+            // недействителен. Переоткрываем устройство и повторяем команду один раз.
+            if (this.reopenDeviceSync()) {
+                response = attempt()
+            }
+        }
+        return response
+    }
+
+    // Синхронный сброс протухшего дескриптора: закрывает текущий handle,
+    // ждёт появления устройства (опрос каждые RECOVERY_POLL_INTERVAL_MS)
+    // и открывает заново. Вызывается только на ошибочном пути send().
+    private reopenDeviceSync(): boolean {
+        try {
+            this.termexHID.close()
         } catch (error) {
-            console.log('send error:', error)
-            return { status: 'ERROR' }
+            console.log('close error:', error)
+        }
+        this.hidOpen = false
+        const deadline = Date.now() + RECOVERY_TIMEOUT_MS
+        for (;;) {
+            const device = this.findTermexDevice()
+            if (device) {
+                try {
+                    this.termexDevice = device
+                    this.openDevice(device)
+                    return true
+                } catch (error) {
+                    console.log('reopen error:', error)
+                }
+            }
+            if (Date.now() >= deadline) {
+                return false
+            }
+            const end = Date.now() + RECOVERY_POLL_INTERVAL_MS
+            while (Date.now() < end) {
+                // блокирующая пауза: не более RECOVERY_TIMEOUT_MS суммарно
+            }
         }
     }
 
@@ -142,6 +213,7 @@ export default class ThermostatController {
         } catch (error) {
             console.log('close error:', error)
         }
+        this.hidOpen = false
         const deadline = Date.now() + REOPEN_TIMEOUT_MS
         while (Date.now() < deadline) {
             await sleep(REOPEN_POLL_INTERVAL_MS)
@@ -172,7 +244,9 @@ export default class ThermostatController {
             this.emitConnectionError()
             return
         }
-        this.checkConnection()
+
+        console.log('runWrite checkConnection')
+        // this.checkConnection()
     }
 
     async turnOn() {
@@ -187,7 +261,7 @@ export default class ThermostatController {
         if (!this.termexHID) {
             return undefined
         }
-        const response = this.send(`:${this.termexDevice.serialNumber} DAT.T.2 RD`)
+        const response = this.send(`:${this.termexDevice.serialNumber} DAT.T.1 RD`)
         if (response.status === 'ERROR') {
             this.emitConnectionError()
             return undefined
@@ -200,6 +274,8 @@ export default class ThermostatController {
             return false
         }
         const response = this.send(`:${this.termexDevice.serialNumber} ALM.STATUS RD`)
+
+        console.log('responseresponse', response)
         // fail-safe: любая неопределённость считается сработавшей защитой
         return response.status === '0x00' && !!response.data && /^0+$/.test(response.data)
     }

@@ -92,8 +92,8 @@ export default class Serial {
 
   async findSerialPort() {
     if (!this.connected) {
-      const portss = await SerialPort.list();
-      const ports = [portss[portss.length - 1], portss[0]]
+      const ports = (await SerialPort.list()).filter(p => !!p.manufacturer);
+      // const ports = [portss[portss.length - 1], portss[0]]
       console.log('ports', ports)
       for await (let port of ports) {
         console.log('---------------')
@@ -122,6 +122,7 @@ export default class Serial {
   }
 
   sendData(data: string | number[] | Buffer) {
+    if (!this.serialPort || !this.serialPort.isOpen) return
     this.serialPort.write(data)
   }
 
