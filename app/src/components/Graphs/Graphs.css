@@ -1,12 +1,12 @@
 .scale{
   display: flex;
-  margin: 0 50px;
   height: 25px;
+  margin-top: 10px;
 }
 
 .scale .mover-container{
   width: 100%;
-  border: red 2px solid;
+  /* border: red 2px solid; */
   display: flex;
 }
 .mover-container .mover{

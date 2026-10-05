@@ -27,16 +27,8 @@ function randomIntFromInterval(min, max) // min and max included
 {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
-// const arrays = [
-//   { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-//   { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-//   { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-//   { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-//   { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-//   { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-//   { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
-// ]
 
+const ZOOM = 1
 interface State {
   rmpSetValues: Array<any>,
   graphTicks: Array<any>,
@@ -70,6 +62,7 @@ class Graphs extends Component<Props, State> {
   private data: any
   private interval: NodeJS.Timeout
   private trackWidth: number
+  private chartRef = React.createRef<HTMLDivElement>()
 
   constructor(props) {
     super(props)
@@ -79,191 +72,191 @@ class Graphs extends Component<Props, State> {
     this.data = null
     this.state = {
       rmpsValues: [
-    //     {
-    // temperature: 26,
-    //     RPMvalue: 425,
-    //     timeStamp: 0,
-    //   },
-    //   {
-    // temperature: 26,
-    //     RPMvalue: 225,
-    //     timeStamp: 1,
-    //   },
-    //   {
-    //     temperature: 26,
-    //     RPMvalue: 325,
-    //     timeStamp: 2
-    //   },
-    //   {
-    //     temperature: 27,
-    //     RPMvalue: 455,
-    //     timeStamp: 3
-    //   },
-    //   {
-    //     temperature: 28,
-    //     RPMvalue: 125,
-    //     timeStamp: 4
-    //   },
-    //   {
-    // temperature: 30,
-    //     RPMvalue: 335,
-    //     timeStamp: 5
-    //   },
-    //   {
-    // temperature: 31,
-    //     RPMvalue: 215,
-    //     timeStamp: 6
-    //   },
-    //   {
-    // temperature: 32,
-    //     RPMvalue: 115,
-    //     timeStamp: 7
-    //   },
-    //   {
-    // temperature: 32,
-    //     RPMvalue: 85,
-    //     timeStamp: 8
-    //   },
-    //   {
-    // temperature: 33,
-    //     RPMvalue: 285,
-    //     timeStamp: 9
-    //   },
-    //   {
-    // temperature: 33,
-    //     RPMvalue: 15,
-    //     timeStamp: 10
-    //   },
-    //   {
-    // temperature: 33,
-    //     RPMvalue: 115,
-    //     timeStamp: 11
-    //   },
-    //   {
-    // temperature: 33,
-    //     RPMvalue: 335,
-    //     timeStamp: 12
-    //   },
-    //   {
-    // temperature: 32,
-    //     RPMvalue: 266,
-    //     timeStamp: 13
-    //   },
-    //   {
-    // temperature: 32,
-    //     RPMvalue: 432,
-    //     timeStamp: 14
-    //   },
-    //   {
-    // temperature: 32,
-    //     RPMvalue: 234,
-    //     timeStamp: 15
-    //   },
-    //   {
-    // temperature: 32,
-    //     RPMvalue: 123,
-    //     timeStamp: 16
-    //   },
-    //   {
-    // temperature: 31,
-    //     RPMvalue: 169,
-    //     timeStamp: 17
-    //   },
-    //   {
-    // temperature: 31,
-    //     RPMvalue: 65,
-    //     timeStamp: 18
-    //   },
-    //   {
-    // temperature: 30,
-    //     RPMvalue: 35,
-    //     timeStamp: 19
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 85,
-    //     timeStamp: 20
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 21
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 22
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 23
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 24
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 25
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 26
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 27
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 28
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 29
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 30
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 31
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 32
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 33
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 34
-    //   },
-    //   {
-    // temperature: 29,
-    //     RPMvalue: 270,
-    //     timeStamp: 34
-    //   },
-    //   {
-    // temperature: 26,
-    //     RPMvalue: 470,
-    //     timeStamp: 35
-    //   },
+        {
+    temperature: 26,
+        RPMvalue: 425,
+        timeStamp: 0,
+      },
+      {
+    temperature: 26,
+        RPMvalue: 225,
+        timeStamp: 1,
+      },
+      {
+        temperature: 26,
+        RPMvalue: 325,
+        timeStamp: 2
+      },
+      {
+        temperature: 27,
+        RPMvalue: 455,
+        timeStamp: 3
+      },
+      {
+        temperature: 28,
+        RPMvalue: 125,
+        timeStamp: 4
+      },
+      {
+    temperature: 30,
+        RPMvalue: 335,
+        timeStamp: 5
+      },
+      {
+    temperature: 31,
+        RPMvalue: 215,
+        timeStamp: 6
+      },
+      {
+    temperature: 32,
+        RPMvalue: 115,
+        timeStamp: 7
+      },
+      {
+    temperature: 32,
+        RPMvalue: 85,
+        timeStamp: 8
+      },
+      {
+    temperature: 33,
+        RPMvalue: 285,
+        timeStamp: 9
+      },
+      {
+    temperature: 33,
+        RPMvalue: 15,
+        timeStamp: 10
+      },
+      {
+    temperature: 33,
+        RPMvalue: 115,
+        timeStamp: 11
+      },
+      {
+    temperature: 33,
+        RPMvalue: 335,
+        timeStamp: 12
+      },
+      {
+    temperature: 32,
+        RPMvalue: 266,
+        timeStamp: 13
+      },
+      {
+    temperature: 32,
+        RPMvalue: 432,
+        timeStamp: 14
+      },
+      {
+    temperature: 32,
+        RPMvalue: 234,
+        timeStamp: 15
+      },
+      {
+    temperature: 32,
+        RPMvalue: 123,
+        timeStamp: 16
+      },
+      {
+    temperature: 31,
+        RPMvalue: 169,
+        timeStamp: 17
+      },
+      {
+    temperature: 31,
+        RPMvalue: 65,
+        timeStamp: 18
+      },
+      {
+    temperature: 30,
+        RPMvalue: 35,
+        timeStamp: 19
+      },
+      {
+    temperature: 29,
+        RPMvalue: 85,
+        timeStamp: 20
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 21
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 22
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 23
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 24
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 25
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 26
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 27
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 28
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 29
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 30
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 31
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 32
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 33
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 34
+      },
+      {
+    temperature: 29,
+        RPMvalue: 270,
+        timeStamp: 34
+      },
+      {
+    temperature: 26,
+        RPMvalue: 470,
+        timeStamp: 35
+      },
 
     ],
       rmpSetValues: [
@@ -312,6 +305,9 @@ class Graphs extends Component<Props, State> {
   }
 
   componentDidMount() {
+    if (this.chartRef.current) {
+      this.chartRef.current.addEventListener('wheel', this.onChartWheel, { passive: false })
+    }
     this.props.socket.on(socketConfig.rpmChange, (socketData) => {
       const { data, time } = socketData
       this.data = data
@@ -452,6 +448,9 @@ class Graphs extends Component<Props, State> {
 
   componentWillUnmount() {
     clearInterval(this.interval)
+    if (this.chartRef.current) {
+      this.chartRef.current.removeEventListener('wheel', this.onChartWheel)
+    }
     document.removeEventListener('mousemove', this.onDragMove)
     document.removeEventListener('mouseup', this.onDragUp)
   }
@@ -513,12 +512,6 @@ class Graphs extends Component<Props, State> {
     })
   }
 
-  clear = () => {
-    this.setState({
-      rmpsValues: []
-    })
-  }
-
   zoomWindow = (delta: number) => {
     const { startTime, endTime, allTime } = this.state
     if (!allTime || allTime <= 0) return
@@ -562,12 +555,9 @@ class Graphs extends Component<Props, State> {
     })
   }
 
-  incr = () => {
-    this.zoomWindow(10)
-  }
-
-  decr = () => {
-    this.zoomWindow(-10)
+  onChartWheel = (e: WheelEvent) => {
+    e.preventDefault()
+    this.zoomWindow(e.deltaY > 0 ? ZOOM : -ZOOM)
   }
 
   grab = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -611,9 +601,6 @@ class Graphs extends Component<Props, State> {
   render() {
     const { isGrab, dx, rmpValues, width, rmpsValues, graphTicks, allTime, endTime, startTime, datas, rmpSetValues, stepValues, tempStepValues, commonArray } = this.state
     return (<div>
-      <button onClick={this.clear}>Clear</button>
-      <button onClick={this.incr}>+</button>
-      <button onClick={this.decr}>-</button>
       {/* {this.state.counts} */}
       {/* <ResponsiveContainer
         minWidth={800}
@@ -667,8 +654,8 @@ class Graphs extends Component<Props, State> {
           <Line type='monotone' dataKey='value' stroke='#ff7300' />
         </ComposedChart> */}
 
-        <div style={{ width: '95%', minWidth: 600, paddingTop: 20, backgroundColor: '#f5f5f5' }}>
-          <ResponsiveContainer width="100%" height={300}>
+        <div ref={this.chartRef} style={{ minWidth: 600, marginTop: 20, paddingTop: 20, backgroundColor: '#f5f5f5' }}>
+          <ResponsiveContainer width="100%" height={600}>
             <LineChart
               data={rmpsValues}
               //  data={rmpValues}
