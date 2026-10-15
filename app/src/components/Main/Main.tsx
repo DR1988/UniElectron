@@ -9,7 +9,6 @@ import s from './style.css'
 
 import FormChoserComponent from '../FormChoserComponent/FormChoserComponent'
 import AppForms from '../AppForms/AppForms'
-import { ThemeProvider } from './Context'
 
 interface Props {}
 
@@ -22,11 +21,9 @@ export default function Main(props: Props) {
   }
 
   return (
-    <ThemeProvider>
-      <div className={s.root}>
-        <FormChoserComponent updateForm={choseForm} />
-        <AppForms currentForm={currentForm} />
-      </div>
-    </ThemeProvider>
+    <div className={s.root}>
+      <FormChoserComponent updateForm={choseForm} />
+      <AppForms currentForm={currentForm} />
+    </div>
   )
 }

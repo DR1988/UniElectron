@@ -31,7 +31,7 @@ import {
   Cover,
   Line
 } from './CanvasElements';
-import {Options} from './Options/Options';
+import { OptionsContext } from '../../../Main/OptionsContext';
 import { ThemeContext } from '../../../Main/Context';
 
 export type Props = {
@@ -130,8 +130,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
   const [startTime, setStartTime] = useState(0)
   const [endTime, setEndTime] = useState(0)
-  const [isOptionsOpen, toggleOptions] = useState(false)
-  const [isMovement, setMovement] = useState(false)
+  const { isMovement } = useContext(OptionsContext)
 
   const tryStart = () => {
     startRef.current = true
@@ -1377,15 +1376,6 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
         </div>
       </ClickOutHandler>
       : null}
-
-    <ClickOutHandler onClickOut={() => toggleOptions(false)}>
-      <Options
-        toggleOptions={toggleOptions}
-        setMovement={setMovement}
-        isOptionsOpen={isOptionsOpen}
-        isMovement={isMovement}
-      />
-    </ClickOutHandler>
 
 {/* ДЛЯ ОТЛАДКИ */}
     {/* <div

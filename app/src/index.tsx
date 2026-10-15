@@ -3,10 +3,16 @@ import { render } from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
 
 import Main from './components/Main/Main'
+import { ThemeProvider } from './components/Main/Context'
+import { OptionsProvider } from './components/Main/OptionsContext'
 
 render(
   <AppContainer>
-    <Main />
+    <ThemeProvider>
+      <OptionsProvider>
+        <Main />
+      </OptionsProvider>
+    </ThemeProvider>
   </AppContainer>,
   document.getElementById('root'),
 )
@@ -17,7 +23,11 @@ if (module.hot) {
     const NextMain = require('./components/Main/Main').default
     render(
       <AppContainer>
-        <NextMain />
+        <ThemeProvider>
+          <OptionsProvider>
+            <NextMain />
+          </OptionsProvider>
+        </ThemeProvider>
       </AppContainer>,
       document.getElementById('root'),
     )

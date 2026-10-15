@@ -5,6 +5,7 @@ import {Brush, ComposedChart, Cell, LineChart, Line, ReferenceLine, ReferenceAre
 import cn from 'classnames'
 
 import socketConfig, { startSignal } from '../../../config/socket.config'
+import { ThemeContext } from '../Main/Context'
 // import Graph from '../../components/common/graphs/Mygraph'
 // import { CartesianGrids } from '../../components/common/graphs/Elements/index'
 import s from './Graphs.css'
@@ -52,6 +53,7 @@ interface Props {
 }
 
 class Graphs extends Component<Props, State> {
+  static contextType = ThemeContext
   static propTypes = {
 
   }
@@ -599,6 +601,14 @@ class Graphs extends Component<Props, State> {
   }
 
   render() {
+    const { theme } = this.context
+    const isDark = theme === 'dark'
+    const axisColor = isDark ? '#dfe7ef' : '#333333'
+    const gridColor = isDark ? 'rgba(255, 255, 255, 0.15)' : '#cccccc'
+    const rpmColor = isDark ? '#ff6b6b' : 'red'
+    const tempColor = isDark ? '#4fc3f7' : 'blue'
+    const rpmStepColor = isDark ? '#81c784' : 'green'
+    const tcStepColor = isDark ? '#ffa726' : 'orange'
     const { isGrab, dx, rmpValues, width, rmpsValues, graphTicks, allTime, endTime, startTime, datas, rmpSetValues, stepValues, tempStepValues, commonArray } = this.state
     return (<div>
       {/* {this.state.counts} */}
@@ -654,7 +664,7 @@ class Graphs extends Component<Props, State> {
           <Line type='monotone' dataKey='value' stroke='#ff7300' />
         </ComposedChart> */}
 
-        <div ref={this.chartRef} style={{ minWidth: 600, marginTop: 20, paddingTop: 20, backgroundColor: '#f5f5f5' }}>
+        <div ref={this.chartRef} style={{ minWidth: 600, marginTop: 20, paddingTop: 20, backgroundColor: isDark ? '#123456' : '#f5f5f5' }}>
           <ResponsiveContainer width="100%" height={600}>
             <LineChart
               data={rmpsValues}
@@ -668,12 +678,14 @@ class Graphs extends Component<Props, State> {
             // // ticks={graphTicks}
             domain={[startTime, endTime]}
             dataKey="timeStamp"
+            stroke={axisColor}
+            tick={{ fill: axisColor }}
           />
           {/* <YAxis dataKey="value" domain={[0, 3000]} hide yAxisId="setValue" /> */}
-          <YAxis yAxisId="rpm" dataKey="RPMvalue" domain={[0, 3000]} />
-          <YAxis yAxisId="temp" orientation="right" dataKey="temperature" domain={['auto', 'auto']} />
+          <YAxis yAxisId="rpm" dataKey="RPMvalue" domain={[0, 3000]} stroke={axisColor} tick={{ fill: axisColor }} />
+          <YAxis yAxisId="temp" orientation="right" dataKey="temperature" domain={['auto', 'auto']} stroke={axisColor} tick={{ fill: axisColor }} />
           {/* <YAxis /> */}
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid stroke={gridColor} strokeDasharray="3 3" />
           <Tooltip />
           <Legend />
           {/* {datas && datas.map(el => {
@@ -698,7 +710,7 @@ class Graphs extends Component<Props, State> {
               x2={el.tf}
               y1={el.setValue}
               y2={el.setValue - 2}
-              stroke="green"
+              stroke={rpmStepColor}
               strokeOpacity={1}
             />,
           )}
@@ -710,7 +722,7 @@ class Graphs extends Component<Props, State> {
               x2={el.tf}
               y1={el.setValue}
               y2={el.setValue - 2}
-              stroke="orange"
+              stroke={tcStepColor}
               strokeOpacity={1}
             />,
           )}
@@ -720,9 +732,9 @@ class Graphs extends Component<Props, State> {
             isAnimationActive={false}
             type='natural'
             dataKey="RPMvalue"
-            stroke="red"
+            stroke={rpmColor}
             strokeWidth={2}
-            fill="red"
+            fill={rpmColor}
             dot={false}
             connectNulls
           />
@@ -732,7 +744,7 @@ class Graphs extends Component<Props, State> {
             isAnimationActive={false}
             type='monotone'
             dataKey="temperature"
-            stroke="blue"
+            stroke={tempColor}
             strokeWidth={2}
             dot={false}
             connectNulls
