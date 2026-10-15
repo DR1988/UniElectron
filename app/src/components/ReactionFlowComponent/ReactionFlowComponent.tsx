@@ -3,6 +3,7 @@ import socketConfig, {startSignal} from '../../../config/socket.config'
 import cn from 'classnames'
 
 import s from './ReactionFlowComponent.css'
+import { ThemeContext } from '../Main/Context'
 
 interface Props {
   socket: SocketIOClient.Socket
@@ -11,6 +12,8 @@ interface Props {
 
 
 class ReactionFlowComponent extends Component<Props> {
+  static contextType = ThemeContext
+
   constructor(props) {
     super(props)
     this.state = {
@@ -32,6 +35,8 @@ class ReactionFlowComponent extends Component<Props> {
   }
 
   render() {
+    const {theme} = this.context
+    const textColor = theme === 'dark' ? '#dfe7ef' : '#000'
     const {lineFormer, time, socket, openManualControlModal} = this.props
     const changes = lineFormer.map(lf => lf.changes)
     // console.log('time', time)
@@ -1026,7 +1031,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
@@ -1073,7 +1078,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
@@ -1120,7 +1125,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
@@ -1167,7 +1172,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
@@ -1214,7 +1219,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
@@ -1260,7 +1265,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
@@ -1306,7 +1311,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
@@ -1352,7 +1357,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
@@ -1473,7 +1478,7 @@ class ReactionFlowComponent extends Component<Props> {
               wordSpacing: 0,
               writingMode: "lr-tb",
               textAnchor: "start",
-              fill: "#000",
+              fill: textColor,
               fillOpacity: 1,
               stroke: "none",
               strokeWidth: 1,
