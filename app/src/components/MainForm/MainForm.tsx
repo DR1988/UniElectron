@@ -327,7 +327,7 @@ class MainForm extends Component<Props, MainFormState> {
     }))
   }
 
-  changeAllTime = (value: number): void => {
+  changeAllTime = (value: number): boolean => {
     const maxEndTime = this.getMaxEndTime(this.state.lineFormer)
 
     if (value < maxEndTime) {
@@ -335,7 +335,7 @@ class MainForm extends Component<Props, MainFormState> {
         ...this.state,
         allTimeError: `All time should be greater or equal to the maximum end time (${maxEndTime} sec). Shorten or remove changes first.`,
       })
-      return
+      return false
     }
 
     this.setState({
@@ -343,6 +343,7 @@ class MainForm extends Component<Props, MainFormState> {
       allTime: value,
       allTimeError: '',
     })
+    return true
   }
 
   changeEndTime = (value: number): void => {

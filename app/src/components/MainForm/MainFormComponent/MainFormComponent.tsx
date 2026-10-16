@@ -54,7 +54,7 @@ interface Props extends ProcessSheetComponentProps {
   openRemoveSpaceModal: () => void
   openManualControlModal: () => void
   removeSelectedTimeElements: (startTime: number, endTime: number, mode: RemoveSpaceOption) => void
-  changeAllTime: (value: number) => void
+  changeAllTime: (value: number) => boolean
   allTimeError: string
   insertCapturedProtocol: (lineFormer: Array<ValveLineType>) => void
 }
@@ -145,38 +145,6 @@ const MainFormComponent = ({
   useEffect(() => {
     setAllTimeInputs(decomposeAllTime(allTime))
   }, [allTime])
-
-  const handleAllTimeFieldChange = (field: 'hours' | 'minutes' | 'seconds') => (e: React.FormEvent<HTMLInputElement>) => {
-    // minutes/seconds: empty falls back to 0, a leading zero is dropped on input ("05" -> "5")
-    const rawValue = (field === 'minutes' || field === 'seconds')
-      ? String(+e.currentTarget.value)
-      : e.currentTarget.value
-
-    // hours cannot be negative: only digits are allowed (reject "-", "+", etc.)
-    if (field === 'hours') {
-      if (!/^\d*$/.test(rawValue)) {
-        return
-      }
-    }
-
-    // minutes/seconds cannot exceed 59: reject the keystroke entirely (controlled input keeps its previous value)
-    if (field === 'minutes' || field === 'seconds') {
-      if (!/^\d{1,2}$/.test(rawValue) || +rawValue > 59) {
-        return
-      }
-    }
-
-    const next = {...allTimeInputs, [field]: rawValue}
-    setAllTimeInputs(next)
-
-    // apply only when all three fields are valid: hours - any non-negative integer, minutes/seconds - 0..59
-    if (/^\d+$/.test(next.hours) && /^\d+$/.test(next.minutes) && /^\d+$/.test(next.seconds)) {
-      const hours = +next.hours
-      const minutes = +next.minutes
-      const seconds = +next.seconds
-      changeAllTime(hours * 3600 + minutes * 60 + seconds)
-    }
-  }
 
   const openDialogForTemporaryButtons = (name: TemporaryProtocolButtonPosition) => {
       dialog.showOpenDialog(null, {
@@ -403,7 +371,7 @@ const MainFormComponent = ({
         render={() => (
           <AllTimeModal
             allTimeInputs={allTimeInputs}
-            onFieldChange={handleAllTimeFieldChange}
+            changeAllTime={changeAllTime}
             allTimeError={allTimeError}
             closeModal={() => setIsAllTimeModalOpen(false)}
           />
