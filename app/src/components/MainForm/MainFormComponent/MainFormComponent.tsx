@@ -13,6 +13,11 @@ import ProcessSheetComponent, {Props as ProcessSheetComponentProps} from './Proc
 import s from './MainFormComponent.css'
 import {RemoveSpaceOption} from '../../CommonTypes';
 import { DnDProtocol } from './DnDProtocol/DnDProtocol';
+import Modal, {Props as modalProps} from '../../Modal'
+import withCondition from '../../HOC/withCondition'
+import {AllTimeModal} from '../../Modal/AllTimeModal'
+
+const AllTimeModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
 const { dialog } = electron.remote
 const EmptyName = ''
@@ -97,6 +102,7 @@ const MainFormComponent = ({
   const insertModalOpenRef = useRef(false)
   const protocolRef = useRef<HTMLDivElement | null>(null)
   const [allTimeInputs, setAllTimeInputs] = useState(() => decomposeAllTime(allTime))
+  const [isAllTimeModalOpen, setIsAllTimeModalOpen] = useState(false)
   const [containerElement, setContainerElement] = useState<HTMLDivElement | null>(null)
   const [capturedProtocol, captureProtocol] = useState<TemporaryProtocolButtonPosition | ''>('')
   const [screenSpaceWidth, setScreenSpaceRefWidth] = useState(0)
@@ -145,6 +151,13 @@ const MainFormComponent = ({
     const rawValue = (field === 'minutes' || field === 'seconds')
       ? String(+e.currentTarget.value)
       : e.currentTarget.value
+
+    // hours cannot be negative: only digits are allowed (reject "-", "+", etc.)
+    if (field === 'hours') {
+      if (!/^\d*$/.test(rawValue)) {
+        return
+      }
+    }
 
     // minutes/seconds cannot exceed 59: reject the keystroke entirely (controlled input keeps its previous value)
     if (field === 'minutes' || field === 'seconds') {
@@ -269,32 +282,7 @@ const MainFormComponent = ({
               onInsertModalToggle={handleInsertModalToggle}
             />
           </section>
-          <div className={s.allTimeRow}>
-            <label htmlFor="all-time-hours">All time</label>
-            <input
-              id="all-time-hours"
-              type="text"
-              value={allTimeInputs.hours}
-              onChange={handleAllTimeFieldChange('hours')}
-            />
-            <span className={s.allTimeUnit}>h</span>
-            <input
-              id="all-time-minutes"
-              type="number"
-              value={allTimeInputs.minutes}
-              onChange={handleAllTimeFieldChange('minutes')}
-            />
-            <span className={s.allTimeUnit}>m</span>
-            <input
-              id="all-time-seconds"
-              type="text"
-              value={allTimeInputs.seconds}
-              onChange={handleAllTimeFieldChange('seconds')}
-            />
-            <span className={s.allTimeUnit}>s</span>
-            {allTimeError ?
-              <span className={s.allTimeError}>{allTimeError}</span> : null}
-          </div>
+          <button onClick={() => setIsAllTimeModalOpen(true)}>Set All Time</button>
           {/* <div className={cn(s.spaceButtonsContainer)}>
             <button
               className={s.spaceButton}
@@ -408,6 +396,19 @@ const MainFormComponent = ({
       </div>
 
       <DnDProtocol allTime={allTime} screenSpaceWidth={screenSpaceWidth} scale={canvasScale} fits={captureFits} protocolRef={protocolRef} capturedProtocol={capturedProtocol}/>
+
+      <AllTimeModalWithCondition
+        condition={isAllTimeModalOpen}
+        closeModal={() => setIsAllTimeModalOpen(false)}
+        render={() => (
+          <AllTimeModal
+            allTimeInputs={allTimeInputs}
+            onFieldChange={handleAllTimeFieldChange}
+            allTimeError={allTimeError}
+            closeModal={() => setIsAllTimeModalOpen(false)}
+          />
+        )}
+      />
     </div>
   )
 }
