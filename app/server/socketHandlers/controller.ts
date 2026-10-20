@@ -5,6 +5,7 @@ import { ShortNames, ValveLineType } from '../../src/components/MainForm/MainFor
 
 import Serial from '../serial'
 import ThermostatController from '../termex'
+import Stk500v2Flasher from '../flasher'
 import { EventEmitter } from 'events';
 
 interface Counter {
@@ -94,6 +95,7 @@ export default class Controller {
   private turningOn: boolean
   private turningOff: boolean
   private hasTemperatureFormerChanges: boolean
+  private flashing: boolean
 
   constructor(socket: socket.Socket, io: socket.Server) {
     this.data = null
@@ -117,6 +119,7 @@ export default class Controller {
     this.turningOn = false
     this.turningOff = false
     this.hasTemperatureFormerChanges = false
+    this.flashing = false
   }
 
   private initializeThermostat() {
@@ -395,5 +398,54 @@ export default class Controller {
     console.log('DISCONNET');
 
     this.Serial?.disconnect()
+  }
+
+  // Прошивка ATmega2560 по STK500v2 (загрузчик в 0x3E000) без avrdude:
+  // закрываем порт 500k -> flasher на 115200 (sign-on, запись страниц, верификация)
+  // -> переподключаем на 500k и ждём CONNECTED от прошивки
+  flashFirmware = async (hexPath: string) => {
+    if (this.flashing) {
+      this.io.emit(socketConfig.flashError, 'Прошивка уже выполняется')
+      return
+    }
+    const portPath = this.Serial.getPortPath()
+    if (!portPath) {
+      this.io.emit(socketConfig.flashError, 'Сначала подключитесь к плате (Connect)')
+      return
+    }
+    this.flashing = true
+    try {
+      await this.Serial.closePort()
+      const flasher = new Stk500v2Flasher((p) => this.io.emit(socketConfig.flashProgress, p))
+      console.log('Start flashing')
+      await flasher.flash(portPath, hexPath)
+      console.log('Finish flashing')
+
+      // прошивка отправляет CONNECTED один раз ~60 мс после старта;
+      // повторное открытие порта даёт reset (DTR) и свежий CONNECTED
+      let connected = false
+      for (let attempt = 0; attempt < 2 && !connected; attempt++) {
+        try {
+          await this.Serial.connectToPort(portPath)
+          connected = true
+          console.log('Reconnect after flash fine')
+        } catch (e) {
+          console.log('reconnect after flash failed', e)
+          await this.delaytTimer(500)
+        }
+      }
+      if (!connected) {
+        this.io.emit(socketConfig.flashError, 'Прошивка записана и проверена, но плата не ответила. Нажмите Connect.')
+      }
+    } catch (e) {
+      console.log('flash error', e)
+      const message = e instanceof Error ? e.message : String(e)
+      this.io.emit(socketConfig.flashError, message)
+      // пробуем вернуть рабочее соединение на 500k
+      await this.Serial.connectToPort(portPath).catch(() => {})
+    } finally {
+      console.log('CAN FLASH AGAIN')
+      this.flashing = false
+    }
   }
 }

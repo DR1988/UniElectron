@@ -27,7 +27,20 @@ export default class Serial {
     this.connected = false
   }
 
-  private async connectToPort(path: string) {
+  getPortPath = () => (this.serialPort ? this.serialPort.path : null)
+
+  // закрывает порт и дожидается завершения закрытия (нужно перед прошивкой)
+  closePort = (): Promise<void> => {
+    return new Promise((resolve) => {
+      if (this.serialPort && this.serialPort.isOpen) {
+        this.serialPort.close(() => resolve())
+      } else {
+        resolve()
+      }
+    })
+  }
+
+  async connectToPort(path: string) {
     let receivedData = '';
     let counter = 0;
     let interval: NodeJS.Timer;

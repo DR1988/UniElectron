@@ -19,6 +19,7 @@ export interface MainFormState {
     removeModalChanges: RemoveSpace
     savedLineFormer: Array<ValveLineType>,
     isManualControlModalOpen: boolean
+    flashStatus: string
   }
 
 export const resetedState: MainFormState = {
@@ -160,7 +161,8 @@ export const resetedState: MainFormState = {
     endTimeValue: 0,
   },
   savedLineFormer: [],
-  isManualControlModalOpen: false
+  isManualControlModalOpen: false,
+  flashStatus: ''
 }
 
 export const initialState: MainFormState = {
@@ -398,5 +400,6 @@ export const initialState: MainFormState = {
     endTimeValue: 0,
   },
   savedLineFormer: [],
-  isManualControlModalOpen: false
+  isManualControlModalOpen: false,
+  flashStatus: ''
 }

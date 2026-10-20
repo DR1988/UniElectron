@@ -24,6 +24,9 @@ const socketConfig = {
   switchValves: 'SWITCH_VALVES',
   checkValves: 'CHECK_VALVES',
   valveAction: 'VALVE_ACTION',
+  flashFirmware: 'FLASH_FIRMWARE',
+  flashProgress: 'FLASH_PROGRESS',
+  flashError: 'FLASH_ERROR',
 }
 
 export interface startSignal {

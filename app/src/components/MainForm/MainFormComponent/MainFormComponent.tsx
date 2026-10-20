@@ -37,6 +37,8 @@ interface Props extends ProcessSheetComponentProps {
   stop: () => void,
   addNewValveTime: (chosenLine: ValveLineType) => void,
   connect: () => void,
+  flashFirmware: (hexPath: string) => void,
+  flashStatus: string,
   switchHV: () => void,
   HVOpen: boolean,
   socket: SocketIOClient.Socket,
@@ -70,6 +72,8 @@ const MainFormComponent = ({
   pause,
   stop,
   connect,
+  flashFirmware,
+  flashStatus,
   socket,
   switchHV,
   HVOpen,
@@ -278,6 +282,25 @@ const MainFormComponent = ({
         <button
             className={s.protocolButton}
             onClick={connect}>Connect</button>
+        <button
+            className={cn({ [s.inactive]: !serialConnected }, s.protocolButton)}
+            onClick={() => {
+              dialog.showOpenDialog(null, {
+                defaultPath: '',
+                title: 'Выбрать прошивку (Intel HEX)',
+                filters: [{
+                  extensions: ['hex'],
+                  name: ''
+                }],
+              }).then(({filePaths}) => {
+                if (filePaths.length) {
+                  flashFirmware(filePaths[0])
+                }
+              })
+            }}>Flash</button>
+        {flashStatus ? (
+          <span style={{ alignSelf: 'center', fontSize: 12, color: '#555' }}>{flashStatus}</span>
+        ) : null}
         <button
             className={cn({ [s.inactive]: disableStart }, s.protocolButton)}
           onClick={start}>Start</button>

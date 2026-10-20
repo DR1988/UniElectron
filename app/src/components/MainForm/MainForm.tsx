@@ -158,6 +158,25 @@ class MainForm extends Component<Props, MainFormState> {
         disableStart: false,
       })
     })
+
+    this.props.socket.on(socketConfig.flashProgress, (data: { phase: string, done: number, total: number }) => {
+      const labels: Record<string, string> = {
+        connecting: 'Подключение к загрузчику...',
+        writing: `Запись прошивки ${data.done}/${data.total}`,
+        verifying: `Проверка прошивки ${data.done}/${data.total}`,
+        done: 'Готово',
+      }
+      this.setState({ flashStatus: labels[data.phase] || data.phase })
+    })
+
+    this.props.socket.on(socketConfig.flashError, (message: string) => {
+      this.setState({ flashStatus: message })
+      setTimeout(() => {
+        if (this.state.flashStatus === message) {
+          this.setState({ flashStatus: '' })
+        }
+      }, 8000)
+    })
   }
 
   getFromLocalStorage = () => {
@@ -225,6 +244,11 @@ class MainForm extends Component<Props, MainFormState> {
   pause = () => this.props.socket.emit(socketConfig.pause)
 
   connect = () => this.props.socket.emit(socketConfig.connect)
+
+  flashFirmware = (hexPath: string) => {
+    this.setState({ flashStatus: 'Подключение к загрузчику...' })
+    this.props.socket.emit(socketConfig.flashFirmware, hexPath)
+  }
 
   stop = () => {
     console.log('stop')
@@ -1400,6 +1424,7 @@ class MainForm extends Component<Props, MainFormState> {
           pause={this.pause}
           stop={this.stop}
           connect={this.connect}
+          flashFirmware={this.flashFirmware}
           showModal={this.showModal}
           addNewValveTime={this.addNewValveTime}
           setChosenValveTime={this.setChosenValveTime}

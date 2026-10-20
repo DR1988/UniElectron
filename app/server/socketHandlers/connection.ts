@@ -34,4 +34,5 @@ export default (socket, io) => {
   socket.on(socketConfig.setRPMValue, (data: number) => controller.rpmStart(data))
   socket.on(socketConfig.switchValves, (data: { shorName: ShortNames, value: boolean }) => controller.switchValves(data))
   socket.on(socketConfig.checkValves, () => controller.checkValves())
+  socket.on(socketConfig.flashFirmware, (hexPath: string) => controller.flashFirmware(hexPath))
 }
