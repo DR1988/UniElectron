@@ -10,9 +10,8 @@ import {
   LEGEND_HEIGHT,
   LINE_GAP,
   LINE_HEIGHT,
-  MAX_SCALE_FACTOR, MIN_CANVAS_WIDTH,
+  getMaxScaleFactor, getZoomStep, MIN_CANVAS_WIDTH,
   RECT_HEIGHT,
-  STEP,
   TIME_LINE_HEIGHT
 } from './CanvasConstants';
 
@@ -240,6 +239,15 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
 
     return () => resizeObserver.disconnect()
   }, [container, canvasHeight, screenSpaceRef, allTime])
+
+  // allTime grew while zoomed: clamp the scale so the visible window stays within the limit
+  useEffect(() => {
+    const maxScale = getMaxScaleFactor(allTime)
+    if (scaleRef.current > maxScale) {
+      scaleRef.current = maxScale
+      onScaleChange?.(maxScale)
+    }
+  }, [allTime, onScaleChange])
 
   const {
     elementsArray,
@@ -1058,7 +1066,7 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
     const {worldX: worldXBeforeZoom} = screenToWorld(event.nativeEvent.offsetX, 0)
     const dir = Math.sign(-event.deltaY)
 
-    const scale = Math.max(1, Math.min(MAX_SCALE_FACTOR, scaleRef.current + dir * STEP))
+    const scale = Math.max(1, Math.min(getMaxScaleFactor(allTime), scaleRef.current + dir * getZoomStep(allTime)))
 
     if (scaleRef.current === scale) {
       return
