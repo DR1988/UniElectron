@@ -70,20 +70,26 @@ export default class Serial {
       this.io.emit(socketConfig.connected, false)
     })
 
-    parser.on('data', (data: string) => {
-      if (data === 'CONNECTED') {
-        receivedData = data;
-        clearInterval(interval);
-        console.log(`arduion found, data: ${data}`)
-        this.io.emit(socketConfig.searchingSerial, false)
-      } else {
-        if (data in valveActions.actions) {
-          valveActions.actions[data]?.action(data)
-        }
-      }
-    })
+    
 
     return new Promise((resolve, reject) => {
+      console.log('NEW PROMISE')
+
+      parser.on('data', (data: string) => {
+        if (data === 'CONNECTED') {
+          receivedData = data;
+          clearInterval(interval);
+          console.log(`arduion found, data: ${data}`)
+          this.io.emit(socketConfig.searchingSerial, false)
+          resolve(true);
+        } else {
+          if (data in valveActions.actions) {
+            valveActions.actions[data]?.action(data)
+          }
+        }
+        }
+      )
+
       interval = setInterval(() => {
         if (counter > 3 && receivedData === '') {
 
