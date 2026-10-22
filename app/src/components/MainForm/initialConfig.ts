@@ -11,6 +11,7 @@ export interface MainFormState {
     lineFormer: Array<ValveLineType>,
     HVOpen: boolean,
     serialConnected: boolean,
+    thermostatConnected: boolean,
     textEditorState: EditorState
     temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
     searchingSerial: boolean
@@ -138,6 +139,7 @@ export const resetedState: MainFormState = {
   ],
   HVOpen: false,
   serialConnected: false,
+  thermostatConnected: false,
   textEditorState: EditorState.createEmpty(),
   searchingSerial: false,
   temporaryButtonNames: {
@@ -197,6 +199,7 @@ export const initialState: MainFormState = {
   allTimeError: '',
   HVOpen: false,
   serialConnected: false,
+  thermostatConnected: false,
   lineFormer: [
     {
       name: 'ValveLine',

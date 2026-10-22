@@ -78,7 +78,10 @@ export default class ThermostatController {
             return
         }
         console.log('checkConnection init')
-        this.checkConnection()
+        if (this.checkConnection()) {
+            // связь установлена - сообщаем контроллеру, чтобы он уведомил клиент
+            this.exeptionEmitter.emit('connected')
+        }
     }
 
     private openDevice(device: HID.Device) {
@@ -96,11 +99,13 @@ export default class ThermostatController {
     }
 
     // SER доступен в любом состоянии, включая "выключено" — подходит для проверки связи
-    private checkConnection() {
+    private checkConnection(): boolean {
         const response = this.send(`:${this.termexDevice.serialNumber} SER RD`)
         if (response.status !== '0x00') {
             this.emitConnectionError()
+            return false
         }
+        return true
     }
 
     private emitConnectionError() {

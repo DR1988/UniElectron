@@ -24,6 +24,7 @@ const socketConfig = {
   switchValves: 'SWITCH_VALVES',
   checkValves: 'CHECK_VALVES',
   setThermostatCheck: 'SET_THERMOSTAT_CHECK',
+  thermostatConnected: 'THERMOSTAT_CONNECTED',
   valveAction: 'VALVE_ACTION',
   flashFirmware: 'FLASH_FIRMWARE',
   flashProgress: 'FLASH_PROGRESS',
@@ -33,6 +34,8 @@ const socketConfig = {
 export interface startSignal {
   lineFormer: Array<ValveLineType>,
   allTime: number
+  // состояние чекбокса "Thermostat check" на момент нажатия Start
+  thermostatCheck?: boolean
 }
 
 export default socketConfig

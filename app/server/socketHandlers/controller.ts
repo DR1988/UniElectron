@@ -117,6 +117,9 @@ export default class Controller {
     this.waitValue = false
     this.eventEmiiter = new EventEmitter()
     this.eventEmiiter.addListener('error', this.ErrorHandler)
+    this.eventEmiiter.addListener('connected', () => {
+      this.io.emit(socketConfig.thermostatConnected, true)
+    })
     this.turningOn = false
     this.turningOff = false
     this.hasTemperatureFormerChanges = false
@@ -131,6 +134,7 @@ export default class Controller {
 
   // переключатель из блока Options: отключает все обращения к термостату (TERMEX)
   setThermostatCheck = (enabled: boolean) => {
+    console.log('thermostat check:', enabled)
     this.thermostatCheckEnabled = enabled
   }
 
@@ -171,6 +175,7 @@ export default class Controller {
       this.ThermostatController = new ThermostatController(this.eventEmiiter)
       this.turningOff = false
     } else {
+      this.io.emit(socketConfig.thermostatConnected, false)
       this.io.emit(socketConfig.thermoStatInitError, error)
     }
   }
@@ -281,6 +286,11 @@ export default class Controller {
   initStart = async (data: startSignal) => {
     const hasTemperatureFormerChanges = data.lineFormer.find(lf => lf.name === 'TempSetter').changes.length > 0
     this.hasTemperatureFormerChanges = hasTemperatureFormerChanges
+    // клиент шлёт состояние чекбокса "Thermostat check" вместе со start —
+    // надёжнее отдельного события, которое могло потеряться при переподключении
+    if (typeof data.thermostatCheck === 'boolean') {
+      this.thermostatCheckEnabled = data.thermostatCheck
+    }
     this.turningOn = true
     // включили проверку после Connect - контроллер ещё не создан
     if (this.isThermostatActive() && !this.ThermostatController) {

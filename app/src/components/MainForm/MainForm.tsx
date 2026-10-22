@@ -29,6 +29,7 @@ import SearchingBoardModal from '../Modal/SearchingBoardModal/SearchingBoardModa
 import {RemoveSpaceModal} from '../Modal/RemoveSpaceModal/RemoveSpaceModal'
 import {ManualControlModal} from '../Modal/ManualControlModal/ManulaControlModal'
 import {RemoveSpaceOption} from '../CommonTypes';
+import {OptionsContext} from '../Main/OptionsContext';
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
@@ -39,6 +40,7 @@ interface Props {
 }
 
 class MainForm extends Component<Props, MainFormState> {
+  static contextType = OptionsContext
 
   svgPageX: number
 
@@ -103,6 +105,12 @@ class MainForm extends Component<Props, MainFormState> {
     this.props.socket.on(socketConfig.connected, (data: boolean) => {
       this.setState({
         serialConnected: data,
+      })
+    })
+
+    this.props.socket.on(socketConfig.thermostatConnected, (data: boolean) => {
+      this.setState({
+        thermostatConnected: data,
       })
     })
 
@@ -236,6 +244,7 @@ class MainForm extends Component<Props, MainFormState> {
     const StartSignal: startSignal = {
       lineFormer,
       allTime,
+      thermostatCheck: this.context.isThermostatCheck,
     }
     this.props.socket.emit(socketConfig.start, StartSignal)
     this.setState({...this.state, disableStart: true})

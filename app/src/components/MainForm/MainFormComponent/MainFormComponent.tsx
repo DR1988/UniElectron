@@ -47,6 +47,7 @@ interface Props extends ProcessSheetComponentProps {
   uploadTemporaryProtocol: (path: string, temporaryProtocolButtonPosition: TemporaryProtocolButtonPosition) => void
   handleEditorStateChange: (editorState: EditorState) => void,
   serialConnected: boolean,
+  thermostatConnected: boolean,
   textEditorState: EditorState,
   changeTime: (startTime: number, endTime: number) => void
   temporaryButtonNames: Record<TemporaryProtocolButtonPosition, string>
@@ -80,6 +81,7 @@ const MainFormComponent = ({
   downloadProtocol,
   uploadProtocol,
   serialConnected,
+  thermostatConnected,
   handleEditorStateChange,
   textEditorState,
   changeTime,
@@ -303,7 +305,7 @@ const MainFormComponent = ({
           <span style={{ alignSelf: 'center', fontSize: 12, color: '#555' }}>{flashStatus}</span>
         ) : null}
         <button
-            className={cn({ [s.inactive]: disableStart }, s.protocolButton)}
+            className={cn({ [s.inactive]: disableStart || !serialConnected || !thermostatConnected }, s.protocolButton)}
           onClick={start}>Start</button>
         {/* <button
           className={cn({ [s.inactive]: !serialConnected }, s.protocolButton)}
