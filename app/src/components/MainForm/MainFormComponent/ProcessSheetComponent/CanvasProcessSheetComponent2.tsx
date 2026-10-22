@@ -16,6 +16,7 @@ import {
 } from './CanvasConstants';
 
 import throttle from 'lodash/throttle';
+import socketConfig from '../../../../../config/socket.config';
 import {useElements} from './useElements';
 import {ChangeTimeForm} from './TimeLineComponent/ChangeTimeForm';
 import ClickOutHandler from 'react-onclickout'
@@ -58,6 +59,8 @@ export type Props = {
   capturedProtocolElement?: React.MutableRefObject<HTMLDivElement | null>
   // tells the parent that the insert-time modal opened/closed (keeps the preview alive while open)
   onInsertModalToggle?: (open: boolean) => void
+  // server events start/stop drive the time line animation
+  socket?: SocketIOClient.Socket
 }
 
 
@@ -93,6 +96,7 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     insertCapturedProtocol,
     capturedProtocolElement,
     onInsertModalToggle,
+    socket,
   }
 ) => {
 
@@ -140,6 +144,19 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     startRef.current = false
     timeLineOffsetRef.current = 0
   }
+
+  // the server start/stop events drive the time line animation
+  useEffect(() => {
+    if (!socket) return
+    const handleStart = () => tryStart()
+    const handleStop = () => tryStop()
+    socket.on(socketConfig.start, handleStart)
+    socket.on(socketConfig.stop, handleStop)
+    return () => {
+      socket.off(socketConfig.start, handleStart)
+      socket.off(socketConfig.stop, handleStop)
+    }
+  }, [socket])
 
   const worldToScreen = (worldX: number, width: number): {
     screenX: number

@@ -252,6 +252,7 @@ const MainFormComponent = ({
               insertCapturedProtocol={insertCapturedProtocol}
               capturedProtocolElement={protocolRef}
               onInsertModalToggle={handleInsertModalToggle}
+              socket={socket}
             />
           </section>
           <button onClick={() => setIsAllTimeModalOpen(true)}>Set All Time</button>

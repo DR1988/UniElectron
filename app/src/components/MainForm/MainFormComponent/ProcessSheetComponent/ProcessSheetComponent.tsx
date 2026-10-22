@@ -46,6 +46,7 @@ export interface Props {
   insertCapturedProtocol?: (lineFormer: Array<ValveLineType>) => void
   capturedProtocolElement?: React.MutableRefObject<HTMLDivElement | null>
   onInsertModalToggle?: (open: boolean) => void
+  socket?: SocketIOClient.Socket
 }
 
 interface State {
@@ -160,6 +161,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
     insertCapturedProtocol,
     capturedProtocolElement,
     onInsertModalToggle,
+    socket,
   } = props
 
   const mousePosition = useRef(0)
@@ -224,6 +226,7 @@ const ProcessSheetComponent: React.FC<Props> = (props) => {
             insertCapturedProtocol={insertCapturedProtocol}
             capturedProtocolElement={capturedProtocolElement}
             onInsertModalToggle={onInsertModalToggle}
+            socket={socket}
           />
             : null
         }
