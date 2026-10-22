@@ -1,6 +1,7 @@
 import React, {useCallback, useContext} from 'react';
 import styles from './Options.css'
 import { ThemeContext } from '../../../../Main/Context';
+import { OptionsContext } from '../../../../Main/OptionsContext';
 
 type Props = {
   toggleOptions: (value: boolean) => void
@@ -18,10 +19,15 @@ export const Options: React.FC<Props> = (
   }) => {
 
   const {theme, toggleTheme} = useContext(ThemeContext)
+  const {isThermostatCheck, setThermostatCheck} = useContext(OptionsContext)
 
   const _toggleOptions = useCallback(() => {
     toggleOptions(!isOptionsOpen)
   }, [isOptionsOpen])
+
+  const clickThermostatCheck = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    setThermostatCheck(event.currentTarget.checked)
+  }, [setThermostatCheck])
 
   const clickCheckBox = useCallback((event: React.SyntheticEvent<InputEvent>) => {
     setMovement(event.target.checked)
@@ -54,7 +60,15 @@ export const Options: React.FC<Props> = (
             type="checkbox"/>
           <label className={styles.label} htmlFor={'setDarkTheme'}>Dark Theme</label>
         </div>
-        
+        <div>
+          <input
+            checked={isThermostatCheck}
+            id='setThermostatCheck'
+            onChange={clickThermostatCheck}
+            className={styles.input}
+            type="checkbox"/>
+          <label className={styles.label} htmlFor={'setThermostatCheck'}>Thermostat check</label>
+        </div>
       </div>
     </div> : null}
   </div>

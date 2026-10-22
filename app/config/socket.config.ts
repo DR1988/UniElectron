@@ -23,6 +23,7 @@ const socketConfig = {
   setRPMValue: 'SET_RPM_VALUE',
   switchValves: 'SWITCH_VALVES',
   checkValves: 'CHECK_VALVES',
+  setThermostatCheck: 'SET_THERMOSTAT_CHECK',
   valveAction: 'VALVE_ACTION',
   flashFirmware: 'FLASH_FIRMWARE',
   flashProgress: 'FLASH_PROGRESS',

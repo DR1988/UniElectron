@@ -95,6 +95,7 @@ export default class Controller {
   private turningOn: boolean
   private turningOff: boolean
   private hasTemperatureFormerChanges: boolean
+  private thermostatCheckEnabled: boolean
   private flashing: boolean
 
   constructor(socket: socket.Socket, io: socket.Server) {
@@ -119,12 +120,22 @@ export default class Controller {
     this.turningOn = false
     this.turningOff = false
     this.hasTemperatureFormerChanges = false
+    this.thermostatCheckEnabled = true
     this.flashing = false
   }
 
   private initializeThermostat() {
     console.log('INIT')
     this.ThermostatController = new ThermostatController(this.eventEmiiter)
+  }
+
+  // переключатель из блока Options: отключает все обращения к термостату (TERMEX)
+  setThermostatCheck = (enabled: boolean) => {
+    this.thermostatCheckEnabled = enabled
+  }
+
+  private isThermostatActive() {
+    return this.hasTemperatureFormerChanges && this.thermostatCheckEnabled
   }
 
   // private async usbPromise(): Promise<Boolean> {
@@ -199,11 +210,11 @@ export default class Controller {
     // this.Serial.sendData('R80|\n')
     this.Serial.sendData('S\n')
     this.turningOff = true
-    this.hasTemperatureFormerChanges && this.ThermostatController?.turnOff()
+    this.isThermostatActive() && this.ThermostatController?.turnOff()
     //хак - термоконтроллер после того как перейдет в состояние выключено дискиптор HID устройства больше не доступен
     //и его надо инициализировать заново, но с задержкой
     setTimeout(() => {
-      this.initializeThermostat()
+      this.isThermostatActive() && this.initializeThermostat()
     }, 2000)
     this.io.emit(socketConfig.stop, this.counter)
   }
@@ -247,7 +258,7 @@ export default class Controller {
     clearInterval(this.temperatureInterval)
     this.temperatureInterval = setInterval(async () => {
       this.io.emit(socketConfig.tempChange, {
-        temperature: this.hasTemperatureFormerChanges && this.ThermostatController && this.ThermostatController.getTemperature() || 20,
+        temperature: this.isThermostatActive() && this.ThermostatController && this.ThermostatController.getTemperature() || 20,
         time: this.currentTime,
       })
     }, 5000 / this.velocity)
@@ -271,8 +282,12 @@ export default class Controller {
     const hasTemperatureFormerChanges = data.lineFormer.find(lf => lf.name === 'TempSetter').changes.length > 0
     this.hasTemperatureFormerChanges = hasTemperatureFormerChanges
     this.turningOn = true
-    this.hasTemperatureFormerChanges && await this.ThermostatController.turnOn()
-    this.hasTemperatureFormerChanges && await this.delaytTimer(7000)
+    // включили проверку после Connect - контроллер ещё не создан
+    if (this.isThermostatActive() && !this.ThermostatController) {
+      this.initializeThermostat()
+    }
+    this.isThermostatActive() && await this.ThermostatController.turnOn()
+    this.isThermostatActive() && await this.delaytTimer(7000)
     this.io.emit(socketConfig.connected, true)
     this.start(data)
   }
@@ -280,7 +295,7 @@ export default class Controller {
   start = async (data: startSignal) => {
     this.init(data)
     // this.hasTemperatureFormerChanges && await this.ThermostatController.turnOn()
-    this.hasTemperatureFormerChanges && this.startGettingTemperature()
+    this.isThermostatActive() && this.startGettingTemperature()
     this.counter.distance = 100
     this.intervalId = setInterval(() => {
       this.io.emit(socketConfig.rpmChange, {
@@ -288,7 +303,7 @@ export default class Controller {
         time: this.currentTime,
       })
 
-      if (this.hasTemperatureFormerChanges && !this.ThermostatController.getAlarmStatus()) {
+      if (this.isThermostatActive() && !this.ThermostatController.getAlarmStatus()) {
         this.stop()
         this.io.emit(socketConfig.thermoStatInitError, {
           name: "ConnectionError",
@@ -349,7 +364,7 @@ export default class Controller {
           if (line.idname === 'T10') {
             //this.sendingCommands = this.sendingCommands.concat(`${line.idname}${line.value}|`)
             console.log('temperature line sending', line.idname, line.value)
-            this.hasTemperatureFormerChanges && this.ThermostatController.writeCurrentSetTemp(line.value)
+            this.isThermostatActive() && this.ThermostatController.writeCurrentSetTemp(line.value)
           }
         } else if (line.endTime === this.currentTime) {
           if (line.idname === 'R9') {
@@ -389,7 +404,7 @@ export default class Controller {
   }
 
   connect = () => {
-    this.initializeThermostat()
+    this.thermostatCheckEnabled && this.initializeThermostat()
     this.io.emit(socketConfig.searchingSerial, true)
     this.Serial.findSerialPort()
   }
