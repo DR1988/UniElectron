@@ -161,6 +161,7 @@ Workflow `.github/workflows/build-windows.yml` собирает NSIS-устан�
    - Node.js 20 + `NODE_OPTIONS=--openssl-legacy-provider` для шага сборки (webpack 4 использует md4, недоступный в OpenSSL 3 без legacy-провайдера); node-gyp ≥12 — чтобы находить Visual Studio 2026 на актуальном раннере;
    - `npm install --ignore-scripts` — установка без запуска скриптов: иначе нативные модули (`node-hid`, `@serialport/bindings`) скомпилируются под системный Node, а их старый `nan` несовместим с современным V8;
    - `node node_modules/electron/install.js` — скачивание бинарника Electron 12 (пропущено из-за --ignore-scripts);
+   - загрузка заголовков Electron 12 в кэш `~/.electron-gyp/12.0.6/` и патч `common.gypi`: добавляется переменная `'openssl_fips': ''` — без неё современный gyp (node-gyp ≥12) падает на условии `['openssl_fips != ""', ...]` из оригинального файла; node-gyp переиспользует существующий кэш и не скачивает заголовки заново;
    - `npx electron-builder install-app-deps` — компиляция нативных модулей из исходников **под Electron 12** (готовых prebuild для ABI v89 нет; Visual Studio Build Tools и Python на раннере предустановлены);
    - `npm run build` — production-сборка (renderer + main.prod.js + electron-builder --dir);
    - `npx electron-builder --win` — упаковка NSIS-установщика.
