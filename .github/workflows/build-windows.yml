@@ -28,10 +28,12 @@ jobs:
       - name: Prepare Electron headers (patch common.gypi)
         run: |
           $cache = Join-Path $env:USERPROFILE '.electron-gyp\12.0.6'
-          New-Item -ItemType Directory -Force -Path $cache | Out-Null
+          New-Item -ItemType Directory -Force -Path (Join-Path $cache 'x64') | Out-Null
           curl.exe -L -o "$env:TEMP\e12-headers.tar.gz" 'https://artifacts.electronjs.org/headers/dist/v12.0.6/node-v12.0.6-headers.tar.gz'
           tar -xzf "$env:TEMP\e12-headers.tar.gz" -C $env:TEMP
           Copy-Item -Recurse -Force "$env:TEMP\node_headers\*" $cache
+          curl.exe -L -o (Join-Path $cache 'x64\node.lib') 'https://artifacts.electronjs.org/headers/dist/v12.0.6/win-x64/node.lib'
+          Set-Content -Path (Join-Path $cache 'installVersion') -Value '11' -NoNewline
           $gypi = Join-Path $cache 'include\node\common.gypi'
           $c = Get-Content $gypi -Raw
           $c = $c.Replace("    'openssl_fips%': '',", "    'openssl_fips%': '',`n    'openssl_fips': '',")
