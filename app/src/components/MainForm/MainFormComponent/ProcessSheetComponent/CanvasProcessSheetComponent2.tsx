@@ -1422,7 +1422,7 @@ console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX',
       <div>coordOWrldx: {screenToWorld(changeTimeShowPosition.x, 0).worldX.toFixed(2)}</div>
     </div> */}
 
-    <button onClick={() => tryStart()}>Start Test</button>
-    <button onClick={() => tryStop()}>Stop Test</button>
+    {/* <button onClick={() => tryStart()}>Start Test</button>
+    <button onClick={() => tryStop()}>Stop Test</button> */}
   </div>
 }
