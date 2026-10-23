@@ -158,7 +158,7 @@ Workflow `.github/workflows/build-windows.yml` собирает NSIS-устан�
 
 1. **Запуск** — GitHub → вкладка *Actions* → workflow «Build Windows» → кнопка **Run workflow** (ручной запуск). Также запускается автоматически при push тега вида `v*` (например, `v1.0.0`).
 2. **Сборка** — на раннере `windows-latest`:
-   - Node.js 16 (на Node 17+ webpack 4 падает: md4/OpenSSL 3);
+   - Node.js 20 + `NODE_OPTIONS=--openssl-legacy-provider` для шага сборки (webpack 4 использует md4, недоступный в OpenSSL 3 без legacy-провайдера); node-gyp ≥12 — чтобы находить Visual Studio 2026 на актуальном раннере;
    - `npm install` — postinstall (`electron-builder install-app-deps`) компилирует нативные модули `node-hid` и `@serialport/bindings` из исходников под Electron 12 (готовых prebuild для ABI v89 нет; Visual Studio Build Tools и Python на раннере предустановлены);
    - `npm run build` — production-сборка (renderer + main.prod.js + electron-builder --dir);
    - `npx electron-builder --win` — упаковка NSIS-установщика.
