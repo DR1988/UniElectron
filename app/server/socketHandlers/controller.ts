@@ -1,6 +1,5 @@
 import socketConfig, { startSignal } from '../../config/socket.config'
 import socket from 'socket.io'
-import * as usb from 'usb'
 import { ShortNames, ValveLineType } from '../../src/components/MainForm/MainFormInterfaces'
 
 import Serial from '../serial'
