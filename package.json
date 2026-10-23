@@ -34,8 +34,7 @@
     ],
     "win": {
       "target": [
-        "nsis",
-        "msi"
+        "nsis"
       ]
     },
     "directories": {
