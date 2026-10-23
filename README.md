@@ -132,7 +132,7 @@ app/
 | `npm start` | Dev-режим: Electron + webpack-dev-middleware (HMR), сервер на `PORT=8000` |
 | `npm run build` | Production-сборка: renderer → `app/build/`, инъекция бандла в main (`buildMainProd.js` → `main.preprod.ts`) → webpack main → `app/main.prod.js` + `electron-builder --dir` |
 | `npm run pack` | Только упаковка каталога (electron-builder --dir) |
-| `npm run dist` | Полный дистрибутив (Windows: nsis, msi) |
+| `npm run dist` | Полный дистрибутив для текущей платформы (цели win: nsis) |
 | `npm run create-component` | Генератор нового компонента |
 | `npm run fix` | eslint --fix |
 
@@ -151,6 +151,24 @@ app/
 3. `build-main-pack` — webpack (main.prod, entry `main.preprod.ts`, externals: `serialport`, `node-hid`) → `app/main.prod.js`, затем `electron-builder --dir` → `release/`.
 
 В production окно загружает `http://localhost:8000` и разворачивается на весь экран; сервер отдаёт HTML с инъектированным скриптом.
+
+### Сборка под Windows (GitHub Actions)
+
+Workflow `.github/workflows/build-windows.yml` собирает NSIS-установщик без локальной Windows-машины:
+
+1. **Запуск** — GitHub → вкладка *Actions* → workflow «Build Windows» → кнопка **Run workflow** (ручной запуск). Также запускается автоматически при push тега вида `v*` (например, `v1.0.0`).
+2. **Сборка** — на раннере `windows-latest`:
+   - Node.js 16 (на Node 17+ webpack 4 падает: md4/OpenSSL 3);
+   - `npm install` — postinstall (`electron-builder install-app-deps`) компилирует нативные модули `node-hid` и `@serialport/bindings` из исходников под Electron 12 (готовых prebuild для ABI v89 нет; Visual Studio Build Tools и Python на раннере предустановлены);
+   - `npm run build` — production-сборка (renderer + main.prod.js + electron-builder --dir);
+   - `npx electron-builder --win` — упаковка NSIS-установщика.
+3. **Результат** — архив артефактов `windows-build` у завершённого джоба: `release/ElectronReact Setup {версия}.exe` (установщик с деинсталлятором).
+
+Нюансы:
+
+- Подпись кода не настроена — при установке Windows SmartScreen покажет предупреждение «Windows protected your PC» (нажать «More info» → «Run anyway»).
+- Иконка приложения берётся из `app/resources/`; для своей иконки под Windows положите туда `icon.ico`.
+- MSI-цель из конфигурации убрана — собирается только NSIS.
 
 ## Интерфейс
 
