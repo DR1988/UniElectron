@@ -159,7 +159,9 @@ Workflow `.github/workflows/build-windows.yml` собирает NSIS-устан�
 1. **Запуск** — GitHub → вкладка *Actions* → workflow «Build Windows» → кнопка **Run workflow** (ручной запуск). Также запускается автоматически при push тега вида `v*` (например, `v1.0.0`).
 2. **Сборка** — на раннере `windows-latest`:
    - Node.js 20 + `NODE_OPTIONS=--openssl-legacy-provider` для шага сборки (webpack 4 использует md4, недоступный в OpenSSL 3 без legacy-провайдера); node-gyp ≥12 — чтобы находить Visual Studio 2026 на актуальном раннере;
-   - `npm install` — postinstall (`electron-builder install-app-deps`) компилирует нативные модули `node-hid` и `@serialport/bindings` из исходников под Electron 12 (готовых prebuild для ABI v89 нет; Visual Studio Build Tools и Python на раннере предустановлены);
+   - `npm install --ignore-scripts` — установка без запуска скриптов: иначе нативные модули (`node-hid`, `@serialport/bindings`) скомпилируются под системный Node, а их старый `nan` несовместим с современным V8;
+   - `node node_modules/electron/install.js` — скачивание бинарника Electron 12 (пропущено из-за --ignore-scripts);
+   - `npx electron-builder install-app-deps` — компиляция нативных модулей из исходников **под Electron 12** (готовых prebuild для ABI v89 нет; Visual Studio Build Tools и Python на раннере предустановлены);
    - `npm run build` — production-сборка (renderer + main.prod.js + electron-builder --dir);
    - `npx electron-builder --win` — упаковка NSIS-установщика.
 3. **Результат** — архив артефактов `windows-build` у завершённого джоба: `release/ElectronReact Setup {версия}.exe` (установщик с деинсталлятором).

@@ -19,8 +19,14 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install dependencies (without scripts)
+        run: npm install --ignore-scripts
+
+      - name: Download Electron binary
+        run: node node_modules/electron/install.js
+
+      - name: Rebuild native modules for Electron
+        run: npx electron-builder install-app-deps
 
       - name: Build
         run: npm run build
