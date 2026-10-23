@@ -28,12 +28,17 @@ export const OptionsContext = createContext<OptionsContextProp>(defaultContext)
 export const OptionsProvider: FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isOptionsOpen, toggleOptions] = useState(false)
   const [isMovement, setMovement] = useState(false)
-  const [isThermostatCheck, setIsThermostatCheck] = useState(true)
+  // состояние переключателя восстанавливается из localStorage, по умолчанию включен
+  const [isThermostatCheck, setIsThermostatCheck] = useState(() =>
+    localStorage.getItem('thermostatCheck') !== 'false'
+  )
 
   // отдельное соединение для передачи переключателя на сервер (controller - singleton)
   const socket = useRef<SocketIOClient.Socket | null>(io(`${location.origin}`))
 
   useEffect(() => {
+    // сервер стартует со значением true - синхронизируем его с восстановленным
+    socket.current?.emit(socketConfig.setThermostatCheck, isThermostatCheck)
     return () => {
       socket.current?.removeAllListeners()
       socket.current?.disconnect()
@@ -42,6 +47,7 @@ export const OptionsProvider: FC<{ children: React.ReactNode }> = ({ children })
 
   const setThermostatCheck = (value: boolean) => {
     setIsThermostatCheck(value)
+    localStorage.setItem('thermostatCheck', String(value))
     socket.current?.emit(socketConfig.setThermostatCheck, value)
   }
 

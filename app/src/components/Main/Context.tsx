@@ -19,28 +19,23 @@ export const context:ContextProp = {
 export const ThemeContext = createContext<ContextProp>(context);
 
 export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setTheme] = useState<Theme>('dark');
+  // тема восстанавливается из localStorage, по умолчанию dark
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem('theme')
+    return saved === 'light' || saved === 'dark' ? saved : 'dark'
+  });
 
   useEffect(() => {
+      localStorage.setItem('theme', theme)
       if (theme === 'dark') {
           bodyElement.classList.add('dark')
       } else {
           bodyElement.classList.remove('dark')
       }
-    }, [])
-    
-  const toggleTheme = () => {
-    setTheme((prevTheme) => {
-      if (bodyElement) {
-        if (prevTheme === 'light') {
-          bodyElement.classList.add('dark')
-        } else {
-          bodyElement.classList.remove('dark')
-        }
-      }
+    }, [theme])
 
-      return prevTheme === 'light' ? 'dark' : 'light'
-    })
+  const toggleTheme = () => {
+    setTheme((prevTheme) => prevTheme === 'light' ? 'dark' : 'light')
   }
 
   return (
