@@ -25,22 +25,8 @@ jobs:
       - name: Download Electron binary
         run: node node_modules/electron/install.js
 
-      - name: Prepare Electron headers (patch common.gypi)
-        run: |
-          $cache = Join-Path $env:USERPROFILE '.electron-gyp\12.0.6'
-          New-Item -ItemType Directory -Force -Path (Join-Path $cache 'x64') | Out-Null
-          curl.exe -L -o "$env:TEMP\e12-headers.tar.gz" 'https://artifacts.electronjs.org/headers/dist/v12.0.6/node-v12.0.6-headers.tar.gz'
-          tar -xzf "$env:TEMP\e12-headers.tar.gz" -C $env:TEMP
-          Copy-Item -Recurse -Force "$env:TEMP\node_headers\*" $cache
-          curl.exe -L -o (Join-Path $cache 'x64\node.lib') 'https://artifacts.electronjs.org/headers/dist/v12.0.6/win-x64/node.lib'
-          Set-Content -Path (Join-Path $cache 'installVersion') -Value '11' -NoNewline
-          $gypi = Join-Path $cache 'include\node\common.gypi'
-          $c = Get-Content $gypi -Raw
-          $c = $c.Replace("    'openssl_fips%': '',", "    'openssl_fips%': '',`n    'openssl_fips': '',")
-          Set-Content -Path $gypi -Value $c -NoNewline
-
-      - name: Rebuild native modules for Electron
-        run: npx electron-builder install-app-deps
+      # Заголовки Electron и rebuild нативных модулей делает сам electron-builder
+      # (в шагах Build и Package): node-hid 3.x / serialport 13 — NAPI с prebuilds.
 
       - name: Build
         run: npm run build

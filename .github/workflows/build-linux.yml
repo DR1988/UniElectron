@@ -25,18 +25,8 @@ jobs:
       - name: Download Electron binary
         run: node node_modules/electron/install.js
 
-      - name: Prepare Electron headers (patch common.gypi)
-        run: |
-          CACHE="$HOME/.electron-gyp/12.0.6"
-          mkdir -p "$CACHE/x64"
-          curl -L -o /tmp/e12-headers.tar.gz 'https://artifacts.electronjs.org/headers/dist/v12.0.6/node-v12.0.6-headers.tar.gz'
-          tar -xzf /tmp/e12-headers.tar.gz -C /tmp
-          cp -rf /tmp/node_headers/* "$CACHE/"
-          sed -i "s/    'openssl_fips%': '',/    'openssl_fips%': '',\n    'openssl_fips': '',/" "$CACHE/include/node/common.gypi"
-          printf '11' > "$CACHE/installVersion"
-
-      - name: Rebuild native modules for Electron
-        run: npx electron-builder install-app-deps
+      # Заголовки Electron и rebuild нативных модулей делает сам electron-builder
+      # (в шагах Build и Package): node-hid 3.x / serialport 13 — NAPI с prebuilds.
 
       - name: Build
         run: npm run build
