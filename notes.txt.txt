@@ -1,3 +1,36 @@
 1) поправить просмотр(скрол) при узком экране
 2) доделать waitforvalue 
 3) ввести масштабирование временной шкалы рабочего поля
+
+
+Фаза 0 — Подготовка (½ дня)
+1. Дождаться зелёного CI-сбора Windows на Electron 12 → тег baseline-electron12 (точка отката).
+2. Убедиться в доступности железа: TERMEX-блок + плата с CH340/ATmega2560 (для flasher-теста).
+3. Зафиксировать целевую версию Electron (рекомендую 45.0.0 точно, без ^).
+Фаза 1 — Native-модули на NAPI (1–2 дня) — работает ещё на Electron 12
+1. package.json: node-hid ^3.4.0, serialport ^13.0.0, @serialport/parser-readline ^13.0.0; удалить devDeps @types/node-hid, @types/serialport (оба теперь со своими типами), electron-rebuild; удалить postinstall: electron-builder install-app-deps.
+2. app/server/serial.ts:48 → new SerialPort({ path, baudRate: 500000, parity: 'none', autoOpen: false }).
+3. app/server/flasher.ts:112 → new SerialPort({ path: portPath, baudRate: BOOTLOADER_BAUD, autoOpen: false }).
+4. app/server/serial.ts:23 — тип SerialPort.PortInfo[] заменить на импорт PortInfo из serialport (проверить точное имя экспорта в новых типах при реализации).
+5. termex.ts — не трогать (проверить, что TS компилируется против новых типов; комментарий про SIGSEGV 1.3.2 на строке 53 можно оставить — guard безвреден).
+6. Перегенерировать lockfile. Точки проверки (на Electron 12): tsc ≤74; смоук под Electron: список портов, открытие CH340 @500000, TERMEX SER RD roundtrip, sign-on flasher на живой плате.
+Фаза 2 — Бамп Electron (1–2 дня)
+1. package.json: electron: "45.0.0".
+2. app/main.ts:81 — удалить enableRemoteModule.
+3. MainFormComponent.tsx: заменить const { dialog } = electron.remote на ipcRenderer.invoke; в main.ts добавить два ipcMain.handle('dialog:open' / 'dialog:save', ...) с dialog.showOpenDialog/showSaveDialog (4 места вызова).
+4. npm install, полный прогон локально: UI (все экраны, редактор протокола, вентили), TERMEX on/off/температура/аларм + сценарии recovery (вытащить/вставить USB, RUN WR), serial-подключение, полная прошивка по flasher (запись + верификация).
+5. Визуальная проверка на HMI-экране (Chromium 89 → ~138: шрифты, layout, тач-цели).
+Фаза 3 — Сборка и CI (0.5–1 день)
+1. electron-builder ^22 → ^25 (конфиг win.nsis/files/directories совместим; проверить локально npm run pack).
+2. Убрать override istextorbinary, если новый electron-builder его не требует (проверить).
+3. Упростить workflow: убрать --ignore-scripts, install-app-deps, шаг патча заголовков → checkout → setup-node → npm ci → npm run build → npx electron-builder --win.
+4. CI-сборка → установка NSIS на реальную Windows-машину с TERMEX/CH340 → прогон функционалки.
+Фаза 4 — Опциональное (отдельно, позже)
+- contextIsolation: true + preload-мост (убрать nodeIntegration из рендерера) — только если появится требование безопасности; это большой рефакторинг UI.
+- webpack 5 / express+socket.io modernization — не обязательны (openssl-legacy-provider продолжает работать).
+Риски и откаты
+- TERMEX timing: sync-API node-hid не изменился → поведение должно совпасть, но сценарии реконнекта прогнать обязательно.
+- CH340 @500000 на новых bindings-cpp: проверить устойчивость при длительной работе (длинный протокол) и DTR/RTS-поведение flasher (авто-reset окно ~70 мс).
+- electron-dl@1.14 / devtools-расширения на E45: если упадут — заменить/закомментировать (dev-only, не критично).
+- Откат: тег baseline + каждая фаза — отдельный коммит; фазы 1 и 2 независимы (фаза 1 полезна сама по себе: убирает всю CI-магию с компиляцией).
+Итого: ~3–5 рабочих дней с учётом hardware-тестов. Главный выигрыш — после фазы 1 из CI исчезает вся цепочка node-gyp/VS/заголовков, а termex.ts остаётся нетронутым.
