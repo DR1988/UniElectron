@@ -21,11 +21,20 @@ export default {
     path: path.join(__dirname, '..'),
     filename: './main.prod.js',
   },
-  externals: {
-    uws: 'uws',
-    serialport: "require('serialport')",
-    "node-hid": "require('node-hid')",
-  },
+  // serialport v13 и @serialport/* — ESM с class-fields, webpack 4 их не парсит;
+  // это runtime-модули main-процесса, бандлить не нужно (лежат в node_modules сборки)
+  externals: [
+    {
+      uws: 'uws',
+      serialport: "require('serialport')",
+      "node-hid": "require('node-hid')",
+    },
+    ({ request }) => {
+      if (/^@serialport\//.test(request)) {
+        return `commonjs ${request}`
+      }
+    },
+  ],
   module: {
     rules: [
       {
