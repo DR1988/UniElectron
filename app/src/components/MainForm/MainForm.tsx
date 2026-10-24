@@ -210,17 +210,14 @@ class MainForm extends Component<Props, MainFormState> {
   setLocalStorageData = (data: TemporaryFileLoaded) => {
     if (data) {
       console.log('buttonPosition', data.temporaryButtons.buttonPosition)
-      setTimeout(() => {
-        // setTimeout - хак чтобы установить все значения в стейт для temporaryButtonNames
-        this.setState({
-          ...this.state,
-          temporaryButtonNames: {
-            ...this.state.temporaryButtonNames,
-            [data.temporaryButtons.buttonPosition]: data.temporaryButtons.name,
-          }
-        })
-
-      }, 0)
+      // функциональное обновление: React 18+ батчит все 8 setState в один рендер,
+      // merge через this.state терял все имена кроме последнего
+      this.setState((state) => ({
+        temporaryButtonNames: {
+          ...state.temporaryButtonNames,
+          [data.temporaryButtons.buttonPosition]: data.temporaryButtons.name,
+        }
+      }))
     }
   }
 

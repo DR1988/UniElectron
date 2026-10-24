@@ -2,7 +2,7 @@ import React from 'react'
 
 interface WithConditionProps {
   condition: boolean
-  render: () => JSX.Element
+  render: () => React.JSX.Element
   resetToPreviousChanges?: () => void
 }
 

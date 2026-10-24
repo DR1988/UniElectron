@@ -19,7 +19,7 @@ import throttle from 'lodash/throttle';
 import socketConfig from '../../../../../config/socket.config';
 import {useElements} from './useElements';
 import {ChangeTimeForm} from './TimeLineComponent/ChangeTimeForm';
-import ClickOutHandler from 'react-onclickout'
+import ClickOutHandler from '../../../HOC/ClickOutHandler'
 import {
   ProcessSelection,
   ContextMenu,
@@ -692,6 +692,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const onChangeElementHover = (event: React.MouseEvent) => {
+    // hoverLine.current может быть null до первого полного рендера useElements
+    if (!hoverLine.current) return
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
     if (selectedElement instanceof ChangeElement) {
       hoverLine.current.setStart(selectedElement.initialXPosition)

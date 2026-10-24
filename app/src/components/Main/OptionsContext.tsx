@@ -1,5 +1,5 @@
 import React, { createContext, FC, useEffect, useRef, useState } from 'react'
-import ClickOutHandler from 'react-onclickout'
+import ClickOutHandler from '../HOC/ClickOutHandler'
 import io from 'socket.io-client'
 
 import socketConfig from '../../../config/socket.config'

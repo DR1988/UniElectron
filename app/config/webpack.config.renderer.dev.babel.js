@@ -1,5 +1,6 @@
 import path from 'path'
 import webpack from 'webpack'
+import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin'
 
 export const dist = path.join(__dirname, 'dist')
 
@@ -13,7 +14,7 @@ export default {
   target: 'electron-renderer',
 
   entry: [
-    'react-hot-loader/patch',
+    path.join(__dirname, '..', 'src/reactRefreshEntry.ts'),
     'webpack-hot-middleware/client',
     path.join(__dirname, '..', 'src/index.tsx'),
   ].filter(Boolean),
@@ -79,5 +80,7 @@ export default {
     new webpack.HotModuleReplacementPlugin({
       multiStep: true,
     }),
+
+    new ReactRefreshWebpackPlugin(),
   ],
 }

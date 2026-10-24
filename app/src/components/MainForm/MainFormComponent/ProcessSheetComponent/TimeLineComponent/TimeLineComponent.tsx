@@ -1,5 +1,5 @@
 import React, {FunctionComponent, useCallback, useEffect, useMemo, useReducer, useRef, useState} from 'react'
-import ClickOutHandler from 'react-onclickout'
+import ClickOutHandler from '../../../../HOC/ClickOutHandler'
 
 import s from './TimeLineComponent.css'
 import throttle from 'lodash/throttle'

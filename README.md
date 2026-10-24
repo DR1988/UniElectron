@@ -24,7 +24,7 @@ https://github.com/octalmage/robotjs/issues/398#issuecomment-392380641
 ```
 ┌──────────────────────────── main process ────────────────────────────┐
 │ app/main.ts                                                          │
-│  • BrowserWindow (1400×1200, nodeIntegration + enableRemoteModule,   │
+│  • BrowserWindow (1400×1200, nodeIntegration,                        │
 │    contextIsolation: off, backgroundThrottling: false)               │
 │  • Express-сервер на PORT=8000                                       │
 │  │   ├─ production: отдаёт HTML с инъектированным бандлом renderer │
@@ -33,12 +33,12 @@ https://github.com/octalmage/robotjs/issues/398#issuecomment-392380641
 │  │   └─ Controller: проигрывание протокола, Serial, Thermostat       │
 │  ├─ serial.ts    — SerialPort (Arduino/ATmega)                       │
 │  ├─ termex.ts    — термостат TERMEX по USB HID                       │
-│  └─ ipcMain: download-button / load-button / temporary-load-button   │
+│  └─ ipcMain: download/load buttons, dialog:open / dialog:save        │
 └──────────────────────────────────────────────────────────────────────┘
                     ▲ socket.io (http://localhost:8000)
                     │
 ┌──────────────────────────── renderer ────────────────────────────────┐
-│ React 16 + TypeScript                                                │
+│ React 19 + TypeScript                                                │
 │  Main → FormChoserComponent + AppForms                               │
 │   ├─ MainForm — состояние протокола, все обработчики                 │
 │   └─ Graphs   — recharts (RPM факт vs уставка)                       │
@@ -46,7 +46,7 @@ https://github.com/octalmage/robotjs/issues/398#issuecomment-392380641
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-Renderer подключается к main-процессу не через IPC напрямую, а по **socket.io** (`http://localhost:8000`) — тот же сервер отдаёт HTML в production. Исключение — сохранение/загрузка файлов: диалоги открываются через `electron.remote.dialog`, чтение/запись делает main через `ipcRenderer`/`ipcMain`.
+Renderer подключается к main-процессу не через IPC напрямую, а по **socket.io** (`http://localhost:8000`) — тот же сервер отдаёт HTML в production. Исключение — сохранение/загрузка файлов: диалоги открывает main (`dialog.showOpenDialog` / `dialog.showSaveDialog`), renderer вызывает их через `ipcRenderer.invoke('dialog:open'/'dialog:save')`, чтение/письмо файла делает main. `electron.remote` удалён в Electron 14+, поэтому прямой вызов диалогов из renderer больше невозможен.
 
 Обе формы (MainForm и Graphs) всегда смонтированы в `AppForms` одновременно; переключение между ними — только CSS show/hide, поэтому socket-подписки обеих форм активны постоянно. Кнопки переключателя форм (`FormChoserComponent`) закомментированы — фактически виден только MainForm.
 
@@ -56,10 +56,10 @@ Renderer подключается к main-процессу не через IPC �
 
 | Часть | Технологии |
 |---|---|
-| Десктоп | Electron 12, electron-builder |
-| UI | React 16, TypeScript, CSS-modules, recharts, react-draft-wysiwyg (draft-js) |
+| Десктоп | Electron 45, electron-builder |
+| UI | React 19 (createRoot), TypeScript, CSS-modules, recharts 2.15, react-draft-wysiwyg (draft-js) |
 | Сервер в main-процессе | Express + socket.io (порт 8000) |
-| Аппаратная связь | serialport (Arduino/ATmega, 500000 baud), node-hid / usb (термостат TERMEX) |
+| Аппаратная связь | serialport 13 (Arduino/ATmega, 500000 baud), node-hid 3.x (термостат TERMEX, USB HID) — оба NAPI с prebuilds в пакете |
 | Сборка | Webpack 4 (main + renderer), Babel, ts-node для dev |
 
 ## Структура проекта
@@ -87,7 +87,8 @@ app/
 │       ├── controller.ts       # логика проигрывания протокола: таймер, сборка команд, RPM, термостат
 │       └── serialMessages.ts   # коды состояния клапанов от контроллера (C0C/C0O … CS2C/CS2O)
 ├── src/                        # renderer (React)
-│   ├── index.tsx               # точка входа (react-hot-loader)
+│   ├── index.tsx               # точка входа (createRoot)
+│   ├── reactRefreshEntry.ts    # dev-only: runtime React Fast Refresh (HMR)
 │   ├── utils.ts                # форматирование времени (сек → дн/ч/мин/с), интервалы для таймлайна
 │   └── components/
 │       ├── Main/               # корневой компонент: выбор формы (MainForm / Graphs);
@@ -125,7 +126,7 @@ app/
 
 ## Запуск и сборка
 
-Требуется Node.js и установленные зависимости (`npm install`; postinstall собирает нативные модули через `electron-builder install-app-deps`).
+Требуется Node.js ≥ 20 и установленные зависимости (`npm install`). Нативные модули (`node-hid` 3.x, `serialport` 13) — NAPI с prebuilds, приложенными к пакету: пересборка под Electron не нужна (postinstall `electron-builder install-app-deps` убран).
 
 | Команда | Описание |
 |---|---|
@@ -140,15 +141,23 @@ app/
 
 ### Dev-режим (`npm start`)
 
-1. `ts-node app/start.ts` спавнит `npm run main-dev` → `electron -r babel-register-ts app/main.ts`.
+1. `ts-node app/start.ts` спавнит `npm run main-dev` → `electron --openssl-legacy-provider --no-experimental-strip-types -r babel-register-ts app/main-dev.js`.
 2. В main создаётся Express + socket.io на `PORT=8000`; renderer отдаётся через webpack-dev-middleware (HMR), HTML — `app/index.html`.
 3. Окно загружает `http://localhost:8000`.
+
+Особенности dev-запуска под Electron 45 (Node ≥ 23 внутри):
+
+- `--openssl-legacy-provider` — webpack 4 использует md4, недоступный в OpenSSL 3 без legacy-провайдера. Через `NODE_OPTIONS` Electron этот флаг не принимает, поэтому он передаётся как CLI-аргумент.
+- `--no-experimental-strip-types` — Node ≥ 23 нативно обрабатывает `.ts` (type stripping) и обходит babel-register-ts; флаг возвращает файлы в классический require-пайплайн.
+- `app/main-dev.js` — CJS-shim (`require('./main.ts')`): Electron ≥ 28 entry-файл с import-синтаксисом грузит через ESM-лоадер, минуя `require.extensions`, где висит хук babel.
 
 ### Production-сборка (`npm run build`)
 
 1. `build-render` — webpack (renderer.prod) → `app/build/renderer.prod.js` + `app/build/styles.css`.
 2. `generate-main-prod` — `buildMainProd.js` подставляет бандл и стили в HTML-шаблон из `main.ts` → `app/main.preprod.ts`.
-3. `build-main-pack` — webpack (main.prod, entry `main.preprod.ts`, externals: `serialport`, `node-hid`) → `app/main.prod.js`, затем `electron-builder --dir` → `release/`.
+3. `build-main-pack` — webpack (main.prod, entry `main.preprod.ts`, externals: `serialport`, `@serialport/*`, `node-hid`) → `app/main.prod.js`, затем `electron-builder --dir` → `release/`.
+
+   Внешние модули — runtime-зависимости main-процесса, они лежат в node_modules сборки. Скоуп `@serialport/*` вынесен отдельно: пакеты serialport 13 — ESM с class-fields, которые парсер webpack 4 не понимает (и function-externals там работает только через callback — синхронный return вешает компиляцию и процесс молча уходит с кодом 0).
 
 В production окно загружает `http://localhost:8000` и разворачивается на весь экран; сервер отдаёт HTML с инъектированным скриптом.
 
@@ -158,11 +167,10 @@ Workflow `.github/workflows/build-windows.yml` собирает NSIS-устан�
 
 1. **Запуск** — GitHub → вкладка *Actions* → workflow «Build Windows» → кнопка **Run workflow** (ручной запуск). Также запускается автоматически при push тега вида `v*` (например, `v1.0.0`).
 2. **Сборка** — на раннере `windows-latest`:
-   - Node.js 20 + `NODE_OPTIONS=--openssl-legacy-provider` для шага сборки (webpack 4 использует md4, недоступный в OpenSSL 3 без legacy-провайдера); node-gyp ≥12 — чтобы находить Visual Studio 2026 на актуальном раннере;
-   - `npm install --ignore-scripts` — установка без запуска скриптов: иначе нативные модули (`node-hid`, `@serialport/bindings`) скомпилируются под системный Node, а их старый `nan` несовместим с современным V8;
-   - `node node_modules/electron/install.js` — скачивание бинарника Electron 12 (пропущено из-за --ignore-scripts);
-   - загрузка заголовков Electron 12 в кэш `~/.electron-gyp/12.0.6/` и патч `common.gypi`: добавляется переменная `'openssl_fips': ''` — без неё современный gyp (node-gyp ≥12) падает на условии `['openssl_fips != ""', ...]` из оригинального файла; node-gyp переиспользует существующий кэш и не скачивает заголовки заново;
-   - `npx electron-builder install-app-deps` — компиляция нативных модулей из исходников **под Electron 12** (готовых prebuild для ABI v89 нет; Visual Studio Build Tools и Python на раннере предустановлены);
+   - Node.js 20 + `NODE_OPTIONS=--openssl-legacy-provider` для шага сборки (webpack 4 использует md4, недоступный в OpenSSL 3 без legacy-провайдера);
+   - `npm install --ignore-scripts` — установка без запуска скриптов: нативные модули (`node-hid` 3.x, `serialport` 13) идут с NAPI-prebuilds в пакете, компиляция при установке не нужна;
+   - `node node_modules/electron/install.js` — скачивание бинарника Electron 45 (пропущено из-за --ignore-scripts);
+   - заголовки Electron и пересборка нативных модулей под нужную версию делает сам electron-builder в шагах Build (`--dir`) и Package — вручную ничего не подготавливается;
    - `npm run build` — production-сборка (renderer + main.prod.js + electron-builder --dir);
    - `npx electron-builder --win` — упаковка NSIS-установщика.
 3. **Результат** — архив артефактов `windows-build` у завершённого джоба: `release/ElectronReact Setup {версия}.exe` (установщик с деинсталлятором).
@@ -172,6 +180,8 @@ Workflow `.github/workflows/build-windows.yml` собирает NSIS-устан�
 - Подпись кода не настроена — при установке Windows SmartScreen покажет предупреждение «Windows protected your PC» (нажать «More info» → «Run anyway»).
 - Иконка приложения берётся из `app/resources/`; для своей иконки под Windows положите туда `icon.ico`.
 - MSI-цель из конфигурации убрана — собирается только NSIS.
+
+Есть аналогичный workflow `.github/workflows/build-linux.yml` (раннер `ubuntu-latest`, те же шаги) — собирает AppImage + deb, артефакт `linux-build`.
 
 ## Интерфейс
 

@@ -1,4 +1,4 @@
-import React, { StatelessComponent, Component } from 'react'
+import React, { FC, Component } from 'react'
 import cn from 'classnames'
 
 import s from './../styles/ValuesModal.css'
@@ -64,7 +64,7 @@ interface Props extends CommonMoadlInterface {
   changeWaitForValue: () => void,
 }
 
-const RMPModal: StatelessComponent<Props> = ({
+const RMPModal: FC<Props> = ({
   chosenElement,
   closeModal,
   changeRPMValue,

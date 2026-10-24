@@ -47,7 +47,7 @@ export const TimeInput: React.FC<Props> = (
     changeValue(-step)
   }
 
-  const _changeValue = (event: SyntheticInputEvent<HTMLInputElement>) => {
+  const _changeValue = (event: React.ChangeEvent<HTMLInputElement>) => {
     const _value = +event.target.value.trim()
     if (Number.isInteger(_value) && _value >= minValue && _value <= maxValue) {
       // console.log('change end time', _value)

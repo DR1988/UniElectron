@@ -1,4 +1,4 @@
-import React, { StatelessComponent } from 'react'
+import React, { FC } from 'react'
 
 import s from './ValveTimeComponentAdder.css'
 import { ValveLineType } from '../../MainFormInterfaces'
@@ -30,7 +30,7 @@ class Button extends React.Component<ButtonProps> {
   }
 }
 
-const ValveTimeComponentAdder: StatelessComponent<Props> = ({
+const ValveTimeComponentAdder: FC<Props> = ({
   lines,
   ...rest
 }) => (

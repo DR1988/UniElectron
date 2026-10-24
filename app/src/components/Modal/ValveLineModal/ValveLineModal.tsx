@@ -34,7 +34,7 @@ class CustomInput extends Component<CustomInputProps> { // eslint-disable-line
   constructor(props: CustomInputProps) { // eslint-disable-line
     super(props)
   }
-  _changeValue = (e: SyntheticInputEvent<HTMLInputElement>) => {
+  _changeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { changeValue } = this.props
     if (Number.isInteger(+e.target.value.trim()) && +e.target.value.trim() >= 0) {
       changeValue(+e.target.value)

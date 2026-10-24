@@ -1,10 +1,9 @@
 import React, { Component } from 'react'
 
 import s from './Modal.css'
-import { render } from 'react-dom';
 
 export interface Props {
-  render: () => JSX.Element,
+  render: () => React.JSX.Element,
   closeModal?: () => void,
   resetToPreviousChanges?: () => void
   shouldCloseOnEsp?: boolean

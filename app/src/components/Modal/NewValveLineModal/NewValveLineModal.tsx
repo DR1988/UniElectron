@@ -1,4 +1,4 @@
-import React, { Component, StatelessComponent } from 'react'
+import React, { Component, FC } from 'react'
 import cn from 'classnames'
 
 import s from './../styles/ValveLineModal.css'
@@ -35,7 +35,7 @@ class CustomInput extends Component<CustomInputProps> { // eslint-disable-line
   }
 }
 
-const NewValveLineModal: StatelessComponent<Props> = ({
+const NewValveLineModal: FC<Props> = ({
   resetToPreviousChanges,
   closeModal,
   chosenElement,

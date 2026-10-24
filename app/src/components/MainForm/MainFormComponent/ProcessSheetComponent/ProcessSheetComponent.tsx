@@ -1,5 +1,5 @@
 import React, {
-  StatelessComponent,
+  FC,
   PureComponent,
   useState,
   useRef,
@@ -16,7 +16,6 @@ import ValveLineComponent from './ValveLineComponent'
 import {TemporaryProtocolButtonPosition, ValveLineType} from './../../MainFormInterfaces'
 
 import s from './ProcessSheetComponent.css'
-import {render} from 'react-dom'
 import ValveTimeComponentAdder from '../ValveTimeComponentAdder/ValveTimeComponentAdder'
 import throttle from 'lodash/throttle';
 import {RemoveSpaceOption} from '../../../CommonTypes';

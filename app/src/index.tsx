@@ -1,35 +1,15 @@
 import React from 'react'
-import { render } from 'react-dom'
-import { AppContainer } from 'react-hot-loader'
+import { createRoot } from 'react-dom/client'
 
 import Main from './components/Main/Main'
 import { ThemeProvider } from './components/Main/Context'
 import { OptionsProvider } from './components/Main/OptionsContext'
 
-render(
-  <AppContainer>
-    <ThemeProvider>
-      <OptionsProvider>
-        <Main />
-      </OptionsProvider>
-    </ThemeProvider>
-  </AppContainer>,
-  document.getElementById('root'),
+const container = document.getElementById('root')!
+createRoot(container).render(
+  <ThemeProvider>
+    <OptionsProvider>
+      <Main />
+    </OptionsProvider>
+  </ThemeProvider>,
 )
-
-if (module.hot) {
-  module.hot.accept('./components/Main/Main', () => {
-    // eslint-disable-next-line global-require
-    const NextMain = require('./components/Main/Main').default
-    render(
-      <AppContainer>
-        <ThemeProvider>
-          <OptionsProvider>
-            <NextMain />
-          </OptionsProvider>
-        </ThemeProvider>
-      </AppContainer>,
-      document.getElementById('root'),
-    )
-  })
-}
