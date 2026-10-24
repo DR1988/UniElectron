@@ -23,6 +23,7 @@
   "build": {
     "appId": "electron.starter",
     "productName": "ElectronReact",
+    "publish": null,
     "mac": {
       "category": "your.app.category.type"
     },
