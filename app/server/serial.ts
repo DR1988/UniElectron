@@ -1,5 +1,6 @@
-import SerialPort from 'serialport'
-import Readline from '@serialport/parser-readline'
+import { SerialPort } from 'serialport'
+import { ReadlineParser } from '@serialport/parser-readline'
+import { PortInfo } from '@serialport/bindings-interface'
 import socketConfig from '../config/socket.config'
 import socket from 'socket.io'
 import { ValveActions, VALVES } from './socketHandlers/serialMessages'
@@ -20,7 +21,7 @@ export default class Serial {
   parser: any
   private connected: boolean
   private rpmValue: number = 0
-  private serialList: SerialPort.PortInfo[];
+  private serialList: PortInfo[];
 
   constructor(private io: socket.Server) {
     this.io = io
@@ -45,7 +46,8 @@ export default class Serial {
     let counter = 0;
     let interval: NodeJS.Timer;
 
-    this.serialPort = new SerialPort(path, {
+    this.serialPort = new SerialPort({
+      path,
       baudRate: 500000,
       parity: 'none',
       autoOpen: false
@@ -55,7 +57,7 @@ export default class Serial {
       console.log('ERROR:', err)
     })
 
-    const parser = this.serialPort.pipe(new Readline({ delimiter: '\n\r' })) // cause transmitting "next line" and than "carriage return"
+    const parser = this.serialPort.pipe(new ReadlineParser({ delimiter: '\n\r' })) // cause transmitting "next line" and than "carriage return"
     const valveActions = new ValveActions(this.io)
 
     this.serialPort.on('open', () => {

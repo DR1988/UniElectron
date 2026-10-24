@@ -1,4 +1,4 @@
-import SerialPort from 'serialport'
+import { SerialPort } from 'serialport'
 import * as fs from 'fs'
 
 // STK500v2 (AVR068) параметры ATmega2560, снятые с avrdude (avrdude.conf + живой захват кадров)
@@ -109,7 +109,8 @@ export default class Stk500v2Flasher {
   private openPort(portPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        this.port = new SerialPort(portPath, {
+        this.port = new SerialPort({
+          path: portPath,
           baudRate: BOOTLOADER_BAUD,
           autoOpen: false,
         })

@@ -1,7 +1,7 @@
 import React, {useState, useEffect, useCallback, useRef} from 'react'
 import cn from 'classnames'
 // import fs from 'fs'
-import electron from 'electron'
+import { ipcRenderer } from 'electron'
 import {Editor} from "react-draft-wysiwyg";
 import {EditorState} from 'draft-js';
 
@@ -19,7 +19,6 @@ import {AllTimeModal} from '../../Modal/AllTimeModal'
 
 const AllTimeModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
-const { dialog } = electron.remote
 const EmptyName = ''
 // max cursor travel (px) between mousedown and mouseup on a protocol button for it to count as a click, not a drag
 const CAPTURE_CLICK_THRESHOLD = 5
@@ -153,7 +152,7 @@ const MainFormComponent = ({
   }, [allTime])
 
   const openDialogForTemporaryButtons = (name: TemporaryProtocolButtonPosition) => {
-      dialog.showOpenDialog(null, {
+      ipcRenderer.invoke('dialog:open', {
           defaultPath: '',
           title: 'Загрузить протокол',
           filters: [{
@@ -288,7 +287,7 @@ const MainFormComponent = ({
         <button
             className={cn({ [s.inactive]: !serialConnected }, s.protocolButton)}
             onClick={() => {
-              dialog.showOpenDialog(null, {
+              ipcRenderer.invoke('dialog:open', {
                 defaultPath: '',
                 title: 'Выбрать прошивку (Intel HEX)',
                 filters: [{
@@ -317,7 +316,7 @@ const MainFormComponent = ({
         <button
             className={s.protocolButton}
             onClick={() => {
-          dialog.showSaveDialog(null, {
+          ipcRenderer.invoke('dialog:save', {
             defaultPath: '',
             title: 'Сохранить протокол',
             filters: [{
@@ -331,7 +330,7 @@ const MainFormComponent = ({
         <button
           className={s.protocolButton}
           onClick={() => {
-          dialog.showOpenDialog(null, {
+          ipcRenderer.invoke('dialog:open', {
             defaultPath: '',
             title: 'Загрузить протокол',
             filters: [{

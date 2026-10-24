@@ -7,7 +7,7 @@ import fs from 'fs'
 import {socketServer} from './server/index'
 import serial from './server/serial'
 
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import electronDl, { download } from 'electron-dl'
 // we need this html for later use when
 // adding scripts and styles to a production build
@@ -37,6 +37,15 @@ ipcMain.on('temporary-load-button', (event, args) => {
     },
     protocol: JSON.parse(file)
   })
+})
+
+// electron.remote удалён в Electron 14+ — диалоги открываем из main-процесса
+ipcMain.handle('dialog:open', async (event, options) => {
+  return dialog.showOpenDialog(options)
+})
+
+ipcMain.handle('dialog:save', async (event, options) => {
+  return dialog.showSaveDialog(options)
 })
 
 const HTML = `<!DOCTYPE html>
@@ -78,7 +87,6 @@ async function createWindow() {
     height: 1200,
     webPreferences: {
       nodeIntegration: true,
-      enableRemoteModule: true,
       contextIsolation: false,
       backgroundThrottling: false
     },
