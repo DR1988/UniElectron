@@ -29,10 +29,13 @@ export default {
       serialport: "require('serialport')",
       "node-hid": "require('node-hid')",
     },
-    ({ request }) => {
+    // webpack 4: function-externals работает только через callback,
+    // синхронный return игнорируется (компиляция вешается и процесс молча уходит с кодом 0)
+    (context, request, callback) => {
       if (/^@serialport\//.test(request)) {
-        return `commonjs ${request}`
+        return callback(null, `commonjs ${request}`)
       }
+      callback()
     },
   ],
   module: {
