@@ -46,7 +46,7 @@ const HTML = `<!DOCTYPE html>
   <title>TQ Reactor</title>
   <style type="text/css"></style>
 </head>
-<body>
+<body id="body">
   <div id="root"></div>
   <script></script>
 </body>
