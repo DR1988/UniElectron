@@ -38,6 +38,14 @@
         "nsis"
       ]
     },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "maintainer": "rahmanovdu@gmail.com"
+    },
     "directories": {
       "buildResources": "app/resources",
       "output": "release"

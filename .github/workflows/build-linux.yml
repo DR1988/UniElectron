@@ -1,0 +1,53 @@
+name: Build Linux
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies (without scripts)
+        run: npm install --ignore-scripts
+
+      - name: Download Electron binary
+        run: node node_modules/electron/install.js
+
+      - name: Prepare Electron headers (patch common.gypi)
+        run: |
+          CACHE="$HOME/.electron-gyp/12.0.6"
+          mkdir -p "$CACHE/x64"
+          curl -L -o /tmp/e12-headers.tar.gz 'https://artifacts.electronjs.org/headers/dist/v12.0.6/node-v12.0.6-headers.tar.gz'
+          tar -xzf /tmp/e12-headers.tar.gz -C /tmp
+          cp -rf /tmp/node_headers/* "$CACHE/"
+          sed -i "s/    'openssl_fips%': '',/    'openssl_fips%': '',\n    'openssl_fips': '',/" "$CACHE/include/node/common.gypi"
+          printf '11' > "$CACHE/installVersion"
+
+      - name: Rebuild native modules for Electron
+        run: npx electron-builder install-app-deps
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+
+      - name: Package (electron-builder)
+        run: npx electron-builder --linux
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: linux-build
+          path: release/
