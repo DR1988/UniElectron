@@ -1,6 +1,5 @@
 import React,   { createContext, FC, useEffect, useState } from "react";
 
-const bodyElement = document.getElementById('body');
 
 
 export type Theme = 'light' | 'dark';
@@ -24,13 +23,15 @@ export const ThemeProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const saved = localStorage.getItem('theme')
     return saved === 'light' || saved === 'dark' ? saved : 'dark'
   });
+  
+  const bodyElement = document.getElementById('body');
 
   useEffect(() => {
       localStorage.setItem('theme', theme)
       if (theme === 'dark') {
-          bodyElement.classList.add('dark')
+          bodyElement?.classList.add('dark')
       } else {
-          bodyElement.classList.remove('dark')
+          bodyElement?.classList.remove('dark')
       }
     }, [theme])
 
