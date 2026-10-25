@@ -209,8 +209,16 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
               // don't have to worry about the difference.
               screenSpaceRef.scale(DPR, DPR);
             } else {
-              screenSpaceRef.canvas.width = width
-              screenSpaceRef.canvas.height = canvasHeight;
+              // присвоение canvas.width/height сбрасывает битмап даже при том же значении (по спецификации),
+              // а width из getBoundingClientRect - дробный, канвас хранит целое: сравниваем усечённое целое,
+              // иначе канвас «моргает» при каждом изменении allTime
+              const intWidth = Math.floor(width)
+              if (screenSpaceRef.canvas.width !== intWidth) {
+                screenSpaceRef.canvas.width = intWidth
+              }
+              if (screenSpaceRef.canvas.height !== canvasHeight) {
+                screenSpaceRef.canvas.height = canvasHeight
+              }
             }
 
             setScreenSpaceRefWidth(width)
@@ -246,8 +254,14 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         // don't have to worry about the difference.
         screenSpaceRef.scale(DPR, DPR);
       } else {
-        screenSpaceRef.canvas.width = width
-        screenSpaceRef.canvas.height = canvasHeight;
+        // то же, что и в ResizeObserver: не сбрасывать битмап без изменения размеров
+        const intWidth = Math.floor(width)
+        if (screenSpaceRef.canvas.width !== intWidth) {
+          screenSpaceRef.canvas.width = intWidth
+        }
+        if (screenSpaceRef.canvas.height !== canvasHeight) {
+          screenSpaceRef.canvas.height = canvasHeight
+        }
       }
 
       setScreenSpaceRefWidth(width)
