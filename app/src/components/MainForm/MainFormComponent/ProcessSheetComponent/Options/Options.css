@@ -15,7 +15,11 @@
 
 .content {
   background-color: white;
-  padding: 3px;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  margin-top: 5px;
+  margin-right: 5px;
+  box-shadow: 0px 0px 15px 3px rgba(120, 155, 155, 1.5);
 }
 
 .innerContent {
@@ -28,9 +32,41 @@
   height: 16px;
   width: 16px;
   cursor: pointer;
+  margin-right: 3px;
 }
 
 .label {
-  margin-left: 5px;
+  padding: 5px 3px 3px 3px;
   cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.label:hover {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.flashButton {
+  /* margin-left: 24px; */
+  height: 20px;
+  padding: 2px 6px;
+  font-size: 12px;
+  cursor: pointer;
+  width: 100%;
+  
+}
+
+.divider {
+  margin-top: 3px;
+  margin-bottom: 3px;
+  height: 2px;
+  width: 100%;
+  background-color: rgba(0, 0, 0, 0.267);
+}
+
+.buttonContainer {
+  width: 100%;
+  padding: 0 3px 0 3px;
 }

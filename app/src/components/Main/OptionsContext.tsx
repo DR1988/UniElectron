@@ -12,6 +12,7 @@ export type OptionsContextProp = {
   setMovement: (value: boolean) => void
   isThermostatCheck: boolean
   setThermostatCheck: (value: boolean) => void
+  flashFirmware: (hexPath: string) => void
 }
 
 const defaultContext: OptionsContextProp = {
@@ -21,6 +22,7 @@ const defaultContext: OptionsContextProp = {
   setMovement() {},
   isThermostatCheck: true,
   setThermostatCheck() {},
+  flashFirmware() {},
 }
 
 export const OptionsContext = createContext<OptionsContextProp>(defaultContext)
@@ -51,8 +53,12 @@ export const OptionsProvider: FC<{ children: React.ReactNode }> = ({ children })
     socket.current?.emit(socketConfig.setThermostatCheck, value)
   }
 
+  const flashFirmware = (hexPath: string) => {
+    socket.current?.emit(socketConfig.flashFirmware, hexPath)
+  }
+
   return (
-    <OptionsContext.Provider value={{ isOptionsOpen, toggleOptions, isMovement, setMovement, isThermostatCheck, setThermostatCheck }}>
+    <OptionsContext.Provider value={{ isOptionsOpen, toggleOptions, isMovement, setMovement, isThermostatCheck, setThermostatCheck, flashFirmware }}>
       {children}
       <ClickOutHandler onClickOut={() => toggleOptions(false)}>
         <Options

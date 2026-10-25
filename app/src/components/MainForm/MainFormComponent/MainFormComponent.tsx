@@ -284,22 +284,6 @@ const MainFormComponent = ({
         <button
             className={s.protocolButton}
             onClick={connect}>Connect</button>
-        <button
-            className={cn({ [s.inactive]: !serialConnected }, s.protocolButton)}
-            onClick={() => {
-              ipcRenderer.invoke('dialog:open', {
-                defaultPath: '',
-                title: 'Выбрать прошивку (Intel HEX)',
-                filters: [{
-                  extensions: ['hex'],
-                  name: ''
-                }],
-              }).then(({filePaths}) => {
-                if (filePaths.length) {
-                  flashFirmware(filePaths[0])
-                }
-              })
-            }}>Flash</button>
         {flashStatus ? (
           <span style={{ alignSelf: 'center', fontSize: 12, color: '#555' }}>{flashStatus}</span>
         ) : null}
