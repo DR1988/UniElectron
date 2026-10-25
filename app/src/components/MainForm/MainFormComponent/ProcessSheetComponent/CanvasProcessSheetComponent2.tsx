@@ -515,6 +515,11 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
     // a new interaction must not fight with an in-progress return animation
     cancelReturnAnimation()
 
+    // элементы ещё не созданы, пока не готовы canvas-контекст и ширина (первый рендер)
+    if (!processSelection.current || !contextMenu.current) {
+      return
+    }
+
     const clickOnContextMenu = contextMenu.current.isClickOnElement({
       x: event.nativeEvent.offsetX,
       y: event.nativeEvent.offsetY
@@ -706,6 +711,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const onTimeElementsHover = (event: React.MouseEvent) => {
+    // processSelection.current может быть null до первого полного рендера useElements
+    if (!processSelection.current) return
     const hoveredOnTime = processSelection.current.clickedOnTime({
       x: offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX,
       y: event.nativeEvent.offsetY
@@ -1061,6 +1068,8 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
   }
 
   const handleClick = (event: React.MouseEvent) => {
+    // processSelection.current может быть null до первого полного рендера useElements
+    if (!processSelection.current) return
     const selectedElement = getSelectedElement({x: event.nativeEvent.offsetX, y: event.nativeEvent.offsetY})
 
 console.log('offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX', offsetXRef.current * scaleRef.current + event.nativeEvent.offsetX)
