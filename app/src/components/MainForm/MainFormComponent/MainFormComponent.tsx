@@ -29,6 +29,17 @@ const decomposeAllTime = (totalSeconds: number) => ({
   minutes: String(Math.floor((totalSeconds % 3600) / 60)),
   seconds: String(totalSeconds % 60),
 })
+
+// total seconds -> "hh:mm:ss" для метки All time в строке кнопок
+const formatAllTime = (totalSeconds: number): string => {
+  const safe = Math.max(0, Math.floor(totalSeconds))
+  const h = Math.floor(safe / 3600)
+  const m = Math.floor((safe % 3600) / 60)
+  const s = safe % 60
+  // padStart не доступен в текущем lib tsconfig - падируем вручную
+  const pad = (v: number) => (v < 10 ? '0' + v : String(v))
+  return `${pad(h)}:${pad(m)}:${pad(s)}`
+}
 interface Props extends ProcessSheetComponentProps {
   resetState: () => void,
   start: () => void,
@@ -256,28 +267,7 @@ const MainFormComponent = ({
               socket={socket}
             />
           </section>
-          <button onClick={() => setIsAllTimeModalOpen(true)}>Set All Time</button>
-          {/* <div className={cn(s.spaceButtonsContainer)}>
-            <button
-              className={s.spaceButton}
-              onClick={openInsertSpaceModal}
-            >
-              Insert Space
-            </button>
-            <button
-              className={s.spaceButton}
-              onClick={openRemoveSpaceModal}
-            >
-              Remove Space
-            </button>
-
-            <button
-              className={(s.spaceButton, s.manualButton)}
-              onClick={openManualControlModal}
-            >
-              Manual Control
-            </button>
-          </div> */}
+         
         </section>
       </div>
       <div className={s.buttons} >
@@ -330,6 +320,9 @@ const MainFormComponent = ({
         <button
           className={cn({ [s.inactive]: !serialConnected}, s.protocolButton)}
           onClick={switchHV}>{HVOpen ? 'Open valves' : 'Close valves'}</button>
+        <button
+          className={s.protocolButton}
+          onClick={() => setIsAllTimeModalOpen(true)}>All time: {formatAllTime(allTime)}</button>
       </div>
       <div className={s.temporaryContainer}>
         <span className={s.temporaryTitle}>Protocol Set Buttons</span>
