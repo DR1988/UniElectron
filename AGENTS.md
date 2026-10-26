@@ -12,6 +12,13 @@
 - Проверка типов: `./node_modules/.bin/tsc --noEmit -p tsconfig.json` — базовый уровень 74 ошибки; успех = не больше 74 и без новых категорий
 - ESLint в проекте недоступен (не запускать)
 
+## CI / GitHub Actions
+- Воркфлоу: `.github/workflows/build-linux.yml`, `build-windows.yml` — запуск по тегу `v*` или вручную (workflow_dispatch); на обычные push сборки не идут
+- Релиз = тег `v<версия>` + push; артефакты: `linux-build` / `windows-build` (каталог release/)
+- CI: Node 20, `npm install --ignore-scripts`, electron-builder сам пересобирает нативные модули (node-hid, serialport) под Electron; сборка с `NODE_OPTIONS=--openssl-legacy-provider` (webpack 4)
+- Linux-раннер требует системные зависимости для нативных модулей (сейчас libusb/libudev) — шаг в воркфлоу; при добавлении новых нативных зависимостей обновлять его
+- Проверка прогонов — MCP github: list_workflow_runs → логи упавших джоб; повтор — rerun_failed_jobs; ручной запуск — workflow_dispatch (actions_run_trigger)
+
 ## Запуск и тестирование
 - Приложение: `npm start` (dev-сервер, HMR для renderer; серверные правки требуют полного перезапуска)
 - Нативные модули (node-hid, serialport) работают только под Electron: тесты — `./node_modules/.bin/electron -r babel-register-ts --no-sandbox <script>`, системный Node падает ERR_DLOPEN_FAILED
