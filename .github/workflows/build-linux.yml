@@ -27,6 +27,12 @@ jobs:
 
       # Заголовки Electron и rebuild нативных модулей делает сам electron-builder
       # (в шагах Build и Package): node-hid 3.x / serialport 13 — NAPI с prebuilds.
+      # hidapi (libusb-бэкенд) в node-hid компилируется из исходников и требует
+      # системные заголовки libusb/libudev, которых нет в образе ubuntu-latest
+      - name: Install native build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libusb-1.0-0-dev libudev-dev
 
       - name: Build
         run: npm run build
