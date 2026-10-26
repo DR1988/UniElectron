@@ -567,9 +567,10 @@ export const CanvasProcessSheetComponent2: React.FC<Props> = (
         processSelection.current.resetToDefault();
         setChosenValveTime(selectedElement.Data.lineId, +selectedElement.Data.changeElement.changeId)
         selectedElementRef.current = selectedElement
+        // xPosition уже в мировых координатах: пропускать его через screenToWorld нельзя —
+        // при масштабе != 1 дельта считалась бы неверно и элемент «прыгал» при переносе
         const {worldX} = screenToWorld(event.nativeEvent.offsetX, 0)
-        const {worldX: initialXposiitonWorldX} =screenToWorld(selectedElementRef.current.initialXPosition, 0)
-        const deltaX = worldX - initialXposiitonWorldX
+        const deltaX = worldX - selectedElementRef.current.sizeOpt.xPosition
         selectedElement.setDeltaX(deltaX)
         selectedElement.setOrder(2)
         
