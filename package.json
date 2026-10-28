@@ -25,7 +25,8 @@
     "publish": {
       "provider": "github",
       "owner": "DR1988",
-      "repo": "UniElectron"
+      "repo": "UniElectron",
+      "releaseType": "release"
     },
     "toolsets": {
       "appimage": "1.0.3"

@@ -15,6 +15,7 @@
 ## CI / GitHub Actions
 - Воркфлоу: `.github/workflows/build-linux.yml`, `build-windows.yml` — запуск по тегу `v*` или вручную (workflow_dispatch); на обычные push сборки не идут
 - Релиз = поднять версию в package.json + коммит + тег `v<та же версия>` + push; по тегу electron-builder сам публикует GitHub Release (фид для автообновления)
+- electron-builder 26 по умолчанию создаёт **draft**-релиз — в `build.publish` обязателен `"releaseType": "release"` (draft не виден для автообновления); AppImage собирается со статическим рантаймом (`toolsets.appimage: 1.0.3`) — libfuse2 на целевых ПК не нужна
 - Автообновление: electron-updater в main.ts, фид — GitHub Releases; работает только в packaged-сборке и только для NSIS (Windows) / AppImage (Linux), не для deb
 - Артефакты прогонов: `linux-build` / `windows-build` (каталог release/)
 - CI: Node 20, `npm install --ignore-scripts`, electron-builder сам пересобирает нативные модули (node-hid, serialport) под Electron; сборка с `NODE_OPTIONS=--openssl-legacy-provider` (webpack 4)
