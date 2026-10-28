@@ -4,6 +4,8 @@ import styles from './Options.css'
 import { ThemeContext } from '../../../../Main/Context';
 import { OptionsContext } from '../../../../Main/OptionsContext';
 
+const appVersion = require('../../../../../../../package.json').version
+
 type Props = {
   toggleOptions: (value: boolean) => void
   setMovement: (value: boolean) => void
@@ -95,7 +97,10 @@ export const Options: React.FC<Props> = (
         <div className={styles.buttonContainer}>
           <button className={styles.flashButton} onClick={clickFlash}>Flash firmware</button>
         </div>
-        
+
+        <div className={styles.divider} />
+
+        <div className={styles.version}>Version {appVersion}</div>
       </div>
     </div> : null}
   </div>
