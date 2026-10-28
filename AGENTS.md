@@ -9,12 +9,14 @@
 - Не делать force-push, не менять git config
 
 ## Сборка и проверка
-- Проверка типов: `./node_modules/.bin/tsc --noEmit -p tsconfig.json` — базовый уровень 74 ошибки; успех = не больше 74 и без новых категорий
+- Проверка типов: `./node_modules/.bin/tsc --noEmit -p tsconfig.json` — базовый уровень 45 ошибок (skipLibCheck включён); успех = не больше 45 и без новых категорий
 - ESLint в проекте недоступен (не запускать)
 
 ## CI / GitHub Actions
 - Воркфлоу: `.github/workflows/build-linux.yml`, `build-windows.yml` — запуск по тегу `v*` или вручную (workflow_dispatch); на обычные push сборки не идут
-- Релиз = тег `v<версия>` + push; артефакты: `linux-build` / `windows-build` (каталог release/)
+- Релиз = поднять версию в package.json + коммит + тег `v<та же версия>` + push; по тегу electron-builder сам публикует GitHub Release (фид для автообновления)
+- Автообновление: electron-updater в main.ts, фид — GitHub Releases; работает только в packaged-сборке и только для NSIS (Windows) / AppImage (Linux), не для deb
+- Артефакты прогонов: `linux-build` / `windows-build` (каталог release/)
 - CI: Node 20, `npm install --ignore-scripts`, electron-builder сам пересобирает нативные модули (node-hid, serialport) под Electron; сборка с `NODE_OPTIONS=--openssl-legacy-provider` (webpack 4)
 - Linux-раннер требует системные зависимости для нативных модулей (сейчас libusb/libudev) — шаг в воркфлоу; при добавлении новых нативных зависимостей обновлять его
 - Проверка прогонов — MCP github: list_workflow_runs → логи упавших джоб; повтор — rerun_failed_jobs; ручной запуск — workflow_dispatch (actions_run_trigger)

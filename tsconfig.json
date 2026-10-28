@@ -4,6 +4,7 @@
     "target": "es2015",
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
     "jsx": "react"
   },
   "exclude": [

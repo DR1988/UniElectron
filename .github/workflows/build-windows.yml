@@ -9,6 +9,9 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
+    # права на создание GitHub Release при пуше тега (автообновление по сети)
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v7

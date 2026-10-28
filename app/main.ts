@@ -9,6 +9,7 @@ import serial from './server/serial'
 
 import { app, BrowserWindow, dialog, ipcMain } from 'electron'
 import electronDl, { download } from 'electron-dl'
+import { autoUpdater } from 'electron-updater'
 // we need this html for later use when
 // adding scripts and styles to a production build
 
@@ -149,10 +150,56 @@ async function createWindow() {
   })
 }
 
+// Автообновление по сети (electron-updater, фид — GitHub Releases).
+// Работает только в packaged-сборке: в dev electron-updater бросает исключение.
+function initAutoUpdater() {
+  if (!app.isPackaged) return
+
+  autoUpdater.autoDownload = true
+  autoUpdater.logger = console
+
+  autoUpdater.on('checking-for-update', () => {
+    console.log('[updater] проверка обновлений...')
+  })
+  autoUpdater.on('update-available', (info) => {
+    console.log('[updater] доступна версия', info.version)
+  })
+  autoUpdater.on('update-not-available', (info) => {
+    console.log('[updater] установлена последняя версия', info.version)
+  })
+  autoUpdater.on('download-progress', (progress) => {
+    console.log(`[updater] загрузка: ${progress.percent.toFixed(1)}%`)
+  })
+  autoUpdater.on('error', (error) => {
+    console.error('[updater] ошибка:', error.message)
+  })
+  autoUpdater.on('update-downloaded', () => {
+    dialog.showMessageBox(mainWindow, {
+      type: 'info',
+      title: 'Обновление',
+      message: 'Загружена новая версия приложения.',
+      detail: 'Перезапустить для установки обновления?',
+      buttons: ['Перезапустить', 'Позже'],
+    }).then(({ response }) => {
+      if (response === 0) {
+        autoUpdater.quitAndInstall()
+      }
+    })
+  })
+
+  // небольшая задержка: сначала стартует сервер и окно, потом проверка по сети
+  setTimeout(() => {
+    autoUpdater.checkForUpdates().catch((error) => console.error('[updater] ', error))
+  }, 10000)
+}
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow()
+  initAutoUpdater()
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {
