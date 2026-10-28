@@ -1,6 +1,6 @@
 {
   "name": "electron-with-express",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Electron application with express",
   "main": "./app/main.prod.js",
   "scripts": {
