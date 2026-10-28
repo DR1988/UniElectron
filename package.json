@@ -14,6 +14,7 @@
     "fix": "eslint . --ext .js,.jsx --fix",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
+    "release": "node release.js",
     "create-component": "ts-node -r @babel/register app/helpers/generators/component"
   },
   "keywords": [
