@@ -47,7 +47,7 @@ export const DnDProtocol = ({protocolRef, capturedProtocol, allTime: currentProt
             position: 'absolute',
             width: containerWidth,
             height: 450,
-            backgroundColor: fits ? (theme === 'dark' ? '#123456' : 'red') : 'rgba(255, 0, 0, 0.5)',
+            backgroundColor: fits ? (theme === 'dark' ? '#123456' : 'rgba(209, 216, 209, 0.5)') : 'rgba(255, 0, 0, 0.5)',
             border: fits ? 'none' : '2px solid red',
             opacity: 0.4,
             pointerEvents: 'none',
