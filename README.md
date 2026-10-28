@@ -436,3 +436,18 @@ recharts LineChart (1200×300) с двумя осями Y:
 10. По окончании протокола отправляется только `S`; закрытие всех клапанов по завершении закомментировано.
 11. Кнопки Pause и переключателя форм (MainForm/Graphs) закомментированы в UI — соответствующие возможности недоступны пользователю.
 12. Подсветка элементов SVG-схемы по текущему времени проигрывания отключена (код закомментирован, проп `time` не используется).
+
+## Отладка сообщений для обновлений
+В dev-режиме autoUpdater вообще не стартует (if (!app.isPackaged) return в main.ts:156) — событий не будет. Поэтому тост проверяют фейковым IPC-событием из консоли DevTools (так же, как я делал в CDP-тесте):
+1. npm start, дождаться загрузки UI
+2. Открыть DevTools: Ctrl+Shift+I (меню стандартное, без кастомного)
+3. В консоли (вкладка Console) по очереди:
+
+require('electron').ipcRenderer.emit('updater-status', {}, {status: 'checking'})                    // «Проверка обновлений…»
+require('electron').ipcRenderer.emit('updater-status', {}, {status: 'not-available', version: '1.0.3'}) // «У вас последняя версия» — скроется через 3 с
+require('electron').ipcRenderer.emit('updater-status', {}, {status: 'available', version: '1.0.9'})    // «Доступно обновление v1.0.9 — загрузка… 0%»
+require('electron').ipcRenderer.emit('updater-status', {}, {status: 'downloading', percent: 42})       // процент обновится до 42%
+require('electron').ipcRenderer.emit('updater-status', {}, {status: 'error', message: 'тест'})         // красный «Ошибка обновления: тест»
+require('electron').ipcRenderer.emit('updater-status', {}, {status: 'downloaded'})                     // тост сбросится (в packaged здесь бы открылся диалог)
+
+Тост появится в правом верхнем углу. Работает, потому что в renderer включён nodeIntegration (ipcRenderer импортируется напрямую), а компонент слушает ровно этот канал — фейковое событие проходит по тому же пути, что и настоящий от main-процесса.

@@ -36,7 +36,7 @@ export default function UpdaterToast() {
     const onStatus = (_event, payload: UpdaterStatus) => {
       switch (payload.status) {
         case 'checking':
-          show({text: 'Проверка обновлений…', kind: 'info'}, 1000000)
+          show({text: 'Проверка обновлений…', kind: 'info'}, 10000)
           break
         case 'available':
           versionRef.current = payload.version
@@ -49,7 +49,7 @@ export default function UpdaterToast() {
           show({text: 'У вас последняя версия', kind: 'info'}, 3000)
           break
         case 'error':
-          show({text: `Ошибка обновления: ${payload.message}`, kind: 'error'}, 1000000)
+          show({text: `Ошибка обновления: ${payload.message}`, kind: 'error'}, 10000)
           break
         case 'downloaded':
           setToast(null)
