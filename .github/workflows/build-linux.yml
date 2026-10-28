@@ -44,6 +44,9 @@ jobs:
 
       - name: Package (electron-builder)
         run: npx electron-builder --linux
+        # токен для публикации в GitHub Release (проверка draft-релиза идёт даже без тега)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v7
