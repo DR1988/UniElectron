@@ -158,22 +158,35 @@ function initAutoUpdater() {
   autoUpdater.autoDownload = true
   autoUpdater.logger = console
 
+  // статусы для тоста в UI (renderer слушает 'updater-status')
+  const sendUpdaterStatus = (payload: object) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('updater-status', payload)
+    }
+  }
+
   autoUpdater.on('checking-for-update', () => {
     console.log('[updater] проверка обновлений...')
+    sendUpdaterStatus({status: 'checking'})
   })
   autoUpdater.on('update-available', (info) => {
     console.log('[updater] доступна версия', info.version)
+    sendUpdaterStatus({status: 'available', version: info.version})
   })
   autoUpdater.on('update-not-available', (info) => {
     console.log('[updater] установлена последняя версия', info.version)
+    sendUpdaterStatus({status: 'not-available', version: info.version})
   })
   autoUpdater.on('download-progress', (progress) => {
     console.log(`[updater] загрузка: ${progress.percent.toFixed(1)}%`)
+    sendUpdaterStatus({status: 'downloading', percent: Math.round(progress.percent)})
   })
   autoUpdater.on('error', (error) => {
     console.error('[updater] ошибка:', error.message)
+    sendUpdaterStatus({status: 'error', message: error.message})
   })
   autoUpdater.on('update-downloaded', () => {
+    sendUpdaterStatus({status: 'downloaded'})
     dialog.showMessageBox(mainWindow, {
       type: 'info',
       title: 'Обновление',

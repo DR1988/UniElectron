@@ -9,6 +9,7 @@ import s from './style.css'
 
 import FormChoserComponent from '../FormChoserComponent/FormChoserComponent'
 import AppForms from '../AppForms/AppForms'
+import UpdaterToast from '../UpdaterToast/UpdaterToast'
 
 interface Props {}
 
@@ -24,6 +25,7 @@ export default function Main(props: Props) {
     <div className={s.root}>
       <FormChoserComponent updateForm={choseForm} />
       <AppForms currentForm={currentForm} />
+      <UpdaterToast />
     </div>
   )
 }
