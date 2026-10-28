@@ -27,6 +27,9 @@
       "owner": "DR1988",
       "repo": "UniElectron"
     },
+    "toolsets": {
+      "appimage": "1.0.3"
+    },
     "mac": {
       "category": "your.app.category.type"
     },
@@ -90,7 +93,7 @@
     "cross-env": "^5.2.0",
     "css-loader": "^2.1.0",
     "electron": "45.0.0",
-    "electron-builder": "^22.10.5",
+    "electron-builder": "^26.0.0",
     "electron-devtools-installer": "^2.2.4",
     "electron-react-devtools": "^0.5.3",
     "eslint": "^5.13.0",
