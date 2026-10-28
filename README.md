@@ -183,7 +183,7 @@ Workflow `.github/workflows/build-windows.yml` собирает NSIS-устан�
 
 Есть аналогичный workflow `.github/workflows/build-linux.yml` (раннер `ubuntu-latest`, те же шаги) — собирает AppImage + deb, артефакт `linux-build`.
 
-Требование к системе для AppImage: рантайм AppImage монтирует образ через FUSE и линкуется на **libfuse2** (`libfuse.so.2`), которого нет в свежих дистрибутивах по умолчанию (стоит только libfuse3 — не взаимозаменяема). Без него запуск падает с `dlopen(): error loading libfuse.so.2`. Лечение: `sudo apt install libfuse2` (однократно на каждой машине). Автообновление (electron-updater) под Linux работает только для AppImage, запущенного как AppImage — не для `--appimage-extract-and-run` и не для deb.
+AppImage собирается со статическим рантаймом (electron-builder `toolsets.appimage: 1.0.3`) — внешние зависимости (libfuse2 и т.п.) в файл не линкуются, достаточно стандартного `fusermount3`. Автообновление (electron-updater) под Linux работает только для AppImage, запущенного как AppImage — не для `--appimage-extract-and-run` и не для deb.
 
 ## Интерфейс
 
