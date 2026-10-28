@@ -20,6 +20,7 @@
 }
 
 .collapseContainer {
+  background-color: white;
   position: relative;
   padding: 5px 5px;
   display: flex;

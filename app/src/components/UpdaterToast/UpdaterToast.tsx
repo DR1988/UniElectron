@@ -90,7 +90,7 @@ export default function UpdaterToast() {
 
   if (collapsed) {
     // свёрнутый вид — компактная плашка, клик по ней разворачивает тост
-    return <div className={`${s.toast} ${s.collapsed} ${themeClass} ${kindClass}`} >
+    return <div className={`${s.toast} ${s.collapsed} ${kindClass}`} >
 
       <div className={s.collapseContainer}>
         <div title="Развернуть" onClick={() => setCollapsed(false)} className={s.collapseRound}>
@@ -105,7 +105,7 @@ export default function UpdaterToast() {
     </div>
   }
 
-  return <div className={`${s.toast} ${themeClass} ${kindClass}`}>
+  return <div className={`${s.toast} ${kindClass}`}>
 
     <div className={s.collapseContainer}>
       <div title="Свернуть" onClick={() => setCollapsed(true)} className={s.collapseRound}>
