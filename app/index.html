@@ -10,8 +10,10 @@
   <div id="root"></div>
   <script>
     const scripts = [];
+    // относительный путь: каждый dev-экземпляр грузит бандл со своего сервера
+    // (жёсткий :8000 заставлял все экземпляры делить один HMR-канал)
     scripts.push(
-      'http://localhost:' + 8000 + '/dist/renderer.dev.js'
+      '/dist/renderer.dev.js'
     );
     document.write(
       scripts

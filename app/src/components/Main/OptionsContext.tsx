@@ -35,8 +35,13 @@ export const OptionsProvider: FC<{ children: React.ReactNode }> = ({ children })
     localStorage.getItem('thermostatCheck') !== 'false'
   )
 
-  // отдельное соединение для передачи переключателя на сервер (controller - singleton)
-  const socket = useRef<SocketIOClient.Socket | null>(io(`${location.origin}`))
+  // отдельное соединение для передачи переключателя на сервер (controller - singleton).
+  // Ленивая инициализация: io() в аргументе useRef создавало бы новое соединение
+  // при каждом рендере, а сервер при новом клиенте делает disconnectSerial().
+  const socket = useRef<SocketIOClient.Socket | null>(null)
+  if (socket.current === null) {
+    socket.current = io(`${location.origin}`)
+  }
 
   useEffect(() => {
     // сервер стартует со значением true - синхронизируем его с восстановленным

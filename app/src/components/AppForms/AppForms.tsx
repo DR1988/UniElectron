@@ -22,7 +22,12 @@ interface Error {
 export default function AppForms({ currentForm }: Props) {
   const [error, setError] = useState<Error | null>(null)
 
-  const socket = useRef<SocketIOClient.Socket | null>(io(`${location.origin}`))
+  // Ленивая инициализация: io() в аргументе useRef создаёт новое соединение
+  // при каждом рендере, а сервер при новом клиенте делает disconnectSerial().
+  const socket = useRef<SocketIOClient.Socket | null>(null)
+  if (socket.current === null) {
+    socket.current = io(`${location.origin}`)
+  }
 
   useEffect(() => {
     socket.current.on(socketConfig.thermoStatInitError, (error: Error) => {
