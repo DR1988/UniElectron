@@ -29,7 +29,7 @@ import SearchingBoardModal from '../Modal/SearchingBoardModal/SearchingBoardModa
 import {RemoveSpaceModal} from '../Modal/RemoveSpaceModal/RemoveSpaceModal'
 import {ManualControlModal} from '../Modal/ManualControlModal/ManulaControlModal'
 import {RemoveSpaceOption} from '../CommonTypes';
-import {OptionsContext} from '../Main/OptionsContext';
+import {OptionsContext, OptionsContextProp} from '../Main/OptionsContext';
 
 const ModalWithCondition = withCondition((props: modalProps) => <Modal {...props} />)
 
@@ -41,6 +41,7 @@ interface Props {
 
 class MainForm extends Component<Props, MainFormState> {
   static contextType = OptionsContext
+  context: OptionsContextProp
 
   svgPageX: number
 
@@ -262,6 +263,10 @@ class MainForm extends Component<Props, MainFormState> {
     this.setState({...this.state, disableStart: false})
     // this.props.socket.emit('INC')
   }
+
+  isThermostatRequired = () =>
+    this.context.isThermostatCheck &&
+    this.state.lineFormer.some((lf) => lf.name === 'TempSetter' && lf.changes.length > 0)
 
   showModal = () => {
     console.log(this.state.chosenElement.chosenLine.name)
@@ -1448,9 +1453,10 @@ class MainForm extends Component<Props, MainFormState> {
           openRemoveSpaceModal={this.openRemoveSpaceModal}
           openManualControlModal={this.openManualControlModal}
           removeSelectedTimeElements={this.removeSelectedTimeElements}
-          changeAllTime={this.changeAllTime}
-          {...this.state}
-        />
+           changeAllTime={this.changeAllTime}
+           thermostatRequired={this.isThermostatRequired()}
+           {...this.state}
+         />
         <ModalWithCondition
           condition={showEditModal}
           closeModal={this.closeModal}
