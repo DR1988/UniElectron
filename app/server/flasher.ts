@@ -100,6 +100,41 @@ export default class Stk500v2Flasher {
     }
   }
 
+  // Сканирование портов: открываем каждый на 115200 и пробуем STK500v2 sign-on.
+  // Отвечает только загрузчик платы — чужие USB-порты просто таймаутят.
+  async findBoardPort(candidates: string[]): Promise<string | null> {
+    for (const path of candidates) {
+      try {
+        await this.openPort(path)
+        let found = false
+        // два круга: сразу после reset от открытия, затем с явным DTR-импульсом
+        for (let round = 0; round < 2 && !found; round++) {
+          if (round === 1) {
+            await this.setControls(false, false)
+            await sleep(100)
+            await this.setControls(true, true)
+            await sleep(300)
+          }
+          for (let i = 0; i < 6 && !found; i++) {
+            try {
+              this.writeFrame(Buffer.from([CMD_SIGN_ON]))
+              const resp = await this.waitForResponse(250)
+              if (resp[0] === CMD_SIGN_ON && resp[1] === 0 && resp.length > 3) found = true
+            } catch (e) {
+              // нет ответа - пробуем снова
+            }
+          }
+        }
+        if (found) return path
+      } catch (e) {
+        // порт недоступен (занят/нет доступа) - следующий
+      } finally {
+        await this.closePort()
+      }
+    }
+    return null
+  }
+
   private progress(p: FlashProgress) {
     if (this.onProgress) {
       this.onProgress(p)

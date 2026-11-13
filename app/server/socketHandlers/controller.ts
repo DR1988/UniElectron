@@ -5,6 +5,7 @@ import { ShortNames, ValveLineType } from '../../src/components/MainForm/MainFor
 import Serial from '../serial'
 import ThermostatController from '../termex'
 import Stk500v2Flasher from '../flasher'
+import { SerialPort } from 'serialport'
 import { EventEmitter } from 'events';
 
 interface Counter {
@@ -432,15 +433,24 @@ export default class Controller {
       this.io.emit(socketConfig.flashError, 'Прошивка уже выполняется')
       return
     }
-    const portPath = this.Serial.getPortPath()
-    if (!portPath) {
-      this.io.emit(socketConfig.flashError, 'Сначала подключитесь к плате (Connect)')
-      return
-    }
     this.flashing = true
+    let portPath = this.Serial.getPortPath()
+    const flasher = new Stk500v2Flasher((p) => this.io.emit(socketConfig.flashProgress, p))
     try {
+      if (!portPath) {
+        // активного соединения нет (не нажат Connect) — ищем плату
+        // по STK500v2 sign-on во всех доступных портах;
+        // реальные USB-устройства (с manufacturer) пробуем первыми
+        const allPorts = await SerialPort.list()
+        const ports = [...allPorts].sort((a, b) => Number(!!b.manufacturer) - Number(!!a.manufacturer))
+        this.io.emit(socketConfig.flashProgress, { phase: 'connecting', done: 0, total: 1 })
+        portPath = await flasher.findBoardPort(ports.map(p => p.path))
+        if (!portPath) {
+          this.io.emit(socketConfig.flashError, 'Плата не найдена: ни один порт не ответил загрузчиком (STK500v2). Подключите плату и попробуйте снова.')
+          return
+        }
+      }
       await this.Serial.closePort()
-      const flasher = new Stk500v2Flasher((p) => this.io.emit(socketConfig.flashProgress, p))
       console.log('Start flashing')
       await flasher.flash(portPath, hexPath)
       console.log('Finish flashing')
@@ -466,7 +476,9 @@ export default class Controller {
       const message = e instanceof Error ? e.message : String(e)
       this.io.emit(socketConfig.flashError, message)
       // пробуем вернуть рабочее соединение на 500k
-      await this.Serial.connectToPort(portPath).catch(() => {})
+      if (portPath) {
+        await this.Serial.connectToPort(portPath).catch(() => {})
+      }
     } finally {
       console.log('CAN FLASH AGAIN')
       this.flashing = false
