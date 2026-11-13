@@ -154,6 +154,12 @@ export default class Stk500v2Flasher {
         return
       }
       this.port.on('data', this.onData)
+      // ошибки записи (на Windows — «Operation aborted» при закрытии порта с
+      // незавершённой overlapped-записью) уже покрываются ретраями sign-on/команд;
+      // без слушателя 'error' событие роняет main-процесс
+      this.port.on('error', (err: Error) => {
+        console.log('[flasher] ошибка порта:', err.message)
+      })
       // по умолчанию dtr=true/rts=true: при открытии CH340 устанавливает DTR,
       // авто-reset плата -> сброс MCU -> загрузчик (BOOTRST=0)
       this.port.open((err) => {

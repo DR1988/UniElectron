@@ -72,6 +72,12 @@ export default class Serial {
       this.io.emit(socketConfig.connected, false)
     })
 
+    // без слушателя 'error' ошибка порта (отключение платы, сбой записи)
+    // роняет main-процесс; состояние отрабатывает через событие 'close'
+    this.serialPort.on('error', (err: any) => {
+      console.log('serialPort error:', err?.message || err)
+    })
+
     
 
     return new Promise((resolve, reject) => {
