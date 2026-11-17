@@ -13,6 +13,12 @@ const RECOVERY_POLL_INTERVAL_MS = 100
 // CR (13) или любым байтом меньше 13
 const convertToASCII = (str: string): number[] => {
     const arr: number[] = []
+    if (process.platform === 'win32') {
+        // Windows HID: первый байт отчёта — слот report ID. Без нулевого
+        // заглушки стек воспринимает ':' как неизвестный report ID и тихо
+        // отбрасывает запись (на Linux hidraw передаёт отчёт как есть)
+        arr.push(0)
+    }
     for (let i = 0; i < str.length; i++) {
         arr.push(str.charCodeAt(i))
     }
