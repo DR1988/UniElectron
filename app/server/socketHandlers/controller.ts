@@ -297,7 +297,22 @@ export default class Controller {
       this.initializeThermostat()
     }
     this.isThermostatActive() && await this.ThermostatController.turnOn()
-    this.isThermostatActive() && await this.delaytTimer(7000)
+    // После RUN WR блок перечисливается заново по USB (раздел 2.4 протокола):
+    // ждём до 7 с восстановления связи и не запускаем процесс без проверенного
+    // ответа термостата — иначе fail-safe в цикле остановит его через пару секунд
+    if (this.isThermostatActive()) {
+      const readyDeadline = Date.now() + 7000
+      while (!this.ThermostatController.verifyConnection() && Date.now() < readyDeadline) {
+        await this.delaytTimer(500)
+      }
+      if (!this.ThermostatController.verifyConnection()) {
+        this.io.emit(socketConfig.thermoStatInitError, {
+          name: 'ConnectionError',
+          message: 'THERMOSTAT NOT READY AFTER START. CHECK CONNECTION AND TRY AGAIN'
+        })
+        return
+      }
+    }
     this.io.emit(socketConfig.connected, true)
     this.start(data)
   }

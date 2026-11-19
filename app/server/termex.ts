@@ -114,6 +114,16 @@ export default class ThermostatController {
         return true
     }
 
+    // Тихая проверка связи (без emit событий) — перед запуском процесса:
+    // после RUN WR блок перечисливается заново по USB, и handle должен быть живым
+    verifyConnection(): boolean {
+        if (!this.termexHID || !this.hidOpen) {
+            return false
+        }
+        const response = this.send(`:${this.termexDevice.serialNumber} SER RD`)
+        return response.status === '0x00'
+    }
+
     private emitConnectionError() {
         this.exeptionEmitter.emit('error', {
             name: "ConnectionError",
@@ -217,7 +227,9 @@ export default class ThermostatController {
 
     // После RUN WR блок перечисливается заново по USB и открытый дескриптор
     // становится недействительным (раздел 2.4 протокола) — ждём появления
-    // устройства и открываем его заново
+    // устройства и открываем его заново. На Windows устройство может
+    // перечислиться до готовности HID-интерфейса прошивки, поэтому успех —
+    // только после проверенного ответа, иначе закрываем и пробуем снова
     private async reopenDevice(): Promise<boolean> {
         try {
             this.termexHID.close()
@@ -235,10 +247,19 @@ export default class ThermostatController {
             try {
                 this.termexDevice = device
                 this.openDevice(device)
-                return true
+                const response = this.send(`:${this.termexDevice.serialNumber} SER RD`)
+                if (response.status === '0x00') {
+                    return true
+                }
             } catch (error) {
                 console.log('reopen error:', error)
             }
+            try {
+                this.termexHID.close()
+            } catch (error) {
+                // handle уже недействителен — просто продолжаем опрос
+            }
+            this.hidOpen = false
         }
         return false
     }
